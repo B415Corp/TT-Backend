@@ -1,33 +1,32 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
+import { TokenService } from '../token/token.service';
 import * as bcrypt from 'bcrypt';
+import { LoginUserDto } from '../dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
-    constructor(
-        private usersService: UsersService,
-        private jwtService: JwtService
-    ) {}
+  constructor(
+    private usersService: UsersService,
+    private tokenService: TokenService,
+  ) {}
 
-    async validateUser(email: string, pass: string): Promise<any> {
-        const user = await this.usersService.findOne(email);
-        throw new UnauthorizedException('User not found '+email+' '+pass+' '+user);
-        // if (!user) {
-        //     throw new UnauthorizedException('User not found');
-        // }
-        // if (user && (await bcrypt.compare(pass, user.password))) {
-        //     const { password, ...result } = user;
-        //     return result;
-        // }
-        // return null;
+  async login(dto: LoginUserDto) {
+    const existUser = await this.usersService.findOne(dto.email);
+    if (!existUser) {
+      throw new BadRequestException('Пользователь не найден');
     }
 
-    async login(user: any) {
-        console.log('user', user);
-        const payload = { email: user.email, sub: user.user_id };
-        return {
-            access_token: this.jwtService.sign(payload),
-        };
+    const validatePassword = await bcrypt.compare(
+      dto.password,
+      existUser.password,
+    );
+    if (!validatePassword) {
+      throw new BadRequestException('Неверный пароль');
     }
+
+    const token = await this.tokenService.createToken(dto);
+
+    return { ...existUser, token: token.access_token };
+  }
 }

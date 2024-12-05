@@ -3,18 +3,18 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule,{  logger: console });
+  const app = await NestFactory.create(AppModule, { logger: console });
 
   app.enableCors({
     origin: '*', // This allows all domains to access your resources
   });
 
   const config = new DocumentBuilder()
-      .setTitle('API')
-      .setDescription('API description')
-      .setVersion('1.0')
-      .addBearerAuth()
-      .build();
+    .setTitle('API')
+    .setDescription('API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
