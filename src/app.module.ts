@@ -7,6 +7,9 @@ import { JwtStrategy } from './auth/guards/jwt.strategy';
 import { ConfigModule } from '@nestjs/config';
 import { TokenModule } from './token/token.module';
 import { ClientsModule } from './clients/clients.module';
+import { ProjectsController } from './projects/projects.controller';
+import { ProjectsService } from './projects/projects.service';
+import { ProjectsModule } from './projects/projects.module';
 import * as process from 'node:process';
 
 @Module({
@@ -26,8 +29,10 @@ import * as process from 'node:process';
     AuthModule,
     TokenModule,
     ClientsModule,
+    ProjectsModule,
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, ProjectsService],
   exports: [AuthService],
+  controllers: [ProjectsController],
 })
 export class AppModule {}
