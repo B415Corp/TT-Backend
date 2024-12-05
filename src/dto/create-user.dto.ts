@@ -1,11 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsOptional,
-  IsString,
-  Matches,
-  MinLength,
-} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John Doe', description: 'The name of the user' })
@@ -37,19 +31,19 @@ export class CreateUserDto {
   })
   readonly password: string;
 
-  @ApiPropertyOptional({
-    example: '2',
-    description: 'The role ID of the user',
-  })
-  @IsString()
-  @IsOptional()
-  readonly role_id: string = '2';
-
-  @ApiPropertyOptional({
-    example: '1',
-    description: 'The subscription level ID of the user',
-  })
-  @IsString()
-  @IsOptional()
-  readonly subscription_level_id: string = '1';
+  // @ApiPropertyOptional({
+  //   example: '2',
+  //   description: 'The role ID of the user',
+  // })
+  // @IsString()
+  // @IsOptional()
+  // readonly role_id: string = '2';
+  //
+  // @ApiPropertyOptional({
+  //   example: '1',
+  //   description: 'The subscription level ID of the user',
+  // })
+  // @IsString()
+  // @IsOptional()
+  // readonly subscription_level_id: string = '1';
 }
