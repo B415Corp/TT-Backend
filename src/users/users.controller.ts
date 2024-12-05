@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   Post,
-  Request,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -33,25 +32,25 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  // @ApiBearerAuth()
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all users (Protected)' })
   @ApiResponse({
     status: 200,
     description: 'Successfully retrieved all users.',
   })
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(@Request() req) {
+  async findAll() {
     return this.usersService.findAll();
   }
 
-  // @ApiBearerAuth()
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a user by ID (Protected)' })
   @ApiResponse({
     status: 200,
     description: 'Successfully retrieved user information.',
   })
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.usersService.findById(id);

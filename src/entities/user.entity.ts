@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User {
@@ -14,12 +14,9 @@ export class User {
   @Column()
   password: string;
 
-  // @Column('uuid', { array: true })
-  // group_ids: string[];
-  //
-  // @Column()
-  // role_id: string;
-  //
-  // @Column()
-  // subscription_level_id: string;
+  @Column({ default: '2' })
+  role_id: string;
+
+  @Column({ default: '1' })
+  subscription_level_id: string;
 }
