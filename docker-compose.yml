@@ -1,0 +1,30 @@
+services:
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    environment:
+      PORT: 3000
+      DB_PORT: 5432
+      DB_HOST: db
+      DB_USER: yourusername
+      DB_PASSWORD: GvXWmzMLP03HNmrp
+      DB_NAME: nestdb
+      JWT_SECRET: "SECRET_KEY"
+      JWT_EXPIRES_IN: 1d
+    command: npm run start
+  db:
+    image: postgres:14
+    #    restart: always
+    environment:
+      POSTGRES_USER: yourusername
+      POSTGRES_PASSWORD: GvXWmzMLP03HNmrp
+      POSTGRES_DB: nestdb
+    ports:
+      - '5432:5432'
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
