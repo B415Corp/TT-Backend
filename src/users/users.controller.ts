@@ -1,10 +1,10 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -45,23 +45,32 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async me(@Req() request: any) {
+    const user = request.user;
+    console.log(user);
+    return this.usersService.findById(user.user_id);
+  }
+
+  // @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a user by ID (Protected)' })
   @ApiResponse({
     status: 200,
     description: 'Successfully retrieved user information.',
   })
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.usersService.findById(id);
   }
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete a user (Protected)' })
-  @ApiResponse({ status: 200, description: 'Successfully deleted the user.' })
-  @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
-  }
+  // // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Delete a user (Protected)' })
+  // @ApiResponse({ status: 200, description: 'Successfully deleted the user.' })
+  // // @UseGuards(JwtAuthGuard)
+  // @Delete(':id')
+  // async remove(@Param('id') id: string) {
+  //   return this.usersService.remove(id);
+  // }
 }

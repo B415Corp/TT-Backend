@@ -12,7 +12,7 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginUserDto) {
-    const existUser = await this.usersService.findOne(dto.email);
+    const existUser = await this.usersService.findByEmail(dto.email);
     if (!existUser) {
       throw new BadRequestException('Пользователь не найден');
     }
@@ -25,8 +25,14 @@ export class AuthService {
       throw new BadRequestException('Неверный пароль');
     }
 
-    const token = await this.tokenService.createToken(dto);
+    const userData = {
+      user_id: existUser.user_id,
+      name: existUser.name,
+      email: existUser.email,
+    };
 
-    return { ...existUser, token: token.access_token };
+    const token = await this.tokenService.createToken(userData);
+
+    return { ...userData, token: token.access_token };
   }
 }

@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as process from 'node:process';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger: console });
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
     origin: '*', // This allows all domains to access your resources
@@ -14,7 +14,14 @@ async function bootstrap() {
     .setTitle('API')
     .setDescription('API description')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      'access-token',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

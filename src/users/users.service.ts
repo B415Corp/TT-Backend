@@ -36,11 +36,14 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async findOne(email: string): Promise<User | undefined> {
+  async findByEmail(email: string): Promise<User | undefined> {
     return this.usersRepository.findOneBy({ email });
   }
 
   async findById(user_id: string): Promise<User | undefined> {
+    if (!user_id) {
+      throw new NotFoundException('Пользователь не найден');
+    }
     return this.usersRepository.findOneBy({ user_id });
   }
 
