@@ -1,17 +1,22 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Client {
+export class TimeLog {
   @PrimaryGeneratedColumn('uuid')
-  client_id: string;
+  log_id: string;
 
   @Column()
-  @Column({ default: '11111111-1111-1111-1111-111111111111' })
+  task_id: string;
+
+  @Column()
   user_id: string;
 
   @Column()
-  name: string;
+  start_time: Date;
 
   @Column()
-  contact_info: string;
+  end_time: Date;
+
+  @Column()
+  duration: number;
 }
