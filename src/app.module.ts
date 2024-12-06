@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './api/users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthService } from './auth/auth.service';
 import { JwtStrategy } from './auth/guards/jwt.strategy';
 import { ConfigModule } from '@nestjs/config';
 import { TokenModule } from './token/token.module';
-import { ClientsModule } from './clients/clients.module';
-import { ProjectsController } from './projects/projects.controller';
-import { ProjectsService } from './projects/projects.service';
-import { ProjectsModule } from './projects/projects.module';
+import { ClientsModule } from './api/clients/clients.module';
+import { ProjectsModule } from './api/projects/projects.module';
 import * as process from 'node:process';
 
 @Module({
@@ -31,8 +29,7 @@ import * as process from 'node:process';
     ClientsModule,
     ProjectsModule,
   ],
-  providers: [AuthService, JwtStrategy, ProjectsService],
+  providers: [AuthService, JwtStrategy],
   exports: [AuthService],
-  controllers: [ProjectsController],
 })
 export class AppModule {}

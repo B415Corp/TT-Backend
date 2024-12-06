@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../api/users/users.service';
 import { TokenService } from '../token/token.service';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from '../dto/login-user.dto';
