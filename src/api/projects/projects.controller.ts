@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
@@ -36,9 +35,9 @@ export class ProjectsController {
   @Post('create')
   async createClient(
     @Body() createProjectDto: CreateProjectDto,
-    @Req() request: any,
+    @GetUser() user: User,
   ) {
-    return this.projectsService.create(createProjectDto, request.user.user_id);
+    return this.projectsService.create(createProjectDto, user.user_id);
   }
 
   @ApiBearerAuth()
