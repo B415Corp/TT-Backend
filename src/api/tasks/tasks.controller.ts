@@ -47,18 +47,18 @@ export class TasksController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get my tasks', description: '' })
   @UseGuards(JwtAuthGuard)
-  @Get('me')
-  async getMe(@GetUser() user: User) {
-    return this.tasksService.findByKey('user_id', user.user_id);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get a task by id' })
   @Get(':id')
   async getClientById(@Param('id') id: string) {
     return this.tasksService.findById(id);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get tasks by project id' })
+  @Get(':project_id/tasks')
+  async getTasksByProjectId(@Param('project_id') project_id: string) {
+    return this.tasksService.findByProjectId(project_id);
   }
 
   @ApiBearerAuth()
@@ -68,6 +68,7 @@ export class TasksController {
     description: 'The task has been successfully updated.',
   })
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update a task' })
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
     return this.tasksService.update(id, updateTaskDto);

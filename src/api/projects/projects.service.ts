@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from '../../entities/project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -20,20 +21,23 @@ export class ProjectsService {
     return this.projectRepository.save(client);
   }
 
-  async findAll() {
+  async findAll(): Promise<Project[]> {
     return this.projectRepository.find();
   }
 
-  async findById(id: string) {
+  async findById(id: string): Promise<Project | undefined> {
     if (!id) {
-      throw new Error('Project not found');
+      throw new Error('Проект не найден');
     }
     return this.projectRepository.findOneBy({ project_id: id });
   }
 
-  async findByKey(key: keyof Project, value: string) {
+  async findByKey(
+    key: keyof Project,
+    value: string,
+  ): Promise<Project | undefined> {
     if (!value || !key) {
-      throw new Error('Project not found');
+      throw new Error('Проект не найден');
     }
     return this.projectRepository.findOneBy({ [key]: value });
   }
@@ -42,7 +46,22 @@ export class ProjectsService {
     const result = await this.projectRepository.delete(project_id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Project with ID "${project_id}" not found`);
+      throw new NotFoundException(`Проект с ID "${project_id}" не найден`);
     }
+  }
+
+  async update(
+    project_id: string,
+    dto: UpdateProjectDto,
+  ): Promise<Project | undefined> {
+    const project = await this.projectRepository.preload({
+      project_id,
+      ...dto,
+    });
+    if (!project) {
+      throw new NotFoundException(`Проект с ID "${project_id}" не найден`);
+    }
+
+    return this.projectRepository.save(project);
   }
 }

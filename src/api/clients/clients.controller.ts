@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
+import { UpdateClientDto } from './dto/update-client.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { User } from '../../entities/user.entity';
 import { GetUser } from '../../decorators/get-user.decorator';
@@ -57,6 +59,19 @@ export class ClientsController {
   @Get(':id')
   async getClientById(@Param('id') id: string) {
     return this.clientsService.findById(id);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a client' })
+  @ApiResponse({ status: 200, description: 'Successfully updated the client.' })
+  @ApiResponse({ status: 404, description: 'Client not found.' })
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async updateClient(
+    @Param('id') id: string,
+    @Body() updateClientDto: UpdateClientDto,
+  ) {
+    return this.clientsService.update(id, updateClientDto);
   }
 
   @ApiBearerAuth()
