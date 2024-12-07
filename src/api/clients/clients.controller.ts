@@ -14,7 +14,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ClientsService } from './clients.service';
-import { CreateClientDto } from '../../dto/create-client.dto';
+import { CreateClientDto } from './dto/create-client.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { User } from '../../entities/user.entity';
 import { GetUser } from '../../decorators/get-user.decorator';
@@ -49,11 +49,11 @@ export class ClientsController {
     return this.clientsService.findByKey('user_id', user.user_id);
   }
 
-  @Get('')
-  async getAllClients() {
-    return this.clientsService.findAll();
-  }
-
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get a client by id',
+  })
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getClientById(@Param('id') id: string) {
     return this.clientsService.findById(id);

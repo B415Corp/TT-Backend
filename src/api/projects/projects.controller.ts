@@ -15,7 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { CreateProjectDto } from '../../dto/create-project.dto';
+import { CreateProjectDto } from './dto/create-project.dto';
 import { User } from '../../entities/user.entity';
 import { GetUser } from '../../decorators/get-user.decorator';
 
@@ -46,13 +46,6 @@ export class ProjectsController {
   @Get('me')
   async getMe(@GetUser() user: User) {
     return this.projectsService.findByKey('user_owner_id', user.user_id);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @Get('')
-  async getAllClients() {
-    return this.projectsService.findAll();
   }
 
   @ApiBearerAuth()
