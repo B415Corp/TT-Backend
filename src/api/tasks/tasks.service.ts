@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../../entities/task.entity';
-import { CreateTaskDto } from '../../dto/create-task.dto';
+import { CreateTaskDto } from './dto/create-task.dto';
 import { Project } from '../../entities/project.entity';
 
 @Injectable()
@@ -19,12 +19,11 @@ export class TasksService {
     user_id: string,
     project_id: string,
   ): Promise<Task> {
-    console.log(dto, user_id, project_id);
     const project = await this.projectRepository.findOne({
       where: { project_id },
     });
     if (!project) {
-      throw new NotFoundException(`Project with ID "${project_id}" not found`);
+      throw new NotFoundException(`Задача с ID "${project_id}" не найдена`);
     }
 
     const task = this.taskRepository.create({
@@ -41,21 +40,32 @@ export class TasksService {
 
   async findById(id: string) {
     if (!id) {
-      throw new Error('Task not found');
+      throw new Error('Задача не найдена');
     }
     const task = await this.taskRepository.findOneBy({ task_id: id });
     if (!task) {
-      throw new NotFoundException(`Task with ID "${id}" not found`);
+      throw new NotFoundException(`Задача с ID "${id}" не найдена`);
     }
 
     return this.taskRepository.findOneBy({ task_id: id });
   }
 
+  async findByProjectId(project_id: string) {
+    if (!project_id) {
+      throw new Error('Задача не найдена');
+    }
+    const tasks = await this.taskRepository.find({ where: { project_id } });
+    console.log(tasks);
+    return this.taskRepository.find({ where: { project_id } });
+  }
+
   async findByKey(key: keyof Task, value: string) {
     if (!value || !key) {
-      throw new Error('Task not found');
+      throw new Error('Задача не найдена');
     }
     const task = await this.taskRepository.find({ [key]: value });
+    console.log(key, value);
+    console.log(task);
 
     return this.taskRepository.find({ [key]: value });
   }
@@ -66,7 +76,22 @@ export class TasksService {
       ...dto,
     });
     if (!task) {
-      throw new NotFoundException(`Task with ID "${id}" not found`);
+      throw new NotFoundException(`Задача с ID "${id}" не найдена`);
+    }
+
+    const project = await this.projectRepository.findOneBy({
+      project_id: task.project_id,
+    });
+    console.log(project);
+
+    if (!project) {
+      throw new NotFoundException(`Проект с ID "${task.project_id}" не найден`);
+    }
+
+    if (project.user_owner_id !== task.user_id) {
+      throw new NotFoundException(
+        `Этот проект не принадлежит текущему пользователю`,
+      );
     }
 
     return this.taskRepository.save(task);
@@ -76,7 +101,7 @@ export class TasksService {
     const result = await this.taskRepository.delete(task_id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Task with ID "${task_id}" not found`);
+      throw new NotFoundException(`Задача с ID "${task_id}" не найдена`);
     }
   }
 }

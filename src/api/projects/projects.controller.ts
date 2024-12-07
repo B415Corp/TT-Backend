@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -15,7 +16,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { CreateProjectDto } from '../../dto/create-project.dto';
+import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
 import { User } from '../../entities/user.entity';
 import { GetUser } from '../../decorators/get-user.decorator';
 
@@ -50,16 +52,24 @@ export class ProjectsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get('')
-  async getAllClients() {
-    return this.projectsService.findAll();
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getClientById(@Param('id') id: string) {
     return this.projectsService.findById(id);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a project' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully updated the project.',
+  })
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async updateClient(
+    @Param('id') id: string,
+    @Body() updateProjectDto: UpdateProjectDto,
+  ) {
+    return this.projectsService.update(id, updateProjectDto);
   }
 
   @ApiBearerAuth()
