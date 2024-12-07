@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Task } from '../../entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { Project } from '../../entities/project.entity';
+import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 
 @Injectable()
 export class TasksService {
@@ -34,10 +35,6 @@ export class TasksService {
     return this.taskRepository.save(task);
   }
 
-  async findAll() {
-    return this.taskRepository.find();
-  }
-
   async findById(id: string) {
     if (!id) {
       throw new Error('Задача не найдена');
@@ -50,24 +47,24 @@ export class TasksService {
     return this.taskRepository.findOneBy({ task_id: id });
   }
 
-  async findByProjectId(project_id: string) {
+  async findByProjectId(
+    project_id: string,
+    paginationQuery: PaginationQueryDto,
+  ) {
     if (!project_id) {
       throw new Error('Задача не найдена');
     }
-    const tasks = await this.taskRepository.find({ where: { project_id } });
-    console.log(tasks);
-    return this.taskRepository.find({ where: { project_id } });
-  }
+    const { page, limit } = paginationQuery;
+    const skip = (page - 1) * limit;
 
-  async findByKey(key: keyof Task, value: string) {
-    if (!value || !key) {
-      throw new Error('Задача не найдена');
-    }
-    const task = await this.taskRepository.find({ [key]: value });
-    console.log(key, value);
-    console.log(task);
+    const [projects, total] = await this.taskRepository.findAndCount({
+      where: { project_id },
+      skip,
+      take: limit,
+      order: { created_at: 'DESC' },
+    });
 
-    return this.taskRepository.find({ [key]: value });
+    return [projects, total];
   }
 
   async update(id: string, dto: CreateTaskDto): Promise<Task> {

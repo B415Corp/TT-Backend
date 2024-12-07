@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Client } from '../../entities/client.entity';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 
 @Injectable()
 export class ClientsService {
@@ -24,11 +25,25 @@ export class ClientsService {
     return this.clientRepository.findOneBy({ client_id: id });
   }
 
-  async findByKey(key: keyof Client, value: string) {
+  async findByKey(
+    key: keyof Client,
+    value: string,
+    paginationQuery: PaginationQueryDto,
+  ) {
     if (!key || !value) {
       throw new Error('Клиент не найден');
     }
-    return this.clientRepository.findOneBy({ [key]: value });
+    const { page, limit } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [projects, total] = await this.clientRepository.findAndCount({
+      where: { [key]: value },
+      skip,
+      take: limit,
+      order: { created_at: 'DESC' },
+    });
+
+    return [projects, total];
   }
 
   async update(id: string, dto: UpdateClientDto): Promise<Client> {

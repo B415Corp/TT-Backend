@@ -42,16 +42,6 @@ export class UsersController {
     return this.usersService.findById(user.user_id);
   }
 
-  @ApiOperation({ summary: 'Get all users (NOT Protected)' })
-  @ApiResponse({
-    status: 200,
-    description: 'Successfully retrieved user information.',
-  })
-  @Get()
-  async getAll() {
-    return this.usersService.findAll();
-  }
-
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a user by ID (Protected)' })
   @ApiResponse({

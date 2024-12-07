@@ -11,7 +11,10 @@ import {
 import { TasksService } from './tasks.service';
 import {
   ApiBearerAuth,
+  ApiOkResponse,
   ApiOperation,
+  ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -20,6 +23,13 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { GetUser } from '../../decorators/get-user.decorator';
 import { User } from '../../entities/user.entity';
+import {
+  Paginate,
+  PaginationParams,
+} from '../../decorators/paginate.decorator';
+import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
+import { PaginatedResponseDto } from '../../common/pagination/paginated-response.dto';
+import { Task } from '../../entities/task.entity';
 
 @ApiTags('tasks')
 @Controller('tasks')
@@ -54,11 +64,30 @@ export class TasksController {
     return this.tasksService.findById(id);
   }
 
+  @ApiOkResponse({ type: PaginatedResponseDto<Task> })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get tasks by project id' })
+  @ApiParam({ name: 'project_id', required: true, description: 'Project ID' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items per page',
+  })
+  @UseGuards(JwtAuthGuard)
   @Get(':project_id/tasks')
-  async getTasksByProjectId(@Param('project_id') project_id: string) {
-    return this.tasksService.findByProjectId(project_id);
+  @Paginate()
+  async getTasksByProjectId(
+    @Param('project_id') project_id: string,
+    @PaginationParams() paginationQuery: PaginationQueryDto,
+  ) {
+    return this.tasksService.findByProjectId(project_id, paginationQuery);
   }
 
   @ApiBearerAuth()

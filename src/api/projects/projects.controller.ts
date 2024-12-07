@@ -11,7 +11,9 @@ import {
 import { ProjectsService } from './projects.service';
 import {
   ApiBearerAuth,
+  ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -20,6 +22,13 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { User } from '../../entities/user.entity';
 import { GetUser } from '../../decorators/get-user.decorator';
+import { PaginatedResponseDto } from '../../common/pagination/paginated-response.dto';
+import { Project } from '../../entities/project.entity';
+import {
+  Paginate,
+  PaginationParams,
+} from '../../decorators/paginate.decorator';
+import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 
 @ApiTags('projects')
 @Controller('projects')
@@ -42,12 +51,33 @@ export class ProjectsController {
     return this.projectsService.create(createProjectDto, user.user_id);
   }
 
+  @ApiOkResponse({ type: PaginatedResponseDto<Project> })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get my projects', description: '' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of items per page',
+  })
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getMe(@GetUser() user: User) {
-    return this.projectsService.findByKey('user_owner_id', user.user_id);
+  @Paginate()
+  async getMe(
+    @GetUser() user: User,
+    @PaginationParams() paginationQuery: PaginationQueryDto,
+  ) {
+    return this.projectsService.findByKey(
+      'user_owner_id',
+      user.user_id,
+      paginationQuery,
+    );
   }
 
   @ApiBearerAuth()
