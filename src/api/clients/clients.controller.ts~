@@ -11,8 +11,7 @@ import {
 import {
   ApiBearerAuth,
   ApiOkResponse,
-  ApiOperation,
-  ApiQuery,
+  ApiOperation, ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -24,10 +23,7 @@ import { User } from '../../entities/user.entity';
 import { GetUser } from '../../decorators/get-user.decorator';
 import { PaginatedResponseDto } from '../../common/pagination/paginated-response.dto';
 import { Client } from '../../entities/client.entity';
-import {
-  Paginate,
-  PaginationParams,
-} from '../../decorators/paginate.decorator';
+import { Paginate, PaginationParams } from '../../decorators/paginate.decorator';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 
 @ApiTags('clients')
@@ -69,16 +65,9 @@ export class ClientsController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   @Paginate()
-  async me(
-    @GetUser() user: User,
-    @PaginationParams() paginationQuery: PaginationQueryDto,
-  ) {
+  async me(@GetUser() user: User, @PaginationParams() paginationQuery: PaginationQueryDto,) {
     console.log(user);
-    return this.clientsService.findByKey(
-      'user_id',
-      user.user_id,
-      paginationQuery,
-    );
+    return this.clientsService.findByKey('user_id', user.user_id,paginationQuery);
   }
 
   @ApiBearerAuth()

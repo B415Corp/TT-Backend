@@ -9,6 +9,7 @@ import { User } from '../../entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
+import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 
 @Injectable()
 export class UsersService {
@@ -57,11 +58,19 @@ export class UsersService {
     return this.usersRepository.findOneBy({ user_id });
   }
 
-  async findAll(user_id?: string): Promise<User[]> {
-    if (user_id) {
-      return this.usersRepository.findBy({ user_id });
-    }
-    return this.usersRepository.find();
+  async findAll(
+    paginationQuery: PaginationQueryDto,
+  ): Promise<[User[], number]> {
+    const { page, limit } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [projects, total] = await this.usersRepository.findAndCount({
+      skip,
+      take: limit,
+      order: { created_at: 'DESC' },
+    });
+
+    return [projects, total];
   }
 
   async remove(user_id: string): Promise<void> {

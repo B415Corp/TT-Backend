@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Project } from '../../entities/project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -21,10 +22,6 @@ export class ProjectsService {
     return this.projectRepository.save(client);
   }
 
-  async findAll(): Promise<Project[]> {
-    return this.projectRepository.find();
-  }
-
   async findById(id: string): Promise<Project | undefined> {
     if (!id) {
       throw new Error('Проект не найден');
@@ -35,11 +32,23 @@ export class ProjectsService {
   async findByKey(
     key: keyof Project,
     value: string,
-  ): Promise<Project | undefined> {
+    paginationQuery: PaginationQueryDto,
+  ) {
     if (!value || !key) {
       throw new Error('Проект не найден');
     }
-    return this.projectRepository.findOneBy({ [key]: value });
+
+    const { page, limit } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [projects, total] = await this.projectRepository.findAndCount({
+      where: { [key]: value },
+      skip,
+      take: limit,
+      order: { created_at: 'DESC' },
+    });
+
+    return [projects, total];
   }
 
   async remove(project_id: string): Promise<void> {
