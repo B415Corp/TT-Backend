@@ -74,12 +74,6 @@ export class TasksController {
     type: Number,
     description: 'Page number',
   })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of items per page',
-  })
   @UseGuards(JwtAuthGuard)
   @Get(':project_id/tasks')
   @Paginate()

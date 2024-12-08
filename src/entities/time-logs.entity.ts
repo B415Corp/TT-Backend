@@ -24,7 +24,8 @@ export class TimeLog {
   end_time: Date;
 
   @Column()
-  duration: number;
+  @Column({ default: 'in-progress' })
+  status: 'in-progress' | 'completed';
 
   @CreateDateColumn()
   created_at: Date;

@@ -79,7 +79,6 @@ export class TasksService {
     const project = await this.projectRepository.findOneBy({
       project_id: task.project_id,
     });
-    console.log(project);
 
     if (!project) {
       throw new NotFoundException(`Проект с ID "${task.project_id}" не найден`);

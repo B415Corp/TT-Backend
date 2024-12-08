@@ -9,6 +9,7 @@ import { TokenModule } from './token/token.module';
 import { ClientsModule } from './api/clients/clients.module';
 import { ProjectsModule } from './api/projects/projects.module';
 import { TasksModule } from './api/tasks/tasks.module';
+import { TimeLogsModule } from './api/time_logs/time_logs.module';
 import * as process from 'node:process';
 
 @Module({
@@ -30,8 +31,10 @@ import * as process from 'node:process';
     ClientsModule,
     ProjectsModule,
     TasksModule,
+    TimeLogsModule,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],
+  controllers: [],
 })
 export class AppModule {}
