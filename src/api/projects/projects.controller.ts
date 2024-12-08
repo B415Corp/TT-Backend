@@ -60,12 +60,6 @@ export class ProjectsController {
     type: Number,
     description: 'Page number',
   })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of items per page',
-  })
   @UseGuards(JwtAuthGuard)
   @Get('me')
   @Paginate()
