@@ -17,7 +17,7 @@ export class ProjectsService {
     const client = this.projectRepository.create({
       ...dto,
       user_owner_id,
-      user_ids: [user_owner_id],
+      user_ids: [],
     });
     return this.projectRepository.save(client);
   }

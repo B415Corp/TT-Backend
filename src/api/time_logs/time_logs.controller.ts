@@ -40,7 +40,7 @@ export class TimeLogsController {
     status: 200,
     description: 'The time-log has been successfully started.',
   })
-  @Post(':task_id/start/me')
+  @Post(':task_id/start')
   async start(@Param('task_id') id: string, @GetUser() user: User) {
     return this.timeLogsService.start(id, user.user_id);
   }
@@ -52,7 +52,7 @@ export class TimeLogsController {
     status: 200,
     description: 'The time-log has been successfully stopped.',
   })
-  @Patch(':log_id/stop/me')
+  @Patch(':log_id/stop')
   async stop(@Param('log_id') id: string) {
     return this.timeLogsService.stop(id);
   }
@@ -68,7 +68,7 @@ export class TimeLogsController {
     description: 'Page number',
   })
   @UseGuards(JwtAuthGuard)
-  @Get(':task_id/logs/me')
+  @Get(':task_id/logs')
   @Paginate()
   async getMe(
     @Param('task_id') id: string,
