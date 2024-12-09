@@ -13,10 +13,10 @@ export class TimeLogsService {
 
   async start(task_id: string, user_id: string): Promise<TimeLog> {
     const exist_log = await this.timeLogRepository.findOne({
-      where: { task_id },
+      where: { task_id, user_id, status: 'in-progress' },
     });
 
-    if (exist_log?.status === 'in-progress') {
+    if (exist_log) {
       throw new NotFoundException(
         `Временная отметка с ID "${exist_log.log_id}" уже начата`,
       );
