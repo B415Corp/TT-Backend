@@ -14,6 +14,12 @@ export class ProjectsService {
   ) {}
 
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
+    const findByName = await this.projectRepository.findOneBy({
+      name: dto.name,
+    });
+    if (findByName) {
+      throw new Error('Проект с таким названием уже существует');
+    }
     const client = this.projectRepository.create({
       ...dto,
       user_owner_id,
