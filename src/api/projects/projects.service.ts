@@ -18,7 +18,7 @@ export class ProjectsService {
       name: dto.name,
     });
     if (findByName) {
-      throw new Error('Проект с таким названием уже существует');
+      throw new NotFoundException('Проект с таким названием уже существует');
     }
     const client = this.projectRepository.create({
       ...dto,
@@ -30,7 +30,7 @@ export class ProjectsService {
 
   async findById(id: string): Promise<Project | undefined> {
     if (!id) {
-      throw new Error('Проект не найден');
+      throw new NotFoundException('Проект не найден');
     }
     return this.projectRepository.findOneBy({ project_id: id });
   }
@@ -41,7 +41,7 @@ export class ProjectsService {
     paginationQuery: PaginationQueryDto,
   ) {
     if (!value || !key) {
-      throw new Error('Проект не найден');
+      throw new NotFoundException('Проект не найден');
     }
 
     const { page, limit } = paginationQuery;
