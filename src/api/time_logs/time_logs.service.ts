@@ -87,6 +87,13 @@ export class TimeLogsService {
     return [projects, total];
   }
 
+  async findLatestLogInTask(task_id: string, user_id: string) {
+    return this.timeLogRepository.findOne({
+      where: { task_id, user_id },
+      order: { created_at: 'DESC' },
+    });
+  }
+
   async remove(time_log_id: string): Promise<void> {
     const result = await this.timeLogRepository.delete(time_log_id);
 

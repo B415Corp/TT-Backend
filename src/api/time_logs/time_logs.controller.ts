@@ -57,6 +57,18 @@ export class TimeLogsController {
     return this.timeLogsService.stop(id);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get latest time-log in a task' })
+  @ApiResponse({
+    status: 200,
+    description: 'The latest time-log has been successfully received.',
+  })
+  @Get(':task_id/latest')
+  async getLatest(@Param('task_id') id: string, @GetUser() user: User) {
+    return this.timeLogsService.findLatestLogInTask(id, user.user_id);
+  }
+
   @ApiOkResponse({ type: PaginatedResponseDto<TimeLog> })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all my time-logs in a task', description: '' })
