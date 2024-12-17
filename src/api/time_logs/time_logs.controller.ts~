@@ -52,7 +52,7 @@ export class TimeLogsController {
     status: 200,
     description: 'The time-log has been successfully stopped.',
   })
-  @Patch(':task_id/stop')
+  @Patch(':log_id/stop')
   async stop(@Param('task_id') id: string) {
     return this.timeLogsService.stop(id);
   }

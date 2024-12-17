@@ -33,18 +33,18 @@ export class TimeLogsService {
     return this.timeLogRepository.save(time_log);
   }
 
-  async stop(time_log_id: string): Promise<TimeLog> {
+  async stop(task_id: string): Promise<TimeLog> {
     const time_log = await this.timeLogRepository.findOne({
-      where: { log_id: time_log_id },
+      where: { task_id, status: 'in-progress' },
     });
     if (!time_log) {
       throw new NotFoundException(
-        `Временная отметка с ID "${time_log_id}" не найдена`,
+        `В задаче с ID "${task_id}" нет активной временной отметки`,
       );
     }
     if (time_log.status === 'completed') {
       throw new NotFoundException(
-        `Временная отметка с ID "${time_log_id}" уже завершена`,
+        `Временная отметка в задаче с ID "${task_id}" уже завершена`,
       );
     }
 
