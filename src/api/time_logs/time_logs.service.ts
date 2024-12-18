@@ -48,9 +48,14 @@ export class TimeLogsService {
       );
     }
 
+    const start_time = new Date(time_log.start_time).getTime();
+    const end_time = new Date().getTime();
+    const duration = end_time - start_time;
+
     return this.timeLogRepository.save({
       ...time_log,
       status: 'completed',
+      duration,
       end_time: new Date(),
     });
   }
