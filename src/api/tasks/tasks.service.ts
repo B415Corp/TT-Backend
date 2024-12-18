@@ -5,6 +5,7 @@ import { Task } from '../../entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { Project } from '../../entities/project.entity';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
+import { TimeLog } from '../../entities/time-logs.entity';
 
 @Injectable()
 export class TasksService {
@@ -13,6 +14,8 @@ export class TasksService {
     private taskRepository: Repository<Task>,
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
+    @InjectRepository(TimeLog)
+    private timeLogRepository: Repository<TimeLog>,
   ) {}
 
   async create(
@@ -57,14 +60,32 @@ export class TasksService {
     const { page, limit } = paginationQuery;
     const skip = (page - 1) * limit;
 
-    const [projects, total] = await this.taskRepository.findAndCount({
+    const [tasks, total] = await this.taskRepository.findAndCount({
       where: { project_id },
       skip,
       take: limit,
       order: { created_at: 'DESC' },
     });
 
-    return [projects, total];
+    const tasksWithDuration = await Promise.all(
+      tasks.map(async (task) => {
+        const timeLogs = await this.timeLogRepository.find({
+          where: { task_id: task.task_id },
+        });
+        const duration =
+          timeLogs.reduce(
+            (acc, timeLog) => acc + (timeLog.end_time.getTime() - timeLog.start_time.getTime()),
+            0,
+          );
+
+        return {
+          ...task,
+          duration,
+        };
+      }),
+    );
+
+    return [tasksWithDuration, total];
   }
 
   async update(id: string, dto: CreateTaskDto): Promise<Task> {
