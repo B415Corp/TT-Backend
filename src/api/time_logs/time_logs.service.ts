@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TimeLog } from '../../entities/time-logs.entity';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
+import { TimeLog } from '../../entities/time-logs.entity';
 
 @Injectable()
 export class TimeLogsService {
@@ -81,6 +81,17 @@ export class TimeLogsService {
   ) {
     const { page, limit } = paginationQuery;
     const skip = (page - 1) * limit;
+
+    const time_log = await this.timeLogRepository.findOne({
+      where: { task_id, status: 'in-progress' },
+    });
+
+    if (time_log) {
+      const start_time = new Date(time_log.start_time).getTime();
+      const end_time = new Date().getTime();
+      const duration = end_time - start_time;
+      await this.timeLogRepository.update(time_log.log_id, { duration });
+    }
 
     const [projects, total] = await this.timeLogRepository.findAndCount({
       where: { task_id, user_id },
