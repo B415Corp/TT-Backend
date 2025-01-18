@@ -72,11 +72,11 @@ export class TasksService {
         const timeLogs = await this.timeLogRepository.find({
           where: { task_id: task.task_id },
         });
-        const duration =
-          timeLogs.reduce(
-            (acc, timeLog) => acc + (timeLog.end_time.getTime() - timeLog.start_time.getTime()),
-            0,
-          );
+        const duration = timeLogs.reduce(
+          (acc, timeLog) =>
+            acc + (timeLog.end_time.getTime() - timeLog.start_time.getTime()),
+          0,
+        );
 
         return {
           ...task,

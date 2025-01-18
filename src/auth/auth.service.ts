@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UsersService } from '../api/users/users.service';
-import { TokenService } from '../token/token.service';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from '../api/users/dto/login-user.dto';
+import { UsersService } from '../api/users/users.service';
+import { TokenService } from '../token/token.service';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +29,7 @@ export class AuthService {
       user_id: existUser.user_id,
       name: existUser.name,
       email: existUser.email,
+      subscriptionType: existUser.subscriptionType,
     };
 
     const token = await this.tokenService.createToken(userData);

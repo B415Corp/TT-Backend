@@ -30,20 +30,4 @@ export class CreateUserDto {
     message: 'Пароль должен содержать хотя бы один специальный символ',
   })
   readonly password: string;
-
-  // @ApiPropertyOptional({
-  //   example: '2',
-  //   description: 'The role ID of the user',
-  // })
-  // @IsString()
-  // @IsOptional()
-  // readonly role_id: string = '2';
-  //
-  // @ApiPropertyOptional({
-  //   example: '1',
-  //   description: 'The subscription level ID of the user',
-  // })
-  // @IsString()
-  // @IsOptional()
-  // readonly subscription_level_id: string = '1';
 }

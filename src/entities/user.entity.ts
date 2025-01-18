@@ -1,3 +1,4 @@
+import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 import {
   Column,
   CreateDateColumn,
@@ -6,29 +7,30 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'users' }) // Указываем имя таблицы, если нужно использовать отличное от имени класса
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  user_id: string;
+  user_id: string; // Уникальный идентификатор пользователя
 
-  @Column()
+  @Column({ length: 100 }) // Ограничение длины имени для оптимизации базы данных
   name: string;
 
-  @Column()
+  @Column({ unique: true }) // Email должен быть уникальным
   email: string;
 
   @Column()
   password: string;
 
-  @Column({ default: '2' })
-  role_id: string;
+  @Column({
+    type: 'enum',
+    enum: SubscriptionType,
+    default: SubscriptionType.FREE, // Значение по умолчанию
+  })
+  subscriptionType: SubscriptionType;
 
-  @Column({ default: '1' })
-  subscription_level_id: string;
-
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp with time zone' }) // Использование временной зоны для совместимости с разными регионами
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp with time zone' }) // Аналогично для даты обновления
   updated_at: Date;
 }

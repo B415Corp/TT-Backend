@@ -9,9 +9,19 @@ export class TimeLogsService {
   constructor(
     @InjectRepository(TimeLog)
     private timeLogRepository: Repository<TimeLog>,
-  ) {}
-
+  ) { }
   async start(task_id: string, user_id: string): Promise<TimeLog> {
+    const exist_user_log = await this.timeLogRepository.findOne({
+      where: { user_id, status: 'in-progress' },
+    });
+    console.log('exist_user_log', exist_user_log);
+
+    if (exist_user_log) {
+      throw new NotFoundException(
+        `Пользователь с ID ${user_id} уже имеет начатую задачу`,
+      );
+    }
+
     const exist_log = await this.timeLogRepository.findOne({
       where: { task_id, user_id, status: 'in-progress' },
     });
@@ -71,7 +81,7 @@ export class TimeLogsService {
       throw new NotFoundException(`Временная отметка с ID "${id}" не найдено`);
     }
 
-    return this.timeLogRepository.findOneBy({ log_id: id });
+    return time_log; // Возвращаем найденный time_log
   }
 
   async findTimeLogsByTaskId(
