@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
@@ -10,15 +15,21 @@ export class TimeLogsService {
     @InjectRepository(TimeLog)
     private timeLogRepository: Repository<TimeLog>,
   ) { }
+
   async start(task_id: string, user_id: string): Promise<TimeLog> {
+    if (!task_id || !user_id) {
+      throw new BadRequestException(
+        'Необходимо указать как task_id, так и user_id.',
+      );
+    }
+
     const exist_user_log = await this.timeLogRepository.findOne({
       where: { user_id, status: 'in-progress' },
     });
-    console.log('exist_user_log', exist_user_log);
 
     if (exist_user_log) {
-      throw new NotFoundException(
-        `Пользователь с ID ${user_id} уже имеет начатую задачу`,
+      throw new ConflictException(
+        `Пользователь с ID ${user_id} уже имеет начатую задачу.`,
       );
     }
 
@@ -27,8 +38,8 @@ export class TimeLogsService {
     });
 
     if (exist_log) {
-      throw new NotFoundException(
-        `Временная отметка с ID "${exist_log.log_id}" уже начата`,
+      throw new ConflictException(
+        `Временная отметка с ID "${exist_log.log_id}" уже начата.`,
       );
     }
 
@@ -44,17 +55,23 @@ export class TimeLogsService {
   }
 
   async stop(task_id: string): Promise<TimeLog> {
+    if (!task_id) {
+      throw new BadRequestException('Необходимо указать task_id.');
+    }
+
     const time_log = await this.timeLogRepository.findOne({
       where: { task_id, status: 'in-progress' },
     });
+
     if (!time_log) {
       throw new NotFoundException(
-        `В задаче с ID "${task_id}" нет активной временной отметки`,
+        `В задаче с ID "${task_id}" нет активной временной отметки.`,
       );
     }
+
     if (time_log.status === 'completed') {
-      throw new NotFoundException(
-        `Временная отметка в задаче с ID "${task_id}" уже завершена`,
+      throw new ConflictException(
+        `Временная отметка в задаче с ID "${task_id}" уже завершена.`,
       );
     }
 
@@ -72,16 +89,20 @@ export class TimeLogsService {
 
   async findById(id: string) {
     if (!id) {
-      throw new Error('Необходимо указать ID временной отметки');
+      throw new BadRequestException('Необходимо указать ID временной отметки.');
     }
+
     const time_log = await this.timeLogRepository.findOneBy({
       log_id: id,
     });
+
     if (!time_log) {
-      throw new NotFoundException(`Временная отметка с ID "${id}" не найдено`);
+      throw new NotFoundException(
+        `Временная отметка с ID "${id}" не найдена.`,
+      );
     }
 
-    return time_log; // Возвращаем найденный time_log
+    return time_log;
   }
 
   async findTimeLogsByTaskId(
@@ -89,7 +110,20 @@ export class TimeLogsService {
     user_id: string,
     paginationQuery: PaginationQueryDto,
   ) {
+    if (!task_id || !user_id) {
+      throw new BadRequestException(
+        'Необходимо указать как task_id, так и user_id.',
+      );
+    }
+
     const { page, limit } = paginationQuery;
+
+    if (!page || !limit || page <= 0 || limit <= 0) {
+      throw new BadRequestException(
+        'Параметры пагинации (page и limit) должны быть положительными числами.',
+      );
+    }
+
     const skip = (page - 1) * limit;
 
     const time_log = await this.timeLogRepository.findOne({
@@ -100,6 +134,7 @@ export class TimeLogsService {
       const start_time = new Date(time_log.start_time).getTime();
       const end_time = new Date().getTime();
       const duration = end_time - start_time;
+
       await this.timeLogRepository.update(time_log.log_id, { duration });
     }
 
@@ -110,21 +145,45 @@ export class TimeLogsService {
       order: { created_at: 'DESC' },
     });
 
+    if (!projects.length) {
+      throw new NotFoundException(
+        `Временные отметки для задачи с ID "${task_id}" не найдены.`,
+      );
+    }
+
     return [projects, total];
   }
 
   async findLatestLogInTask(task_id: string, user_id: string) {
-    return this.timeLogRepository.findOne({
+    if (!task_id || !user_id) {
+      throw new BadRequestException(
+        'Необходимо указать как task_id, так и user_id.',
+      );
+    }
+
+    const latestLog = await this.timeLogRepository.findOne({
       where: { task_id, user_id },
       order: { created_at: 'DESC' },
     });
+
+    if (!latestLog) {
+      throw new NotFoundException(
+        `Последняя временная отметка для задачи с ID "${task_id}" не найдена.`,
+      );
+    }
+
+    return latestLog;
   }
 
   async remove(time_log_id: string): Promise<void> {
+    if (!time_log_id) {
+      throw new BadRequestException('Необходимо указать time_log_id.');
+    }
+
     const result = await this.timeLogRepository.delete(time_log_id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Время с ID "${time_log_id}" не найдено`);
+      throw new NotFoundException(`Время с ID "${time_log_id}" не найдено.`);
     }
   }
 }
