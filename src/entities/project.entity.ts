@@ -26,7 +26,7 @@ export class Project {
   user_owner_id: string;
 
   @Column()
-  @Column({ default: 12 })
+  @Column({ default: 1 })
   currency_id: number;
 
   @Column()

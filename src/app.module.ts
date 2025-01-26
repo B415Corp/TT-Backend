@@ -12,6 +12,7 @@ import { TasksModule } from './api/tasks/tasks.module';
 import { TimeLogsModule } from './api/time_logs/time_logs.module';
 import { CurrenciesModule } from './api/currencies/currencies.module';
 import * as process from 'node:process';
+import { TagsModule } from './api/tags/tags.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import * as process from 'node:process';
     TasksModule,
     TimeLogsModule,
     CurrenciesModule,
+    TagsModule,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],

@@ -1,25 +1,14 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Tag {
-  @PrimaryGeneratedColumn('uuid')
-  tag_id: string;
+  @PrimaryGeneratedColumn()
+  tag_id: string; // Уникальный идентификатор тега
 
   @Column()
-  user_id: string;
+  user_id: string; // Уникальный идентификатор пользователя
 
   @Column()
-  name: string;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
+  @Column({ unique: true })
+  name: string; // Название тега
 }
