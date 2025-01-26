@@ -1,25 +1,34 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from '../../entities/project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
+import { Currency } from 'src/entities/currency.entity';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
-  ) {}
+    @InjectRepository(Currency)
+    private currencyRepository: Repository<Currency>,
+  ) { }
 
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
     const findByName = await this.projectRepository.findOneBy({
       name: dto.name,
     });
     if (findByName) {
-      throw new NotFoundException('Проект с таким названием уже существует');
+      throw new ConflictException('Проект с таким названием уже существует');
     }
+
+    const currencyExist = await this.currencyRepository.findOneBy({ currency_id: dto.currency_id })
+    if (!currencyExist) {
+      throw new NotFoundException('Указанная валюта не найдена');
+    }
+    
     const client = this.projectRepository.create({
       ...dto,
       user_owner_id,

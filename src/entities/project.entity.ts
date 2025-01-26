@@ -25,6 +25,14 @@ export class Project {
   @Column({ default: '11111111-1111-1111-1111-111111111111' })
   user_owner_id: string;
 
+  @Column()
+  @Column({ default: 12 })
+  currency_id: number;
+
+  @Column()
+  @Column({ default: 0 })
+  rate: number;
+
   @CreateDateColumn()
   created_at: Date;
 

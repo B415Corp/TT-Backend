@@ -36,6 +36,10 @@ export class Task {
   @Column({ default: 0 })
   rate: number;
 
+  @Column('decimal')
+  @Column({ default: 12 })
+  currency_id: number;
+
   @CreateDateColumn()
   created_at: Date;
 

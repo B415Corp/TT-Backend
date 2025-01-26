@@ -6,6 +6,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { Project } from '../../entities/project.entity';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { TimeLog } from '../../entities/time-logs.entity';
+import { Currency } from 'src/entities/currency.entity';
 
 @Injectable()
 export class TasksService {
@@ -16,6 +17,8 @@ export class TasksService {
     private projectRepository: Repository<Project>,
     @InjectRepository(TimeLog)
     private timeLogRepository: Repository<TimeLog>,
+    @InjectRepository(Currency)
+    private currencyRepository: Repository<Currency>,
   ) {}
 
   async create(
@@ -28,6 +31,11 @@ export class TasksService {
     });
     if (!project) {
       throw new NotFoundException(`Задача с ID "${project_id}" не найдена`);
+    }
+
+    const currencyExist = await this.currencyRepository.findOneBy({ currency_id: dto.currency_id })
+    if (!currencyExist) {
+      throw new NotFoundException('Указанная валюта не найдена');
     }
 
     const task = this.taskRepository.create({

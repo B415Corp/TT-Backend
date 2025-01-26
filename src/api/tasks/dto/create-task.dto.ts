@@ -21,6 +21,9 @@ export class CreateTaskDto {
   })
   payment_type: 'fixed' | 'hourly';
 
-  @ApiProperty()
+  @ApiProperty({ example: 10 })
   rate: number;
+
+  @ApiProperty({ example: 0 })
+  currency_id: number;
 }

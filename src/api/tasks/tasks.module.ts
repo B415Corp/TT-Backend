@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Task } from '../../entities/task.entity';
 import { Project } from '../../entities/project.entity';
 import { TimeLog } from '../../entities/time-logs.entity';
+import { Currency } from 'src/entities/currency.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task, Project, TimeLog])],
+  imports: [TypeOrmModule.forFeature([Task, Project, TimeLog, Currency])],
   providers: [TasksService],
   exports: [TasksService],
   controllers: [TasksController],
