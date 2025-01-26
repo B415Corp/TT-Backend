@@ -10,6 +10,7 @@ import { ClientsModule } from './api/clients/clients.module';
 import { ProjectsModule } from './api/projects/projects.module';
 import { TasksModule } from './api/tasks/tasks.module';
 import { TimeLogsModule } from './api/time_logs/time_logs.module';
+import { CurrenciesModule } from './api/currencies/currencies.module';
 import * as process from 'node:process';
 
 @Module({
@@ -32,6 +33,7 @@ import * as process from 'node:process';
     ProjectsModule,
     TasksModule,
     TimeLogsModule,
+    CurrenciesModule,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],

@@ -22,6 +22,15 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('api', app, document);
+
+  const currencyConfig = new DocumentBuilder()
+    .setTitle('Currency API')
+    .setDescription('API documentation for currency management')
+    .setVersion('1.0')
+    .build();
+  const currencyDocument = SwaggerModule.createDocument(app, currencyConfig);
+  SwaggerModule.setup('currency-api', app, currencyDocument);
+
   await app.listen(process.env.PORT || 3000);
 }
 

@@ -1,11 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { Entity } from 'typeorm';
+import { ProjectDto } from './project.dto.js';
 
 @Entity()
-export class UpdateProjectDto {
-  @ApiProperty({ example: 'Test project' })
-  name: string;
+export class UpdateProjectDto extends ProjectDto {
 
-  @ApiProperty({ example: [] })
-  user_ids?: string[];
 }
