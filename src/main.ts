@@ -31,7 +31,12 @@ async function bootstrap() {
   const currencyDocument = SwaggerModule.createDocument(app, currencyConfig);
   SwaggerModule.setup('currency-api', app, currencyDocument);
 
-  await app.listen(process.env.PORT || 3000);
+  const port = process.env.PORT || 3000; // Use the port from the environment variable or default to 3000
+  await app.listen(port);
+
+  // Log the host and port information
+  const host = process.env.HOST || 'localhost'; // Default to localhost if HOST is not set
+  console.log(`Server is running on http://${host}:${port}`);
 }
 
 bootstrap();
