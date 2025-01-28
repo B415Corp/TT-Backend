@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { Task } from '../../entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { Project } from '../../entities/project.entity';
@@ -19,7 +19,7 @@ export class TasksService {
     private timeLogRepository: Repository<TimeLog>,
     @InjectRepository(Currency)
     private currencyRepository: Repository<Currency>,
-  ) {}
+  ) { }
 
   async create(
     dto: CreateTaskDto,
@@ -128,5 +128,14 @@ export class TasksService {
     if (result.affected === 0) {
       throw new NotFoundException(`Задача с ID "${task_id}" не найдена`);
     }
+  }
+
+  async findByUserIdAndSearchTerm(userId: string, searchTerm: string) {
+    return this.taskRepository.find({
+      where: {
+        user_id: userId,
+        name: Like(`%${searchTerm}%`),
+      } as FindOptionsWhere<Task>,
+    });
   }
 }

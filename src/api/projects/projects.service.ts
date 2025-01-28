@@ -1,11 +1,12 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { Project } from '../../entities/project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { Currency } from 'src/entities/currency.entity';
+import { Like } from 'typeorm';
 
 @Injectable()
 export class ProjectsService {
@@ -87,5 +88,14 @@ export class ProjectsService {
     }
 
     return this.projectRepository.save(project);
+  }
+
+  async findByUserIdAndSearchTerm(userId: string, searchTerm: string) {
+    return this.projectRepository.find({
+      where: {
+        user_owner_id: userId,
+        name: Like(`%${searchTerm}%`),
+      } as FindOptionsWhere<Project>,
+    });
   }
 }

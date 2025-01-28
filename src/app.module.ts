@@ -13,6 +13,8 @@ import { TimeLogsModule } from './api/time_logs/time_logs.module';
 import { CurrenciesModule } from './api/currencies/currencies.module';
 import * as process from 'node:process';
 import { TagsModule } from './api/tags/tags.module';
+import { SearchModule } from './api/search/search.module';
+
 
 @Module({
   imports: [
@@ -36,6 +38,7 @@ import { TagsModule } from './api/tags/tags.module';
     TimeLogsModule,
     CurrenciesModule,
     TagsModule,
+    SearchModule,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],

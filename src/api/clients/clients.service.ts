@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { Client } from '../../entities/client.entity';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
+import { Task } from 'src/entities/task.entity';
 
 @Injectable()
 export class ClientsService {
@@ -63,5 +64,14 @@ export class ClientsService {
     if (result.affected === 0) {
       throw new NotFoundException(`Клиент с ID "${client_id}" не найден`);
     }
+  }
+
+  async findByUserIdAndSearchTerm(userId: string, searchTerm: string) {
+    return this.clientRepository.find({
+      where: {
+        user_id: userId,
+        name: Like(`%${searchTerm}%`),
+      } as FindOptionsWhere<Client>,
+    });
   }
 }
