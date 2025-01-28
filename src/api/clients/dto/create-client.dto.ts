@@ -9,4 +9,10 @@ export class CreateClientDto {
     description: 'The contact information of the client',
   })
   readonly contact_info: string;
+
+  @ApiProperty({
+    example: '["tag1", "tag2"]',
+    description: 'The IDs of the tags associated with the client',
+  })
+  readonly tag_ids?: string[];
 }

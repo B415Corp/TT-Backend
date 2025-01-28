@@ -4,7 +4,12 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
+import { User } from './user.entity';
+import { Tag } from './tag.entity';
 
 @Entity()
 export class Client {
@@ -26,4 +31,15 @@ export class Client {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @ManyToOne(() => User, user => user.clients)
+  user: User;
+
+  @ManyToMany(() => Tag)
+  @JoinTable({
+    name: 'client_tags',
+    joinColumn: { name: 'client_id', referencedColumnName: 'client_id' },
+    inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'tag_id' },
+  })
+  tags: Tag[];
 }

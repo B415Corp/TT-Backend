@@ -1,12 +1,13 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere } from 'typeorm';
+import { Repository, FindOptionsWhere, ILike } from 'typeorm';
 import { Project } from '../../entities/project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { Currency } from 'src/entities/currency.entity';
-import { Like } from 'typeorm';
+import { User } from 'src/entities/user.entity';
+import { Tag } from '../../entities/tag.entity';
 
 @Injectable()
 export class ProjectsService {
@@ -15,6 +16,10 @@ export class ProjectsService {
     private projectRepository: Repository<Project>,
     @InjectRepository(Currency)
     private currencyRepository: Repository<Currency>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(Tag)
+    private tagRepository: Repository<Tag>,
   ) { }
 
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
@@ -30,12 +35,19 @@ export class ProjectsService {
       throw new NotFoundException('Указанная валюта не найдена');
     }
     
-    const client = this.projectRepository.create({
+    const user = await this.userRepository.findOneBy({ user_id: user_owner_id });
+    const project = this.projectRepository.create({
       ...dto,
-      user_owner_id,
+      user: user,
       user_ids: [],
     });
-    return this.projectRepository.save(client);
+
+    if (dto.tag_ids?.length) {
+      const tags = await this.tagRepository.findByIds(dto.tag_ids);
+      project.tags = tags;
+    }
+
+    return this.projectRepository.save(project);
   }
 
   async findById(id: string): Promise<Project | undefined> {
@@ -94,8 +106,32 @@ export class ProjectsService {
     return this.projectRepository.find({
       where: {
         user_owner_id: userId,
-        name: Like(`%${searchTerm}%`),
-      } as FindOptionsWhere<Project>,
+        name: ILike(`%${searchTerm}%`),
+      },
+      relations: ['user', 'tags'],
     });
+  }
+
+  async addTags(projectId: string, tagIds: string[]) {
+    const project = await this.projectRepository.findOne({
+      where: { project_id: projectId },
+      relations: ['tags'],
+    });
+    
+    const tags = await this.tagRepository.findByIds(tagIds);
+    project.tags = [...project.tags, ...tags];
+    
+    return this.projectRepository.save(project);
+  }
+
+  async removeTags(projectId: string, tagIds: string[]) {
+    const project = await this.projectRepository.findOne({
+      where: { project_id: projectId },
+      relations: ['tags'],
+    });
+    
+    project.tags = project.tags.filter(tag => !tagIds.includes(tag.tag_id));
+    
+    return this.projectRepository.save(project);
   }
 }

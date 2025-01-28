@@ -14,4 +14,7 @@ export class CreateProjectDto {
 
     @ApiProperty({ example: 10 })
     rate: number;
+
+    @ApiProperty({ example: ['tag1', 'tag2'] })
+    tag_ids?: string[];
 }

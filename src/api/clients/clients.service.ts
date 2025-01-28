@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository, ILike } from 'typeorm';
 import { Client } from '../../entities/client.entity';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
@@ -70,8 +70,9 @@ export class ClientsService {
     return this.clientRepository.find({
       where: {
         user_id: userId,
-        name: Like(`%${searchTerm}%`),
-      } as FindOptionsWhere<Client>,
+        name: ILike(`%${searchTerm}%`),
+      },
+      relations: ['user'],
     });
   }
 }

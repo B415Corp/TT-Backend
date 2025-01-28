@@ -5,7 +5,11 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Project } from './project.entity';
+import { Task } from './task.entity';
+import { Client } from './client.entity';
 
 @Entity({ name: 'users' }) // Указываем имя таблицы, если нужно использовать отличное от имени класса
 export class User {
@@ -33,4 +37,13 @@ export class User {
 
   @UpdateDateColumn({ type: 'timestamp with time zone' }) // Аналогично для даты обновления
   updated_at: Date;
+
+  @OneToMany(() => Project, project => project.user)
+  projects: Project[];
+
+  @OneToMany(() => Task, task => task.user)
+  tasks: Task[];
+
+  @OneToMany(() => Client, client => client.user)
+  clients: Client[];
 }

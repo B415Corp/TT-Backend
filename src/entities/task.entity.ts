@@ -4,7 +4,14 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
+import { User } from './user.entity';
+import { Project } from './project.entity';
+import { Tag } from './tag.entity';
 
 @Entity()
 export class Task {
@@ -45,4 +52,18 @@ export class Task {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @ManyToOne(() => User, user => user.tasks)
+  user: User;
+
+  @ManyToOne(() => Project, project => project.project_id)
+  project: Project;
+
+  @ManyToMany(() => Tag)
+  @JoinTable({
+    name: 'task_tags',
+    joinColumn: { name: 'task_id', referencedColumnName: 'task_id' },
+    inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'tag_id' },
+  })
+  tags: Tag[];
 }

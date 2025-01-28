@@ -26,4 +26,9 @@ export class CreateTaskDto {
 
   @ApiProperty({ example: 0 })
   currency_id: number;
+
+  @ApiProperty({
+    example: ['tag1', 'tag2'],
+  })
+  tag_ids?: string[];
 }

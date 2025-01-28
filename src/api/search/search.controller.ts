@@ -12,7 +12,7 @@ export class SearchController {
     constructor(private readonly searchService: SearchService) {}
 
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Search', description: '' })
+    @ApiOperation({ summary: 'Search', description: 'Search for projects, tasks, and clients related to the user.' })
     @UseGuards(JwtAuthGuard)
     @Get()
     @ApiResponse({ status: 200, description: 'Search results' })

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository, ILike } from 'typeorm';
 import { Task } from '../../entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { Project } from '../../entities/project.entity';
@@ -134,8 +134,9 @@ export class TasksService {
     return this.taskRepository.find({
       where: {
         user_id: userId,
-        name: Like(`%${searchTerm}%`),
-      } as FindOptionsWhere<Task>,
+        name: ILike(`%${searchTerm}%`),
+      },
+      relations: ['project'],
     });
   }
 }
