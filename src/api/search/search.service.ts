@@ -13,37 +13,15 @@ export class SearchService {
     ) { }
 
     async search(user: User, searchTerm: string) {
+        // Search for projects, tasks, and clients related to the user
         const projects = await this.projectsService.findByUserIdAndSearchTerm(user.user_id, searchTerm);
         const tasks = await this.tasksService.findByUserIdAndSearchTerm(user.user_id, searchTerm);
         const clients = await this.clientsService.findByUserIdAndSearchTerm(user.user_id, searchTerm);
 
-        // Fetch related entities for each found project, task, and client
-        const projectDetails = await Promise.all(projects.map(async project => {
-            return {
-                ...project,
-                // Add any related data you want to include
-                // e.g., related tasks or clients
-            };
-        }));
-
-        const taskDetails = await Promise.all(tasks.map(async task => {
-            return {
-                ...task,
-                // Add any related data you want to include
-            };
-        }));
-
-        const clientDetails = await Promise.all(clients.map(async client => {
-            return {
-                ...client,
-                // Add any related data you want to include
-            };
-        }));
-
         return {
-            projects: projectDetails,
-            tasks: taskDetails,
-            clients: clientDetails,
+            projects,
+            tasks,
+            clients,
         };
     }
 }

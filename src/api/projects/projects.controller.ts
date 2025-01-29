@@ -107,22 +107,4 @@ export class ProjectsController {
   async remove(@Param('id') id: string) {
     return this.projectsService.remove(id);
   }
-
-  @Post(':id/tags')
-  @UseGuards(JwtAuthGuard)
-  async addTags(
-    @Param('id') id: string,
-    @Body() body: { tag_ids: string[] }
-  ) {
-    return this.projectsService.addTags(id, body.tag_ids);
-  }
-
-  @Delete(':id/tags')
-  @UseGuards(JwtAuthGuard)
-  async removeTags(
-    @Param('id') id: string,
-    @Body() body: { tag_ids: string[] }
-  ) {
-    return this.projectsService.removeTags(id, body.tag_ids);
-  }
 }

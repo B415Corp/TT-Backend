@@ -51,12 +51,4 @@ export class Project {
 
   @OneToMany(() => Task, task => task.project_id)
   task: Task;
-
-  @ManyToMany(() => Tag)
-  @JoinTable({
-    name: 'project_tags',
-    joinColumn: { name: 'project_id', referencedColumnName: 'project_id' },
-    inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'tag_id' },
-  })
-  tags: Tag[];
 }

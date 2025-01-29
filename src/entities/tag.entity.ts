@@ -2,13 +2,12 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Tag {
-  @PrimaryGeneratedColumn()
-  tag_id: string; // Уникальный идентификатор тега
+  @PrimaryGeneratedColumn('uuid')
+  tag_id: string; // Unique identifier for the tag
 
   @Column()
-  user_id: string; // Уникальный идентификатор пользователя
+  user_id: string; // Unique identifier for the user
 
-  @Column()
   @Column({ unique: true })
-  name: string; // Название тега
+  name: string; // Name of the tag
 }

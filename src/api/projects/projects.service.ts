@@ -42,11 +42,6 @@ export class ProjectsService {
       user_ids: [],
     });
 
-    if (dto.tag_ids?.length) {
-      const tags = await this.tagRepository.findByIds(dto.tag_ids);
-      project.tags = tags;
-    }
-
     return this.projectRepository.save(project);
   }
 
@@ -108,30 +103,7 @@ export class ProjectsService {
         user_owner_id: userId,
         name: ILike(`%${searchTerm}%`),
       },
-      relations: ['user', 'tags'],
+      relations: ['user'],
     });
-  }
-
-  async addTags(projectId: string, tagIds: string[]) {
-    const project = await this.projectRepository.findOne({
-      where: { project_id: projectId },
-      relations: ['tags'],
-    });
-    
-    const tags = await this.tagRepository.findByIds(tagIds);
-    project.tags = [...project.tags, ...tags];
-    
-    return this.projectRepository.save(project);
-  }
-
-  async removeTags(projectId: string, tagIds: string[]) {
-    const project = await this.projectRepository.findOne({
-      where: { project_id: projectId },
-      relations: ['tags'],
-    });
-    
-    project.tags = project.tags.filter(tag => !tagIds.includes(tag.tag_id));
-    
-    return this.projectRepository.save(project);
   }
 }
