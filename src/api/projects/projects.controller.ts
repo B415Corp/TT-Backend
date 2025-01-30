@@ -36,15 +36,15 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a new project', description: '' })
+  @ApiOperation({ summary: 'Create a new project' })
   @ApiResponse({
     status: 201,
     description: 'The project has been successfully created.',
+    type: Project,
   })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(JwtAuthGuard)
   @Post('create')
-  async createClient(
+  async createProject(
     @Body() createProjectDto: CreateProjectDto,
     @GetUser() user: User,
   ) {
@@ -53,7 +53,7 @@ export class ProjectsController {
 
   @ApiOkResponse({ type: PaginatedResponseDto<Project> })
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get my projects', description: '' })
+  @ApiOperation({ summary: 'Get my projects' })
   @ApiQuery({
     name: 'page',
     required: false,
@@ -75,9 +75,15 @@ export class ProjectsController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get a project by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved project.',
+    type: Project,
+  })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async getClientById(@Param('id') id: string) {
+  async getProjectById(@Param('id') id: string) {
     return this.projectsService.findById(id);
   }
 
@@ -86,10 +92,11 @@ export class ProjectsController {
   @ApiResponse({
     status: 200,
     description: 'Successfully updated the project.',
+    type: Project,
   })
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  async updateClient(
+  async updateProject(
     @Param('id') id: string,
     @Body() updateProjectDto: UpdateProjectDto,
   ) {

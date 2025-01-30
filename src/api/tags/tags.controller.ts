@@ -3,7 +3,7 @@ import { TagsService } from './tags.service';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
 import { Tag } from '../../entities/tag.entity';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/entities/user.entity';
@@ -15,6 +15,7 @@ export class TagsController {
 
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
+    @ApiResponse({ status: 200, type: Tag })
     @Post('me')
     @ApiOperation({ summary: 'Create a new tag for the authenticated user' })
     createForUser(@GetUser() user: User, @Body() createTagDto: CreateTagDto): Promise<Tag> {
@@ -23,6 +24,7 @@ export class TagsController {
 
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
+    @ApiResponse({ status: 200, type: Tag })
     @Get('me')
     @ApiOperation({ summary: 'Get all tags for the authenticated user' })
     findAll(@GetUser() user: User): Promise<Tag[]> {
@@ -31,6 +33,7 @@ export class TagsController {
 
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
+    @ApiResponse({ status: 200, type: Tag })
     @Get(':id')
     @ApiOperation({ summary: 'Get a tag by ID' })
     findOne(@Param('id') id: string): Promise<Tag> {
@@ -39,6 +42,7 @@ export class TagsController {
 
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
+    @ApiResponse({ status: 200, type: Tag })
     @Patch(':id')
     @ApiOperation({ summary: 'Update a tag by ID' })
     update(@Param('id') id: string, @Body() updateTagDto: UpdateTagDto, @GetUser() user: User): Promise<Tag> {

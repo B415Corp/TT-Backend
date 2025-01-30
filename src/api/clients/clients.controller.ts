@@ -33,7 +33,7 @@ import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto
 @ApiTags('clients')
 @Controller('clients')
 export class ClientsController {
-  constructor(private readonly clientsService: ClientsService) {}
+  constructor(private readonly clientsService: ClientsService) { }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new client' })
@@ -42,6 +42,7 @@ export class ClientsController {
     description: 'The client has been successfully created.',
   })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 200, type: CreateClientDto })
   @UseGuards(JwtAuthGuard)
   @Post('create')
   async createClient(
@@ -51,7 +52,7 @@ export class ClientsController {
     return this.clientsService.create(createClientDto, user.user_id);
   }
 
-  @ApiOkResponse({ type: PaginatedResponseDto<Client> })
+  @ApiResponse({ status: 200, type: PaginatedResponseDto<Client> })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all my clients' })
   @ApiQuery({
@@ -67,7 +68,6 @@ export class ClientsController {
     @GetUser() user: User,
     @PaginationParams() paginationQuery: PaginationQueryDto,
   ) {
-    console.log(user);
     return this.clientsService.findByKey(
       'user_id',
       user.user_id,
@@ -80,6 +80,7 @@ export class ClientsController {
     summary: 'Get a client by id',
   })
   @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 200, type: Client })
   @Get(':id')
   async getClientById(@Param('id') id: string) {
     return this.clientsService.findById(id);
@@ -87,7 +88,7 @@ export class ClientsController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a client' })
-  @ApiResponse({ status: 200, description: 'Successfully updated the client.' })
+  @ApiResponse({ status: 200, description: 'Successfully updated the client.', type: Client })
   @ApiResponse({ status: 404, description: 'Client not found.' })
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
@@ -101,6 +102,7 @@ export class ClientsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a client' })
   @ApiResponse({ status: 200, description: 'Successfully deleted the client.' })
+  @ApiOkResponse({})
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {

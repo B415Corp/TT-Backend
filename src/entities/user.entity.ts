@@ -10,32 +10,36 @@ import {
 import { Project } from './project.entity';
 import { Task } from './task.entity';
 import { Client } from './client.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'users' }) // Указываем имя таблицы, если нужно использовать отличное от имени класса
 export class User {
+  @ApiProperty({ type: String, description: 'UUID пользователя' })
   @PrimaryGeneratedColumn('uuid')
-  user_id: string; // Уникальный идентификатор пользователя
+  user_id: string;
 
-  @Column({ length: 100 }) // Ограничение длины имени для оптимизации базы данных
+  @ApiProperty({ type: String })
+  @Column({ length: 100 })
   name: string;
 
-  @Column({ unique: true }) // Email должен быть уникальным
+  @ApiProperty({ type: String })
+  @Column({ unique: true })
   email: string;
 
+  @ApiProperty({ type: String })
   @Column()
   password: string;
 
-  @Column({
-    type: 'enum',
-    enum: SubscriptionType,
-    default: SubscriptionType.FREE, // Значение по умолчанию
-  })
+  @ApiProperty({ enum: SubscriptionType, enumName: 'SubscriptionType' })
+  @Column({ enum: SubscriptionType, default: SubscriptionType.FREE })
   subscriptionType: SubscriptionType;
 
-  @CreateDateColumn({ type: 'timestamp with time zone' }) // Использование временной зоны для совместимости с разными регионами
+  @ApiProperty({ type: Date })
+  @CreateDateColumn({ type: 'timestamp with time zone' })
   created_at: Date;
 
-  @UpdateDateColumn({ type: 'timestamp with time zone' }) // Аналогично для даты обновления
+  @ApiProperty({ type: Date })
+  @UpdateDateColumn({ type: 'timestamp with time zone' })
   updated_at: Date;
 
   @OneToMany(() => Project, project => project.user)

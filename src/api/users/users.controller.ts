@@ -27,7 +27,7 @@ import { ChangeSubscriptionDto } from './dto/change-subscription.dto';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Test free feature' })
@@ -52,6 +52,8 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get user details' })
+  @ApiResponse({ status: 200, type: User })
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async me(@GetUser() user: User) {
@@ -59,21 +61,15 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({
-    status: 201,
-    description: 'The user has been successfully created.',
-  })
+  @ApiResponse({ status: 201, type: User })
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get a user by ID (Protected)' })
-  @ApiResponse({
-    status: 200,
-    description: 'Successfully retrieved user information.',
-  })
+  @ApiOperation({ summary: 'Get a user by ID' })
+  @ApiResponse({ status: 200, type: User })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
@@ -81,11 +77,8 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a user (Protected)' })
-  @ApiResponse({
-    status: 200,
-    description: 'User information has been successfully updated.',
-  })
+  @ApiOperation({ summary: 'Update user details' })
+  @ApiResponse({ status: 200, type: User })
   @UseGuards(JwtAuthGuard)
   @Patch('me')
   async update(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto) {
@@ -94,7 +87,7 @@ export class UsersController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Change user subscription' })
-  @ApiResponse({ status: 200, description: 'Subscription changed successfully.' })
+  @ApiResponse({ status: 200, type: User })
   @UseGuards(JwtAuthGuard)
   @Patch('me/subscription')
   async changeSubscription(

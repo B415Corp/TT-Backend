@@ -7,6 +7,7 @@ import { Project } from '../../entities/project.entity';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { TimeLog } from '../../entities/time-logs.entity';
 import { Currency } from 'src/entities/currency.entity';
+import { User } from '../../entities/user.entity';
 
 @Injectable()
 export class TasksService {
@@ -60,40 +61,20 @@ export class TasksService {
 
   async findByProjectId(
     project_id: string,
-    paginationQuery: PaginationQueryDto,
-  ) {
-    if (!project_id) {
-      throw new Error('Задача не найдена');
-    }
-    const { page, limit } = paginationQuery;
-    const skip = (page - 1) * limit;
-
-    const [tasks, total] = await this.taskRepository.findAndCount({
-      where: { project_id },
-      skip,
-      take: limit,
-      order: { created_at: 'DESC' },
+    userId: string,
+  ): Promise<Task[]> {
+    const tasks = await this.taskRepository.find({
+      where: {
+        project_id: project_id,
+        user_id: userId,
+      },
     });
 
-    const tasksWithDuration = await Promise.all(
-      tasks.map(async (task) => {
-        const timeLogs = await this.timeLogRepository.find({
-          where: { task_id: task.task_id },
-        });
-        const duration = timeLogs.reduce(
-          (acc, timeLog) =>
-            acc + (timeLog.end_time.getTime() - timeLog.start_time.getTime()),
-          0,
-        );
+    if (!tasks.length) {
+      throw new NotFoundException('No tasks found for this project');
+    }
 
-        return {
-          ...task,
-          duration,
-        };
-      }),
-    );
-
-    return [tasksWithDuration, total];
+    return tasks;
   }
 
   async update(id: string, dto: CreateTaskDto): Promise<Task> {

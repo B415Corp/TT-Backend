@@ -19,6 +19,7 @@ import {
 } from '../../decorators/paginate.decorator';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { TimeLog } from '../../entities/time-logs.entity';
+import { TimeLogsPaginatedResponse } from './dto/time-logs-paginated-response.dto';
 
 @ApiTags('time-logs')
 @Controller('time-logs')
@@ -27,6 +28,7 @@ export class TimeLogsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 200, type: TimeLog })
   @ApiOperation({ summary: 'Get a time-log by id' })
   @Get(':id')
   async getClientById(@Param('id') id: string) {
@@ -36,6 +38,7 @@ export class TimeLogsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Start a time-log' })
+  @ApiResponse({ status: 200, type: TimeLog })
   @ApiResponse({
     status: 200,
     description: 'The time-log has been successfully started.',
@@ -47,6 +50,7 @@ export class TimeLogsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 200, type: TimeLog })
   @ApiOperation({ summary: 'Stop a time-log' })
   @ApiResponse({
     status: 200,
@@ -60,6 +64,7 @@ export class TimeLogsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get latest time-log in a task' })
+  @ApiResponse({ status: 200, type: TimeLog })
   @ApiResponse({
     status: 200,
     description: 'The latest time-log has been successfully received.',
@@ -69,7 +74,7 @@ export class TimeLogsController {
     return this.timeLogsService.findLatestLogInTask(id, user.user_id);
   }
 
-  @ApiOkResponse({ type: PaginatedResponseDto<TimeLog> })
+  @ApiOkResponse({ type: TimeLogsPaginatedResponse })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all my time-logs in a task', description: '' })
   @ApiParam({ name: 'task_id', required: true, description: 'Task ID' })

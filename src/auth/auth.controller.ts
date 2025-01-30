@@ -2,6 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from '../api/users/dto/login-user.dto';
+import { LoginResponseDto } from './dto/login-response.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -10,6 +11,7 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Authenticate user and return JWT token' })
+  @ApiResponse({ status: 200, type: LoginResponseDto })
   @ApiBody({
     schema: {
       type: 'object',
