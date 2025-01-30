@@ -10,6 +10,8 @@ import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto
 import { User } from '../../entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangeSubscriptionDto } from './dto/change-subscription.dto';
+import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 
 @Injectable()
 export class UsersService {
@@ -77,7 +79,23 @@ export class UsersService {
     const result = await this.usersRepository.delete(user_id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Пользователь с ID "${user_id}" не найден`);
+      throw new NotFoundException(`Пользователь с ID '${user_id}' не найден`);
     }
+  }
+
+  async changeSubscription(userId: string, changeSubscriptionDto: ChangeSubscriptionDto): Promise<User> {
+    const user = await this.usersRepository.findOneBy({ user_id: userId });
+    if (!user) {
+      throw new NotFoundException(`User with ID "${userId}" not found`);
+    }
+
+    // Check if the provided subscription type is valid
+    const validSubscriptionTypes = Object.values(SubscriptionType);
+    if (!validSubscriptionTypes.includes(changeSubscriptionDto.subscriptionType)) {
+      throw new ConflictException(`Subscription type "${changeSubscriptionDto.subscriptionType}" does not exist`);
+    }
+
+    user.subscriptionType = changeSubscriptionDto.subscriptionType; // Update subscription type
+    return this.usersRepository.save(user);
   }
 }
