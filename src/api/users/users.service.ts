@@ -12,6 +12,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangeSubscriptionDto } from './dto/change-subscription.dto';
 import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
+import { ErrorMessages } from '../../common/error-messages';
 
 @Injectable()
 export class UsersService {
@@ -26,7 +27,7 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new ConflictException('Пользователь с таким email уже существует');
+      throw new ConflictException(ErrorMessages.INVALID_CREDENTIALS);
     }
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -42,7 +43,7 @@ export class UsersService {
     const user = await this.usersRepository.findOneBy({ user_id });
 
     if (!user) {
-      throw new NotFoundException('Пользователь не найден');
+      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
     }
 
     Object.assign(user, updateUserDto);
@@ -55,7 +56,7 @@ export class UsersService {
 
   async findById(user_id: string): Promise<User | undefined> {
     if (!user_id) {
-      throw new NotFoundException('Пользователь не найден');
+      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
     }
     return this.usersRepository.findOneBy({ user_id });
   }
@@ -79,20 +80,20 @@ export class UsersService {
     const result = await this.usersRepository.delete(user_id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Пользователь с ID '${user_id}' не найден`);
+      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
     }
   }
 
   async changeSubscription(userId: string, changeSubscriptionDto: ChangeSubscriptionDto): Promise<User> {
     const user = await this.usersRepository.findOneBy({ user_id: userId });
     if (!user) {
-      throw new NotFoundException(`User with ID "${userId}" not found`);
+      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
     }
 
     // Check if the provided subscription type is valid
     const validSubscriptionTypes = Object.values(SubscriptionType);
     if (!validSubscriptionTypes.includes(changeSubscriptionDto.subscriptionType)) {
-      throw new ConflictException(`Subscription type "${changeSubscriptionDto.subscriptionType}" does not exist`);
+      throw new ConflictException(ErrorMessages.SUBSCRIPTION_TYPE_NOT_FOUND(changeSubscriptionDto.subscriptionType));
     }
 
     user.subscriptionType = changeSubscriptionDto.subscriptionType; // Update subscription type

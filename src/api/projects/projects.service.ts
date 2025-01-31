@@ -8,6 +8,7 @@ import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto
 import { Currency } from 'src/entities/currency.entity';
 import { User } from 'src/entities/user.entity';
 import { Tag } from '../../entities/tag.entity';
+import { ErrorMessages } from '../../common/error-messages';
 
 @Injectable()
 export class ProjectsService {
@@ -27,12 +28,12 @@ export class ProjectsService {
       name: dto.name,
     });
     if (findByName) {
-      throw new ConflictException('Проект с таким названием уже существует');
+      throw new ConflictException(ErrorMessages.PROJECT_NAME_EXISTS);
     }
 
     const currencyExist = await this.currencyRepository.findOneBy({ currency_id: dto.currency_id })
     if (!currencyExist) {
-      throw new NotFoundException('Указанная валюта не найдена');
+      throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
     }
 
     // const user = await this.userRepository.findOneBy({ user_id: user_owner_id });
@@ -45,11 +46,12 @@ export class ProjectsService {
     return this.projectRepository.save(project);
   }
 
-  async findById(id: string): Promise<Project | undefined> {
-    if (!id) {
-      throw new NotFoundException('Проект не найден');
+  async findById(id: string): Promise<Project> {
+    const project = await this.projectRepository.findOneBy({ project_id: id });
+    if (!project) {
+      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(id));
     }
-    return this.projectRepository.findOneBy({ project_id: id });
+    return project;
   }
 
   async addUser(project_id: string, new_user_id: string, user_owner_id: string): Promise<Project | undefined> {
@@ -61,16 +63,16 @@ export class ProjectsService {
     })
 
     if (!project) {
-      throw new NotFoundException('Проект не найден либо вы не являетесь его владельцем');
+      throw new NotFoundException(ErrorMessages.PROJECT_NO_ACCESS);
     }
 
     const newUser = await this.userRepository.findOneBy({ user_id: new_user_id })
     if (!newUser) {
-      throw new NotFoundException('Пользователь которого вы хотите добавить не найден');
+      throw new NotFoundException(ErrorMessages.USER_TO_ADD_NOT_FOUND);
     }
 
     if (project.user_ids.includes(new_user_id)) {
-      throw new ConflictException('Пользователь уже добавлен в проект');
+      throw new ConflictException(ErrorMessages.USER_ALREADY_IN_PROJECT);
     }
 
     project.user_ids.push(new_user_id);
@@ -88,16 +90,16 @@ export class ProjectsService {
     })
 
     if (!project) {
-      throw new NotFoundException('Проект не найден либо вы не являетесь его владельцем');
+      throw new NotFoundException(ErrorMessages.PROJECT_NO_ACCESS);
     }
 
     const newUser = await this.userRepository.findOneBy({ user_id: delete_user_id })
     if (!newUser) {
-      throw new NotFoundException('Пользователь, которого вы хотите удалить, не найден');
+      throw new NotFoundException(ErrorMessages.USER_TO_DELETE_NOT_FOUND);
     }
 
     if (!project.user_ids.includes(delete_user_id)) {
-      throw new ConflictException('Такого пользователя нет в проекте');
+      throw new ConflictException(ErrorMessages.USER_NOT_IN_PROJECT);
     }
 
     project.user_ids = project.user_ids.filter((el) => el !== delete_user_id);
@@ -113,7 +115,7 @@ export class ProjectsService {
     paginationQuery: PaginationQueryDto,
   ) {
     if (!value || !key) {
-      throw new NotFoundException('Проект не найден');
+      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(''));
     }
 
     console.log('')
@@ -135,7 +137,7 @@ export class ProjectsService {
     const result = await this.projectRepository.delete(project_id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Проект с ID "${project_id}" не найден`);
+      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(project_id));
     }
   }
 
@@ -148,7 +150,7 @@ export class ProjectsService {
       ...dto,
     });
     if (!project) {
-      throw new NotFoundException(`Проект с ID "${project_id}" не найден`);
+      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(project_id));
     }
 
     return this.projectRepository.save(project);

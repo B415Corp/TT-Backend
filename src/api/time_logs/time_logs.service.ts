@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { TimeLog } from '../../entities/time-logs.entity';
+import { ErrorMessages } from '../../common/error-messages';
+import { IsNull } from 'typeorm';
 
 @Injectable()
 export class TimeLogsService {
@@ -18,9 +20,7 @@ export class TimeLogsService {
 
   async start(task_id: string, user_id: string): Promise<TimeLog> {
     if (!task_id || !user_id) {
-      throw new BadRequestException(
-        'Необходимо указать как task_id, так и user_id.',
-      );
+      throw new BadRequestException(ErrorMessages.TASK_AND_USER_ID_REQUIRED);
     }
 
     const exist_user_log = await this.timeLogRepository.findOne({
@@ -38,9 +38,7 @@ export class TimeLogsService {
     });
 
     if (exist_log) {
-      throw new ConflictException(
-        `Временная отметка с ID "${exist_log.log_id}" уже начата.`,
-      );
+      throw new ConflictException(ErrorMessages.TIME_LOG_ALREADY_STARTED);
     }
 
     const time_log = this.timeLogRepository.create({
@@ -64,15 +62,11 @@ export class TimeLogsService {
     });
 
     if (!time_log) {
-      throw new NotFoundException(
-        `В задаче с ID "${task_id}" нет активной временной отметки.`,
-      );
+      throw new NotFoundException(ErrorMessages.TIME_LOG_NOT_STARTED);
     }
 
     if (time_log.status === 'completed') {
-      throw new ConflictException(
-        `Временная отметка в задаче с ID "${task_id}" уже завершена.`,
-      );
+      throw new ConflictException(ErrorMessages.TIME_LOG_ALREADY_STOPPED);
     }
 
     const start_time = new Date(time_log.start_time).getTime();
@@ -87,22 +81,12 @@ export class TimeLogsService {
     });
   }
 
-  async findById(id: string) {
-    if (!id) {
-      throw new BadRequestException('Необходимо указать ID временной отметки.');
+  async findById(id: string): Promise<TimeLog> {
+    const timeLog = await this.timeLogRepository.findOneBy({ log_id: id });
+    if (!timeLog) {
+      throw new NotFoundException(ErrorMessages.TIME_LOG_NOT_FOUND(id));
     }
-
-    const time_log = await this.timeLogRepository.findOneBy({
-      log_id: id,
-    });
-
-    if (!time_log) {
-      throw new NotFoundException(
-        `Временная отметка с ID "${id}" не найдена.`,
-      );
-    }
-
-    return time_log;
+    return timeLog;
   }
 
   async findTimeLogsByTaskId(
@@ -111,9 +95,7 @@ export class TimeLogsService {
     paginationQuery: PaginationQueryDto,
   ) {
     if (!task_id || !user_id) {
-      throw new BadRequestException(
-        'Необходимо указать как task_id, так и user_id.',
-      );
+      throw new BadRequestException(ErrorMessages.TASK_AND_USER_ID_REQUIRED);
     }
 
     const { page, limit } = paginationQuery;
@@ -156,9 +138,7 @@ export class TimeLogsService {
 
   async findLatestLogInTask(task_id: string, user_id: string) {
     if (!task_id || !user_id) {
-      throw new BadRequestException(
-        'Необходимо указать как task_id, так и user_id.',
-      );
+      throw new BadRequestException(ErrorMessages.TASK_AND_USER_ID_REQUIRED);
     }
 
     const latestLog = await this.timeLogRepository.findOne({
@@ -167,9 +147,7 @@ export class TimeLogsService {
     });
 
     if (!latestLog) {
-      throw new NotFoundException(
-        `Последняя временная отметка для задачи с ID "${task_id}" не найдена.`,
-      );
+      throw new NotFoundException(ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(task_id));
     }
 
     return latestLog;
@@ -177,13 +155,13 @@ export class TimeLogsService {
 
   async remove(time_log_id: string): Promise<void> {
     if (!time_log_id) {
-      throw new BadRequestException('Необходимо указать time_log_id.');
+      throw new BadRequestException(ErrorMessages.TIME_LOG_ID_REQUIRED(''));
     }
 
     const result = await this.timeLogRepository.delete(time_log_id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Время с ID "${time_log_id}" не найдено.`);
+      throw new NotFoundException(ErrorMessages.TIME_LOG_ID_REQUIRED(time_log_id));
     }
   }
 }

@@ -8,6 +8,7 @@ import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto
 import { TimeLog } from '../../entities/time-logs.entity';
 import { Currency } from 'src/entities/currency.entity';
 import { User } from '../../entities/user.entity';
+import { ErrorMessages } from '../../common/error-messages';
 
 @Injectable()
 export class TasksService {
@@ -27,16 +28,14 @@ export class TasksService {
     user_id: string,
     project_id: string,
   ): Promise<Task> {
-    const project = await this.projectRepository.findOne({
-      where: { project_id },
-    });
+    const project = await this.projectRepository.findOneBy({ project_id });
     if (!project) {
-      throw new NotFoundException(`Задача с ID "${project_id}" не найдена`);
+      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(project_id));
     }
 
     const currencyExist = await this.currencyRepository.findOneBy({ currency_id: dto.currency_id })
     if (!currencyExist) {
-      throw new NotFoundException('Указанная валюта не найдена');
+      throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
     }
 
     const task = this.taskRepository.create({
@@ -47,16 +46,12 @@ export class TasksService {
     return this.taskRepository.save(task);
   }
 
-  async findById(id: string) {
-    if (!id) {
-      throw new Error('Задача не найдена');
-    }
+  async findById(id: string): Promise<Task> {
     const task = await this.taskRepository.findOneBy({ task_id: id });
     if (!task) {
-      throw new NotFoundException(`Задача с ID "${id}" не найдена`);
+      throw new NotFoundException(ErrorMessages.TASK_NOT_FOUND(id));
     }
-
-    return this.taskRepository.findOneBy({ task_id: id });
+    return task;
   }
 
   async findByProjectId(
@@ -71,7 +66,7 @@ export class TasksService {
     });
 
     if (!tasks.length) {
-      throw new NotFoundException('No tasks found for this project');
+      throw new NotFoundException(ErrorMessages.NO_TASKS_FOUND);
     }
 
     return tasks;
@@ -83,7 +78,7 @@ export class TasksService {
       ...dto,
     });
     if (!task) {
-      throw new NotFoundException(`Задача с ID "${id}" не найдена`);
+      throw new NotFoundException(ErrorMessages.TASK_NOT_FOUND(id));
     }
 
     const project = await this.projectRepository.findOneBy({
@@ -91,13 +86,11 @@ export class TasksService {
     });
 
     if (!project) {
-      throw new NotFoundException(`Проект с ID "${task.project_id}" не найден`);
+      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(task.project_id));
     }
 
     if (project.user_owner_id !== task.user_id) {
-      throw new NotFoundException(
-        `Этот проект не принадлежит текущему пользователю`,
-      );
+      throw new NotFoundException(ErrorMessages.UNAUTHORIZED);
     }
 
     return this.taskRepository.save(task);
@@ -107,7 +100,7 @@ export class TasksService {
     const result = await this.taskRepository.delete(task_id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Задача с ID "${task_id}" не найдена`);
+      throw new NotFoundException(ErrorMessages.TASK_NOT_FOUND(task_id));
     }
   }
 

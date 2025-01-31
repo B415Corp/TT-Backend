@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from '../api/users/dto/login-user.dto';
 import { UsersService } from '../api/users/users.service';
 import { TokenService } from '../token/token.service';
+import { ErrorMessages } from '../common/error-messages';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,7 @@ export class AuthService {
   async login(dto: LoginUserDto) {
     const existUser = await this.usersService.findByEmail(dto.email);
     if (!existUser) {
-      throw new BadRequestException('Пользователь не найден');
+      throw new BadRequestException(ErrorMessages.USER_NOT_FOUND);
     }
 
     const validatePassword = await bcrypt.compare(
@@ -22,7 +23,7 @@ export class AuthService {
       existUser.password,
     );
     if (!validatePassword) {
-      throw new BadRequestException('Неверный пароль');
+      throw new BadRequestException(ErrorMessages.INVALID_PASSWORD);
     }
 
     const userData = {

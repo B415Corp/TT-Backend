@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Tag } from '../../entities/tag.entity';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
+import { ErrorMessages } from '../../common/error-messages';
 
 @Injectable()
 export class TagsService {
@@ -13,10 +14,9 @@ export class TagsService {
     ) { }
 
     async create(createTagDto: CreateTagDto, user_id: string): Promise<Tag> {
-        // Check if a tag with the same name already exists
-        const existingTag = await this.tagsRepository.findOne({ where: { name: createTagDto.name } });
+        const existingTag = await this.tagsRepository.findOneBy({ name: createTagDto.name });
         if (existingTag) {
-            throw new ConflictException(`Тег с именем "${createTagDto.name}" уже существует`);
+            throw new ConflictException(ErrorMessages.TAG_ALREADY_EXISTS(createTagDto.name));
         }
 
         const tag = this.tagsRepository.create({ ...createTagDto, user_id });
@@ -27,14 +27,18 @@ export class TagsService {
         return this.tagsRepository.find();
     }
 
-    findOne(id: string): Promise<Tag> {
-        return this.tagsRepository.findOneBy({ tag_id: id });
+    async findOne(id: string): Promise<Tag> {
+        const tag = await this.tagsRepository.findOneBy({ tag_id: id });
+        if (!tag) {
+            throw new NotFoundException(ErrorMessages.TAG_NOT_FOUND(id));
+        }
+        return tag;
     }
 
     async findByUserId(user_id: string): Promise<Tag[]> {
         const tags = await this.tagsRepository.find({ where: { user_id } });
         if (!tags.length) {
-            throw new NotFoundException(`Теги для пользователя с ID "${user_id}" не найдены`);
+            throw new NotFoundException(ErrorMessages.TAG_NOT_FOUND(user_id));
         }
         return tags;
     }
@@ -42,15 +46,13 @@ export class TagsService {
     async update(id: string, updateTagDto: UpdateTagDto, user_id: string): Promise<Tag> {
         const tag = await this.tagsRepository.findOneBy({ tag_id: id });
         if (!tag) {
-            throw new NotFoundException(`Тег с ID "${id}" не найден`);
+            throw new NotFoundException(ErrorMessages.TAG_NOT_FOUND(id));
         }
 
-        // Check if the tag belongs to the user
         if (tag.user_id !== user_id) {
-            throw new ConflictException(`Вы не можете редактировать этот тег`);
+            throw new ConflictException(ErrorMessages.UNAUTHORIZED);
         }
 
-        // Update the tag
         const updatedTag = this.tagsRepository.merge(tag, updateTagDto);
         return this.tagsRepository.save(updatedTag);
     }
@@ -58,14 +60,13 @@ export class TagsService {
     async remove(id: string, user_id: string): Promise<void> {
         const tag = await this.tagsRepository.findOneBy({ tag_id: id });
         if (!tag) {
-            throw new NotFoundException(`Тег с ID "${id}" не найден`);
+            throw new NotFoundException(ErrorMessages.TAG_NOT_FOUND(id));
         }
 
-        // Check if the tag belongs to the user
         if (tag.user_id !== user_id) {
-            throw new ConflictException(`Вы не можете удалить этот тег`);
+            throw new ConflictException(ErrorMessages.UNAUTHORIZED);
         }
 
         await this.tagsRepository.delete(id);
     }
-} 
+}

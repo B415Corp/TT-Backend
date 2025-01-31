@@ -5,6 +5,7 @@ import { Client } from '../../entities/client.entity';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
+import { ErrorMessages } from '../../common/error-messages';
 
 @Injectable()
 export class ClientsService {
@@ -19,10 +20,11 @@ export class ClientsService {
   }
 
   async findById(id: string) {
-    if (!id) {
-      throw new Error('Клиент не найден');
+    const client = await this.clientRepository.findOneBy({ client_id: id });
+    if (!client) {
+      throw new NotFoundException(ErrorMessages.CLIENT_NOT_FOUND(id));
     }
-    return this.clientRepository.findOneBy({ client_id: id });
+    return client;
   }
 
   async findByKey(
@@ -31,19 +33,19 @@ export class ClientsService {
     paginationQuery: PaginationQueryDto,
   ) {
     if (!key || !value) {
-      throw new Error('Клиент не найден');
+      throw new NotFoundException(ErrorMessages.CLIENT_NOT_FOUND(''));
     }
     const { page, limit } = paginationQuery;
     const skip = (page - 1) * limit;
 
-    const [projects, total] = await this.clientRepository.findAndCount({
+    const [clients, total] = await this.clientRepository.findAndCount({
       where: { [key]: value },
       skip,
       take: limit,
       order: { created_at: 'DESC' },
     });
 
-    return [projects, total];
+    return [clients, total];
   }
 
   async update(id: string, dto: UpdateClientDto): Promise<Client> {
@@ -52,7 +54,7 @@ export class ClientsService {
       ...dto,
     });
     if (!client) {
-      throw new NotFoundException(`Клиент с ID "${id}" не найден`);
+      throw new NotFoundException(ErrorMessages.CLIENT_NOT_FOUND(id));
     }
     return this.clientRepository.save(client);
   }
@@ -61,7 +63,7 @@ export class ClientsService {
     const result = await this.clientRepository.delete(client_id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Клиент с ID "${client_id}" не найден`);
+      throw new NotFoundException(ErrorMessages.CLIENT_NOT_FOUND(client_id));
     }
   }
 
