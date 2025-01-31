@@ -29,26 +29,61 @@ import {
   PaginationParams,
 } from '../../decorators/paginate.decorator';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
+import { AddUserProjectDto } from './dto/add-user-project.dto';
 
 @ApiTags('projects')
 @Controller('projects')
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(private readonly projectsService: ProjectsService) { }
 
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Create a new project' })
   @ApiResponse({
     status: 201,
     description: 'The project has been successfully created.',
-    type: Project,
+    type: CreateProjectDto,
   })
-  @UseGuards(JwtAuthGuard)
   @Post('create')
   async createProject(
     @Body() createProjectDto: CreateProjectDto,
     @GetUser() user: User,
   ) {
     return this.projectsService.create(createProjectDto, user.user_id);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add user to project' })
+  @ApiResponse({
+    status: 201,
+    description: 'User has been successfully added.',
+    type: Project,
+  })
+  @UseGuards(JwtAuthGuard)
+  @Post(':project_id/add_user')
+  async addUser(
+    @Body() addUserProjectDto: AddUserProjectDto,
+    @Param('project_id') project_id: string,
+    @GetUser() user: User,
+  ) {
+    return this.projectsService.addUser(project_id, addUserProjectDto.user_id, user.user_id);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add user to project' })
+  @ApiResponse({
+    status: 201,
+    description: 'User has been successfully added.',
+    type: Project,
+  })
+  @UseGuards(JwtAuthGuard)
+  @Delete(':project_id/delete_user')
+  async deleteUser(
+    @Body() addUserProjectDto: AddUserProjectDto,
+    @Param('project_id') project_id: string,
+    @GetUser() user: User,
+  ) {
+    return this.projectsService.deleteUser(project_id, addUserProjectDto.user_id, user.user_id);
   }
 
   @ApiOkResponse({ type: PaginatedResponseDto<Project> })

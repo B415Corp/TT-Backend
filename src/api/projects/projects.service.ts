@@ -34,11 +34,11 @@ export class ProjectsService {
     if (!currencyExist) {
       throw new NotFoundException('Указанная валюта не найдена');
     }
-    
-    const user = await this.userRepository.findOneBy({ user_id: user_owner_id });
+
+    // const user = await this.userRepository.findOneBy({ user_id: user_owner_id });
     const project = this.projectRepository.create({
       ...dto,
-      user: user,
+      user_owner_id,
       user_ids: [],
     });
 
@@ -52,6 +52,61 @@ export class ProjectsService {
     return this.projectRepository.findOneBy({ project_id: id });
   }
 
+  async addUser(project_id: string, new_user_id: string, user_owner_id: string): Promise<Project | undefined> {
+    const project = await this.projectRepository.findOne({
+      where: {
+        project_id,
+        user_owner_id
+      }
+    })
+
+    if (!project) {
+      throw new NotFoundException('Проект не найден');
+    }
+
+    const newUser = await this.userRepository.findOneBy({ user_id: new_user_id })
+    if (!newUser) {
+      throw new NotFoundException('Пользователь которого вы хотите добавить не найден');
+    }
+
+    if (project.user_ids.includes(new_user_id)) {
+      throw new ConflictException('Пользователь уже добавлен в проект');
+    }
+
+    project.user_ids.push(new_user_id);
+    await this.projectRepository.save(project);
+
+    return this.projectRepository.findOneBy({ project_id });
+  }
+
+  async deleteUser(project_id: string, delete_user_id: string, user_owner_id: string): Promise<Project | undefined> {
+    const project = await this.projectRepository.findOne({
+      where: {
+        project_id,
+        user_owner_id
+      }
+    })
+
+    if (!project) {
+      throw new NotFoundException('Проект не найден');
+    }
+
+    const newUser = await this.userRepository.findOneBy({ user_id: delete_user_id })
+    if (!newUser) {
+      throw new NotFoundException('Пользователь, которого вы хотите удалить, не найден');
+    }
+
+    if (!project.user_ids.includes(delete_user_id)) {
+      throw new ConflictException('Такого пользователя нет в проекте');
+    }
+
+    project.user_ids = project.user_ids.filter((el) => el !== delete_user_id);
+    await this.projectRepository.save(project);
+
+    return this.projectRepository.findOneBy({ project_id });
+  }
+
+
   async findByKey(
     key: keyof Project,
     value: string,
@@ -60,6 +115,8 @@ export class ProjectsService {
     if (!value || !key) {
       throw new NotFoundException('Проект не найден');
     }
+
+    console.log('')
 
     const { page, limit } = paginationQuery;
     const skip = (page - 1) * limit;
