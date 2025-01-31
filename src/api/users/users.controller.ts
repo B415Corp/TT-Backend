@@ -23,6 +23,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { ChangeSubscriptionDto } from './dto/change-subscription.dto';
+import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -72,6 +73,7 @@ export class UsersController {
   @ApiResponse({ status: 200, type: User })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
+  @ApiErrorResponses()
   async findOne(@Param('id') id: string) {
     return this.usersService.findById(id);
   }
