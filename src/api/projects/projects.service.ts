@@ -61,7 +61,7 @@ export class ProjectsService {
     })
 
     if (!project) {
-      throw new NotFoundException('Проект не найден');
+      throw new NotFoundException('Проект не найден либо вы не являетесь его владельцем');
     }
 
     const newUser = await this.userRepository.findOneBy({ user_id: new_user_id })
@@ -88,7 +88,7 @@ export class ProjectsService {
     })
 
     if (!project) {
-      throw new NotFoundException('Проект не найден');
+      throw new NotFoundException('Проект не найден либо вы не являетесь его владельцем');
     }
 
     const newUser = await this.userRepository.findOneBy({ user_id: delete_user_id })

@@ -60,7 +60,7 @@ export class ProjectsController {
     type: Project,
   })
   @UseGuards(JwtAuthGuard)
-  @Post(':project_id/add_user')
+  @Post(':project_id/add_member')
   async addUser(
     @Body() addUserProjectDto: AddUserProjectDto,
     @Param('project_id') project_id: string,
@@ -77,7 +77,7 @@ export class ProjectsController {
     type: Project,
   })
   @UseGuards(JwtAuthGuard)
-  @Delete(':project_id/delete_user')
+  @Delete(':project_id/delete_member')
   async deleteUser(
     @Body() addUserProjectDto: AddUserProjectDto,
     @Param('project_id') project_id: string,
