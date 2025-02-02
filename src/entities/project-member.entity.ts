@@ -18,11 +18,11 @@ export class ProjectMember {
   @PrimaryGeneratedColumn('uuid')
   member_id: string;
 
-  @ApiProperty({ description: 'Project ID' })
+  @ApiProperty({type: String, description: 'Project ID' })
   @Column()
   project_id: string;
 
-  @ApiProperty({ description: 'User ID' })
+  @ApiProperty({type: String, description: 'User ID' })
   @Column()
   user_id: string;
 
@@ -38,7 +38,7 @@ export class ProjectMember {
   role: ProjectRole;
 
   @ApiProperty({ type: Boolean })
-  @CreateDateColumn()
+  @Column()
   approve: boolean;
 
   @ApiProperty({ type: Date })

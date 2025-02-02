@@ -36,12 +36,46 @@ export class ProjectMembersService {
     });
 
     if (!projectMember) {
-      console.log('create')
-      return this.projectMemberRepository.create(assignRoleDto);
+      const newProjectMember = this.projectMemberRepository.create({
+        ...assignRoleDto,
+        project_id: projectId,
+        approve: false,
+      });
+      return this.projectMemberRepository.save(newProjectMember);
     }
-    // throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
+
     projectMember.role = assignRoleDto.role;
-    console.log('save')
     return this.projectMemberRepository.save(projectMember);
+  }
+
+  async removeMember(projectId: string, userId: string): Promise<void> {
+    const projectMember = await this.projectMemberRepository.findOne({
+      where: { project_id: projectId, user_id: userId },
+    });
+
+    if (!projectMember) {
+      throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
+    }
+
+    await this.projectMemberRepository.delete(projectMember.member_id);
+  }
+
+  async approveMember(projectId: string, userId: string): Promise<ProjectMember> {
+    const projectMember = await this.projectMemberRepository.findOne({
+      where: { project_id: projectId, user_id: userId },
+    });
+
+    if (!projectMember) {
+      throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
+    }
+
+    projectMember.approve = true;
+    return this.projectMemberRepository.save(projectMember);
+  }
+
+  async getMembersByApprovalStatus(projectId: string, approved: boolean): Promise<ProjectMember[]> {
+    return this.projectMemberRepository.find({
+      where: { project_id: projectId, approve: approved },
+    });
   }
 }
