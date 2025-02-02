@@ -14,6 +14,7 @@ import { CurrenciesModule } from './api/currencies/currencies.module';
 import * as process from 'node:process';
 import { TagsModule } from './api/tags/tags.module';
 import { SearchModule } from './api/search/search.module';
+import { ProjectMembersModule } from './api/project-members/project-members.module';
 
 
 @Module({
@@ -39,6 +40,7 @@ import { SearchModule } from './api/search/search.module';
     CurrenciesModule,
     TagsModule,
     SearchModule,
+    ProjectMembersModule,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],

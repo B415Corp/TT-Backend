@@ -13,6 +13,7 @@ import { User } from './user.entity';
 import { Task } from './task.entity';
 import { Tag } from './tag.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { ProjectMember } from './project-member.entity';
 
 @Entity()
 export class Project {
@@ -65,4 +66,7 @@ export class Project {
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'tag_id' },
   })
   tags: Tag[];
+
+  @OneToMany(() => ProjectMember, member => member.project)
+  members: ProjectMember[];
 }
