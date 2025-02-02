@@ -46,7 +46,6 @@ export class ProjectsService {
     const project = this.projectRepository.create({
       ...dto,
       user_owner_id,
-      user_ids: [],
     });
 
     return this.projectRepository.save(project);
@@ -58,72 +57,6 @@ export class ProjectsService {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(id));
     }
     return project;
-  }
-
-  async addUser(
-    project_id: string,
-    new_user_id: string,
-    user_owner_id: string
-  ): Promise<Project | undefined> {
-    const project = await this.projectRepository.findOne({
-      where: {
-        project_id,
-        user_owner_id,
-      },
-    });
-
-    if (!project) {
-      throw new NotFoundException(ErrorMessages.PROJECT_NO_ACCESS);
-    }
-
-    const newUser = await this.userRepository.findOneBy({
-      user_id: new_user_id,
-    });
-    if (!newUser) {
-      throw new NotFoundException(ErrorMessages.USER_TO_ADD_NOT_FOUND);
-    }
-
-    if (project.user_ids.includes(new_user_id)) {
-      throw new ConflictException(ErrorMessages.USER_ALREADY_IN_PROJECT);
-    }
-
-    project.user_ids.push(new_user_id);
-    await this.projectRepository.save(project);
-
-    return this.projectRepository.findOneBy({ project_id });
-  }
-
-  async deleteUser(
-    project_id: string,
-    delete_user_id: string,
-    user_owner_id: string
-  ): Promise<Project | undefined> {
-    const project = await this.projectRepository.findOne({
-      where: {
-        project_id,
-        user_owner_id,
-      },
-    });
-
-    if (!project) {
-      throw new NotFoundException(ErrorMessages.PROJECT_NO_ACCESS);
-    }
-
-    const newUser = await this.userRepository.findOneBy({
-      user_id: delete_user_id,
-    });
-    if (!newUser) {
-      throw new NotFoundException(ErrorMessages.USER_TO_DELETE_NOT_FOUND);
-    }
-
-    if (!project.user_ids.includes(delete_user_id)) {
-      throw new ConflictException(ErrorMessages.USER_NOT_IN_PROJECT);
-    }
-
-    project.user_ids = project.user_ids.filter((el) => el !== delete_user_id);
-    await this.projectRepository.save(project);
-
-    return this.projectRepository.findOneBy({ project_id });
   }
 
   async findByKey(

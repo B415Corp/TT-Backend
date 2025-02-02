@@ -35,13 +35,6 @@ export class Project {
   @Column({ default: '' })
   client_id: string;
 
-  @ApiProperty({
-    type: [String],
-    description: 'User IDs associated with the project',
-  })
-  @Column('text', { array: true })
-  user_ids: string[];
-
   @ApiProperty({ type: String, description: 'User ID of the project owner' })
   @Column({ default: '11111111-1111-1111-1111-111111111111' })
   user_owner_id: string;
