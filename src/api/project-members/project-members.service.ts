@@ -5,9 +5,6 @@ import { ProjectMember } from '../../entities/project-member.entity';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { ErrorMessages } from '../../common/error-messages';
 import { Project } from 'src/entities/project.entity';
-import { User } from '../../entities/user.entity';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
-
 
 @Injectable()
 export class ProjectMembersService {
@@ -34,38 +31,17 @@ export class ProjectMembersService {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND);
     }
 
-    console.log(projectId, assignRoleDto);
     const projectMember = await this.projectMemberRepository.findOne({
       where: { project_id: projectId, user_id: assignRoleDto.user_id },
     });
 
     if (!projectMember) {
-      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
+      console.log('create')
+      return this.projectMemberRepository.create(assignRoleDto);
     }
-
+    // throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
     projectMember.role = assignRoleDto.role;
+    console.log('save')
     return this.projectMemberRepository.save(projectMember);
-  }
-
-  async createProject(projectData: any, user: User): Promise<Project> {
-    const project = await this.projectRepository.save(projectData);
-
-    // Создаем запись в project_members для владельца проекта
-    const projectMember = this.projectMemberRepository.create({
-      project: project,
-      user: user,
-      role: ProjectRole.OWNER,
-    });
-    await this.projectMemberRepository.save(projectMember);
-
-    return project;
-  }
-
-  async deleteProject(projectId: string): Promise<void> {
-    // Удаляем все записи из project_members, связанные с проектом
-    await this.projectMemberRepository.delete({ project: { project_id: projectId } });
-    
-    // Удаляем проект
-    await this.projectRepository.delete(projectId);
   }
 }

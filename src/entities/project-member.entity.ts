@@ -26,13 +26,20 @@ export class ProjectMember {
   @Column()
   user_id: string;
 
-  @ApiProperty({ enum: ProjectRole, description: 'Role of the user in the project' })
+  @ApiProperty({
+    enum: ProjectRole,
+    description: 'Role of the user in the project',
+  })
   @Column({
     type: 'enum',
     enum: ProjectRole,
-    default: ProjectRole.GUEST
+    default: ProjectRole.GUEST,
   })
   role: ProjectRole;
+
+  @ApiProperty({ type: Boolean })
+  @CreateDateColumn()
+  approve: boolean;
 
   @ApiProperty({ type: Date })
   @CreateDateColumn()
@@ -42,11 +49,11 @@ export class ProjectMember {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => Project, project => project.members)
+  @ManyToOne(() => Project, (project) => project.members)
   @JoinColumn({ name: 'project_id' })
   project: Project;
 
-  @ManyToOne(() => User, user => user.projectMembers)
+  @ManyToOne(() => User, (user) => user.projectMembers)
   @JoinColumn({ name: 'user_id' })
   user: User;
-} 
+}
