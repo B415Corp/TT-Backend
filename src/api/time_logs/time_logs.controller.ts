@@ -12,7 +12,6 @@ import {
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { GetUser } from '../../decorators/get-user.decorator';
 import { User } from '../../entities/user.entity';
-import { PaginatedResponseDto } from '../../common/pagination/paginated-response.dto';
 import {
   Paginate,
   PaginationParams,
