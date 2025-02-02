@@ -39,12 +39,12 @@ export class TasksController {
   @Post('create')
   async createTask(
     @Body() createTaskDto: CreateTaskDto,
-    @GetUser() user: User,
+    @GetUser() user: User
   ) {
     return this.tasksService.create(
       createTaskDto,
       user.user_id,
-      createTaskDto.project_id,
+      createTaskDto.project_id
     );
   }
 
@@ -91,7 +91,10 @@ export class TasksController {
   @ApiResponse({ status: 200, type: [Task] })
   @UseGuards(JwtAuthGuard)
   @Get(':project_id/tasks')
-  async getTasksByProjectId(@Param('project_id') projectId: string, @GetUser() user: User) {
+  async getTasksByProjectId(
+    @Param('project_id') projectId: string,
+    @GetUser() user: User
+  ) {
     return this.tasksService.findByProjectId(projectId, user.user_id);
   }
 }

@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
 import { Project } from '../../entities/project.entity';
@@ -20,8 +24,8 @@ export class ProjectsService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Tag)
-    private tagRepository: Repository<Tag>,
-  ) { }
+    private tagRepository: Repository<Tag>
+  ) {}
 
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
     const findByName = await this.projectRepository.findOneBy({
@@ -31,7 +35,9 @@ export class ProjectsService {
       throw new ConflictException(ErrorMessages.PROJECT_NAME_EXISTS);
     }
 
-    const currencyExist = await this.currencyRepository.findOneBy({ currency_id: dto.currency_id })
+    const currencyExist = await this.currencyRepository.findOneBy({
+      currency_id: dto.currency_id,
+    });
     if (!currencyExist) {
       throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
     }
@@ -54,19 +60,25 @@ export class ProjectsService {
     return project;
   }
 
-  async addUser(project_id: string, new_user_id: string, user_owner_id: string): Promise<Project | undefined> {
+  async addUser(
+    project_id: string,
+    new_user_id: string,
+    user_owner_id: string
+  ): Promise<Project | undefined> {
     const project = await this.projectRepository.findOne({
       where: {
         project_id,
-        user_owner_id
-      }
-    })
+        user_owner_id,
+      },
+    });
 
     if (!project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NO_ACCESS);
     }
 
-    const newUser = await this.userRepository.findOneBy({ user_id: new_user_id })
+    const newUser = await this.userRepository.findOneBy({
+      user_id: new_user_id,
+    });
     if (!newUser) {
       throw new NotFoundException(ErrorMessages.USER_TO_ADD_NOT_FOUND);
     }
@@ -81,19 +93,25 @@ export class ProjectsService {
     return this.projectRepository.findOneBy({ project_id });
   }
 
-  async deleteUser(project_id: string, delete_user_id: string, user_owner_id: string): Promise<Project | undefined> {
+  async deleteUser(
+    project_id: string,
+    delete_user_id: string,
+    user_owner_id: string
+  ): Promise<Project | undefined> {
     const project = await this.projectRepository.findOne({
       where: {
         project_id,
-        user_owner_id
-      }
-    })
+        user_owner_id,
+      },
+    });
 
     if (!project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NO_ACCESS);
     }
 
-    const newUser = await this.userRepository.findOneBy({ user_id: delete_user_id })
+    const newUser = await this.userRepository.findOneBy({
+      user_id: delete_user_id,
+    });
     if (!newUser) {
       throw new NotFoundException(ErrorMessages.USER_TO_DELETE_NOT_FOUND);
     }
@@ -108,17 +126,16 @@ export class ProjectsService {
     return this.projectRepository.findOneBy({ project_id });
   }
 
-
   async findByKey(
     key: keyof Project,
     value: string,
-    paginationQuery: PaginationQueryDto,
+    paginationQuery: PaginationQueryDto
   ) {
     if (!value || !key) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(''));
     }
 
-    console.log('')
+    console.log('');
 
     const { page, limit } = paginationQuery;
     const skip = (page - 1) * limit;
@@ -143,7 +160,7 @@ export class ProjectsService {
 
   async update(
     project_id: string,
-    dto: UpdateProjectDto,
+    dto: UpdateProjectDto
   ): Promise<Project | undefined> {
     const project = await this.projectRepository.preload({
       project_id,

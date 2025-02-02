@@ -16,7 +16,6 @@ import { TagsModule } from './api/tags/tags.module';
 import { SearchModule } from './api/search/search.module';
 import { ProjectMembersModule } from './api/project-members/project-members.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),

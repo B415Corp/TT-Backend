@@ -28,6 +28,6 @@ export function ApiErrorResponses() {
       status: 500,
       description: 'Internal Server Error',
       type: ErrorResponse,
-    }),
+    })
   );
-} 
+}

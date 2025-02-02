@@ -28,7 +28,7 @@ import { ApiErrorResponses } from '../../common/decorators/api-error-responses.d
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Test free feature' })
@@ -37,7 +37,7 @@ export class UsersController {
   @Subscription(
     SubscriptionType.FREE,
     SubscriptionType.BASIC,
-    SubscriptionType.PREMIUM,
+    SubscriptionType.PREMIUM
   )
   async getFreeFeature(@GetUser() user: User) {
     return this.usersService.findById(user.user_id);
@@ -94,8 +94,11 @@ export class UsersController {
   @Patch('me/subscription')
   async changeSubscription(
     @GetUser() user: User,
-    @Body() changeSubscriptionDto: ChangeSubscriptionDto,
+    @Body() changeSubscriptionDto: ChangeSubscriptionDto
   ) {
-    return this.usersService.changeSubscription(user.user_id, changeSubscriptionDto);
+    return this.usersService.changeSubscription(
+      user.user_id,
+      changeSubscriptionDto
+    );
   }
 }

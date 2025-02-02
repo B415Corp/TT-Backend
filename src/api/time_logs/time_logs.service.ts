@@ -2,7 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,8 +15,8 @@ import { IsNull } from 'typeorm';
 export class TimeLogsService {
   constructor(
     @InjectRepository(TimeLog)
-    private timeLogRepository: Repository<TimeLog>,
-  ) { }
+    private timeLogRepository: Repository<TimeLog>
+  ) {}
 
   async start(task_id: string, user_id: string): Promise<TimeLog> {
     if (!task_id || !user_id) {
@@ -29,7 +29,7 @@ export class TimeLogsService {
 
     if (exist_user_log) {
       throw new ConflictException(
-        `Пользователь с ID ${user_id} уже имеет начатую задачу.`,
+        `Пользователь с ID ${user_id} уже имеет начатую задачу.`
       );
     }
 
@@ -92,7 +92,7 @@ export class TimeLogsService {
   async findTimeLogsByTaskId(
     task_id: string,
     user_id: string,
-    paginationQuery: PaginationQueryDto,
+    paginationQuery: PaginationQueryDto
   ) {
     if (!task_id || !user_id) {
       throw new BadRequestException(ErrorMessages.TASK_AND_USER_ID_REQUIRED);
@@ -102,7 +102,7 @@ export class TimeLogsService {
 
     if (!page || !limit || page <= 0 || limit <= 0) {
       throw new BadRequestException(
-        'Параметры пагинации (page и limit) должны быть положительными числами.',
+        'Параметры пагинации (page и limit) должны быть положительными числами.'
       );
     }
 
@@ -129,7 +129,7 @@ export class TimeLogsService {
 
     if (!projects.length) {
       throw new NotFoundException(
-        `Временные отметки для задачи с ID "${task_id}" не найдены.`,
+        `Временные отметки для задачи с ID "${task_id}" не найдены.`
       );
     }
 
@@ -147,7 +147,9 @@ export class TimeLogsService {
     });
 
     if (!latestLog) {
-      throw new NotFoundException(ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(task_id));
+      throw new NotFoundException(
+        ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(task_id)
+      );
     }
 
     return latestLog;
@@ -161,7 +163,9 @@ export class TimeLogsService {
     const result = await this.timeLogRepository.delete(time_log_id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(ErrorMessages.TIME_LOG_ID_REQUIRED(time_log_id));
+      throw new NotFoundException(
+        ErrorMessages.TIME_LOG_ID_REQUIRED(time_log_id)
+      );
     }
   }
 }

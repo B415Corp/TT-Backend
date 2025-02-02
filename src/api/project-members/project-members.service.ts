@@ -12,13 +12,13 @@ export class ProjectMembersService {
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>,
     @InjectRepository(Project)
-    private projectRepository: Repository<Project>,
+    private projectRepository: Repository<Project>
   ) {}
 
   async assignRole(
     projectId: string,
     assignRoleDto: AssignRoleDto,
-    ownerId: string,
+    ownerId: string
   ): Promise<ProjectMember> {
     const project = await this.projectRepository.findOne({
       where: {
@@ -60,7 +60,10 @@ export class ProjectMembersService {
     await this.projectMemberRepository.delete(projectMember.member_id);
   }
 
-  async approveMember(projectId: string, userId: string): Promise<ProjectMember> {
+  async approveMember(
+    projectId: string,
+    userId: string
+  ): Promise<ProjectMember> {
     const projectMember = await this.projectMemberRepository.findOne({
       where: { project_id: projectId, user_id: userId },
     });
@@ -73,7 +76,10 @@ export class ProjectMembersService {
     return this.projectMemberRepository.save(projectMember);
   }
 
-  async getMembersByApprovalStatus(projectId: string, approved: boolean): Promise<ProjectMember[]> {
+  async getMembersByApprovalStatus(
+    projectId: string,
+    approved: boolean
+  ): Promise<ProjectMember[]> {
     return this.projectMemberRepository.find({
       where: { project_id: projectId, approve: approved },
     });

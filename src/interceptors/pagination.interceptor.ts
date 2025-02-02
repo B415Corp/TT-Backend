@@ -33,11 +33,11 @@ export class PaginationInterceptor implements NestInterceptor {
             items,
             total,
             paginationQuery.page,
-            paginationQuery.limit,
+            paginationQuery.limit
           );
         }
         return data;
-      }),
+      })
     );
   }
 }

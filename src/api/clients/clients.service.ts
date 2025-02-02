@@ -11,7 +11,7 @@ import { ErrorMessages } from '../../common/error-messages';
 export class ClientsService {
   constructor(
     @InjectRepository(Client)
-    private clientRepository: Repository<Client>,
+    private clientRepository: Repository<Client>
   ) {}
 
   async create(dto: CreateClientDto, user_id: string): Promise<Client> {
@@ -30,7 +30,7 @@ export class ClientsService {
   async findByKey(
     key: keyof Client,
     value: string,
-    paginationQuery: PaginationQueryDto,
+    paginationQuery: PaginationQueryDto
   ) {
     if (!key || !value) {
       throw new NotFoundException(ErrorMessages.CLIENT_NOT_FOUND(''));

@@ -89,12 +89,12 @@ export class TimeLogsController {
   async getMe(
     @Param('task_id') id: string,
     @GetUser() user: User,
-    @PaginationParams() paginationQuery: PaginationQueryDto,
+    @PaginationParams() paginationQuery: PaginationQueryDto
   ) {
     return this.timeLogsService.findTimeLogsByTaskId(
       id,
       user.user_id,
-      paginationQuery,
+      paginationQuery
     );
   }
 }

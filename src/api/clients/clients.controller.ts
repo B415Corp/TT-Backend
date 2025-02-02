@@ -33,7 +33,7 @@ import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto
 @ApiTags('clients')
 @Controller('clients')
 export class ClientsController {
-  constructor(private readonly clientsService: ClientsService) { }
+  constructor(private readonly clientsService: ClientsService) {}
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new client' })
@@ -47,7 +47,7 @@ export class ClientsController {
   @Post('create')
   async createClient(
     @Body() createClientDto: CreateClientDto,
-    @GetUser() user: User,
+    @GetUser() user: User
   ) {
     return this.clientsService.create(createClientDto, user.user_id);
   }
@@ -66,12 +66,12 @@ export class ClientsController {
   @Paginate()
   async me(
     @GetUser() user: User,
-    @PaginationParams() paginationQuery: PaginationQueryDto,
+    @PaginationParams() paginationQuery: PaginationQueryDto
   ) {
     return this.clientsService.findByKey(
       'user_id',
       user.user_id,
-      paginationQuery,
+      paginationQuery
     );
   }
 
@@ -88,13 +88,17 @@ export class ClientsController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a client' })
-  @ApiResponse({ status: 200, description: 'Successfully updated the client.', type: Client })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully updated the client.',
+    type: Client,
+  })
   @ApiResponse({ status: 404, description: 'Client not found.' })
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async updateClient(
     @Param('id') id: string,
-    @Body() updateClientDto: UpdateClientDto,
+    @Body() updateClientDto: UpdateClientDto
   ) {
     return this.clientsService.update(id, updateClientDto);
   }

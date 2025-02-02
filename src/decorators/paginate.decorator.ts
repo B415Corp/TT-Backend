@@ -12,7 +12,7 @@ export function Paginate(defaultLimit: number = 10) {
       // Найдем ExecutionContext в аргументах
       const ctx = args.find(
         (arg) =>
-          arg && arg.switchToHttp && typeof arg.switchToHttp === 'function',
+          arg && arg.switchToHttp && typeof arg.switchToHttp === 'function'
       );
 
       if (ctx) {
@@ -39,7 +39,7 @@ export function Paginate(defaultLimit: number = 10) {
           data,
           total,
           paginationQuery.page,
-          paginationQuery.limit,
+          paginationQuery.limit
         );
       }
 
@@ -59,5 +59,5 @@ export const PaginationParams = createParamDecorator(
       page: +page,
       limit: +limit,
     };
-  },
+  }
 );

@@ -9,7 +9,7 @@ import { ErrorMessages } from '../common/error-messages';
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private tokenService: TokenService,
+    private tokenService: TokenService
   ) {}
 
   async login(dto: LoginUserDto) {
@@ -20,7 +20,7 @@ export class AuthService {
 
     const validatePassword = await bcrypt.compare(
       dto.password,
-      existUser.password,
+      existUser.password
     );
     if (!validatePassword) {
       throw new BadRequestException(ErrorMessages.INVALID_PASSWORD);

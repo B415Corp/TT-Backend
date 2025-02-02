@@ -18,7 +18,7 @@ import { ErrorMessages } from '../../common/error-messages';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private usersRepository: Repository<User>
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -62,7 +62,7 @@ export class UsersService {
   }
 
   async findAll(
-    paginationQuery: PaginationQueryDto,
+    paginationQuery: PaginationQueryDto
   ): Promise<[User[], number]> {
     const { page, limit } = paginationQuery;
     const skip = (page - 1) * limit;
@@ -84,7 +84,10 @@ export class UsersService {
     }
   }
 
-  async changeSubscription(userId: string, changeSubscriptionDto: ChangeSubscriptionDto): Promise<User> {
+  async changeSubscription(
+    userId: string,
+    changeSubscriptionDto: ChangeSubscriptionDto
+  ): Promise<User> {
     const user = await this.usersRepository.findOneBy({ user_id: userId });
     if (!user) {
       throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
@@ -92,8 +95,14 @@ export class UsersService {
 
     // Check if the provided subscription type is valid
     const validSubscriptionTypes = Object.values(SubscriptionType);
-    if (!validSubscriptionTypes.includes(changeSubscriptionDto.subscriptionType)) {
-      throw new ConflictException(ErrorMessages.SUBSCRIPTION_TYPE_NOT_FOUND(changeSubscriptionDto.subscriptionType));
+    if (
+      !validSubscriptionTypes.includes(changeSubscriptionDto.subscriptionType)
+    ) {
+      throw new ConflictException(
+        ErrorMessages.SUBSCRIPTION_TYPE_NOT_FOUND(
+          changeSubscriptionDto.subscriptionType
+        )
+      );
     }
 
     user.subscriptionType = changeSubscriptionDto.subscriptionType; // Update subscription type

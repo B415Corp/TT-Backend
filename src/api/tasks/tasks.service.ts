@@ -20,20 +20,22 @@ export class TasksService {
     @InjectRepository(TimeLog)
     private timeLogRepository: Repository<TimeLog>,
     @InjectRepository(Currency)
-    private currencyRepository: Repository<Currency>,
-  ) { }
+    private currencyRepository: Repository<Currency>
+  ) {}
 
   async create(
     dto: CreateTaskDto,
     user_id: string,
-    project_id: string,
+    project_id: string
   ): Promise<Task> {
     const project = await this.projectRepository.findOneBy({ project_id });
     if (!project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(project_id));
     }
 
-    const currencyExist = await this.currencyRepository.findOneBy({ currency_id: dto.currency_id })
+    const currencyExist = await this.currencyRepository.findOneBy({
+      currency_id: dto.currency_id,
+    });
     if (!currencyExist) {
       throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
     }
@@ -54,10 +56,7 @@ export class TasksService {
     return task;
   }
 
-  async findByProjectId(
-    project_id: string,
-    userId: string,
-  ): Promise<Task[]> {
+  async findByProjectId(project_id: string, userId: string): Promise<Task[]> {
     const tasks = await this.taskRepository.find({
       where: {
         project_id: project_id,
@@ -86,7 +85,9 @@ export class TasksService {
     });
 
     if (!project) {
-      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(task.project_id));
+      throw new NotFoundException(
+        ErrorMessages.PROJECT_NOT_FOUND(task.project_id)
+      );
     }
 
     if (project.user_owner_id !== task.user_id) {

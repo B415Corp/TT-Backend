@@ -48,8 +48,8 @@ describe('TimeLogsService', () => {
 
       await expect(service.start('task123', 'user123')).rejects.toThrow(
         new NotFoundException(
-          'Пользователь с ID user123 уже имеет начатую задачу',
-        ),
+          'Пользователь с ID user123 уже имеет начатую задачу'
+        )
       );
     });
 
@@ -84,8 +84,8 @@ describe('TimeLogsService', () => {
 
       await expect(service.stop('task123')).rejects.toThrow(
         new NotFoundException(
-          'В задаче с ID "task123" нет активной временной отметки',
-        ),
+          'В задаче с ID "task123" нет активной временной отметки'
+        )
       );
     });
 
@@ -123,7 +123,7 @@ describe('TimeLogsService', () => {
   describe('findById', () => {
     it('should throw an error if no ID is provided', async () => {
       await expect(service.findById('')).rejects.toThrow(
-        new Error('Необходимо указать ID временной отметки'),
+        new Error('Необходимо указать ID временной отметки')
       );
     });
 
@@ -131,7 +131,7 @@ describe('TimeLogsService', () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
 
       await expect(service.findById('log123')).rejects.toThrow(
-        new NotFoundException('Временная отметка с ID "log123" не найдено'),
+        new NotFoundException('Временная отметка с ID "log123" не найдено')
       );
     });
 
@@ -152,7 +152,7 @@ describe('TimeLogsService', () => {
       mockRepository.delete.mockResolvedValueOnce({ affected: 0 });
 
       await expect(service.remove('log123')).rejects.toThrow(
-        new NotFoundException('Время с ID "log123" не найдено'),
+        new NotFoundException('Время с ID "log123" не найдено')
       );
     });
 

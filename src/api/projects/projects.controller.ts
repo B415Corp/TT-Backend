@@ -29,7 +29,6 @@ import {
   PaginationParams,
 } from '../../decorators/paginate.decorator';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
-import { AddUserProjectDto } from './dto/add-user-project.dto';
 
 @ApiTags('projects')
 @Controller('projects')
@@ -47,7 +46,7 @@ export class ProjectsController {
   @Post('create')
   async createProject(
     @Body() createProjectDto: CreateProjectDto,
-    @GetUser() user: User,
+    @GetUser() user: User
   ) {
     return this.projectsService.create(createProjectDto, user.user_id);
   }
@@ -66,12 +65,12 @@ export class ProjectsController {
   @Paginate()
   async getMe(
     @GetUser() user: User,
-    @PaginationParams() paginationQuery: PaginationQueryDto,
+    @PaginationParams() paginationQuery: PaginationQueryDto
   ) {
     return this.projectsService.findByKey(
       'user_owner_id',
       user.user_id,
-      paginationQuery,
+      paginationQuery
     );
   }
 
@@ -99,7 +98,7 @@ export class ProjectsController {
   @Patch(':id')
   async updateProject(
     @Param('id') id: string,
-    @Body() updateProjectDto: UpdateProjectDto,
+    @Body() updateProjectDto: UpdateProjectDto
   ) {
     return this.projectsService.update(id, updateProjectDto);
   }

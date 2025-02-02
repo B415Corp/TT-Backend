@@ -35,15 +35,15 @@ export class TimeLog {
   status: 'in-progress' | 'completed';
 
   @Column()
-   @ApiProperty({ type: Number })
+  @ApiProperty({ type: Number })
   @Column({ default: 0 })
   duration: number;
 
   @CreateDateColumn()
-   @ApiProperty({ type: Date })
+  @ApiProperty({ type: Date })
   created_at: Date;
 
   @UpdateDateColumn()
-   @ApiProperty({ type: Date })
+  @ApiProperty({ type: Date })
   updated_at: Date;
 }

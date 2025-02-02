@@ -9,13 +9,9 @@ import { TasksModule } from '../tasks/tasks.module';
 import { ClientsModule } from '../clients/clients.module';
 
 @Module({
-    imports: [
-        ProjectsModule,
-        TasksModule,
-        ClientsModule,
-    ],
-    providers: [SearchService],
-    exports: [SearchService],
-    controllers: [SearchController],
+  imports: [ProjectsModule, TasksModule, ClientsModule],
+  providers: [SearchService],
+  exports: [SearchService],
+  controllers: [SearchController],
 })
 export class SearchModule {}

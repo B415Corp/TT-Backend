@@ -24,11 +24,17 @@ export class Task {
   @Column()
   name: string;
 
-  @ApiProperty({ type: String, description: 'Project ID associated with the task' })
+  @ApiProperty({
+    type: String,
+    description: 'Project ID associated with the task',
+  })
   @Column()
   project_id: string;
 
-  @ApiProperty({ type: String, description: 'User ID associated with the task' })
+  @ApiProperty({
+    type: String,
+    description: 'User ID associated with the task',
+  })
   @Column({ default: '11111111-1111-1111-1111-111111111111' })
   user_id: string;
 
@@ -40,7 +46,10 @@ export class Task {
   @Column()
   is_paid: boolean;
 
-  @ApiProperty({ enum: ['fixed', 'hourly'], description: 'Payment type for the task' })
+  @ApiProperty({
+    enum: ['fixed', 'hourly'],
+    description: 'Payment type for the task',
+  })
   @Column({ default: 'hourly' })
   payment_type: 'fixed' | 'hourly';
 
@@ -48,7 +57,10 @@ export class Task {
   @Column('decimal', { default: 0 })
   rate: number;
 
-  @ApiProperty({ type: Number, description: 'Currency ID associated with the task' })
+  @ApiProperty({
+    type: Number,
+    description: 'Currency ID associated with the task',
+  })
   @Column({ default: 1 })
   currency_id: number;
 
@@ -60,10 +72,10 @@ export class Task {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => User, user => user.tasks)
+  @ManyToOne(() => User, (user) => user.tasks)
   user: User;
 
-  @ManyToOne(() => Project, project => project.task)
+  @ManyToOne(() => Project, (project) => project.task)
   project: Project;
 
   @ManyToMany(() => Tag)

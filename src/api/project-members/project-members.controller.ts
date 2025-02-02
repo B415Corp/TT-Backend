@@ -34,12 +34,12 @@ export class ProjectMembersController {
   async assignRole(
     @Param('id') projectId: string,
     @Body() assignRoleDto: AssignRoleDto,
-    @GetUser() user: User,
+    @GetUser() user: User
   ) {
     return this.projectMembersService.assignRole(
       projectId,
       assignRoleDto,
-      user.user_id,
+      user.user_id
     );
   }
 
@@ -50,7 +50,7 @@ export class ProjectMembersController {
   @Delete(':id/members/:userId')
   async removeMember(
     @Param('id') projectId: string,
-    @Param('userId') userId: string,
+    @Param('userId') userId: string
   ): Promise<void> {
     return this.projectMembersService.removeMember(projectId, userId);
   }
@@ -62,7 +62,7 @@ export class ProjectMembersController {
   @Post(':id/members/:userId/approve')
   async approveMember(
     @Param('id') projectId: string,
-    @Param('userId') userId: string,
+    @Param('userId') userId: string
   ): Promise<ProjectMember> {
     return this.projectMembersService.approveMember(projectId, userId);
   }
@@ -74,11 +74,11 @@ export class ProjectMembersController {
   @Get(':id/members')
   async getMembers(
     @Param('id') projectId: string,
-    @Query('approved') approved: boolean,
+    @Query('approved') approved: boolean
   ): Promise<ProjectMember[]> {
     return this.projectMembersService.getMembersByApprovalStatus(
       projectId,
-      approved,
+      approved
     );
   }
 }

@@ -61,11 +61,11 @@ describe('TimeLogsController', () => {
 
     it('should throw a NotFoundException if time log not found', async () => {
       mockTimeLogsService.findById.mockRejectedValue(
-        new NotFoundException('Time log not found'),
+        new NotFoundException('Time log not found')
       );
 
       await expect(controller.getClientById('log123')).rejects.toThrow(
-        NotFoundException,
+        NotFoundException
       );
     });
   });
@@ -79,7 +79,7 @@ describe('TimeLogsController', () => {
 
       expect(mockTimeLogsService.start).toHaveBeenCalledWith(
         'task123',
-        mockUser.user_id,
+        mockUser.user_id
       );
       expect(result).toEqual(timeLog);
     });
@@ -106,7 +106,7 @@ describe('TimeLogsController', () => {
 
       expect(mockTimeLogsService.findLatestLogInTask).toHaveBeenCalledWith(
         'task123',
-        mockUser.user_id,
+        mockUser.user_id
       );
       expect(result).toEqual(timeLog);
     });
@@ -121,13 +121,13 @@ describe('TimeLogsController', () => {
       const result = await controller.getMe(
         'task123',
         mockUser,
-        paginationQuery,
+        paginationQuery
       );
 
       expect(mockTimeLogsService.findTimeLogsByTaskId).toHaveBeenCalledWith(
         'task123',
         mockUser.user_id,
-        paginationQuery,
+        paginationQuery
       );
       expect(result).toEqual([timeLogs, 2]);
     });

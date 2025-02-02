@@ -43,15 +43,15 @@ export class User {
   @UpdateDateColumn({ type: 'timestamp with time zone' })
   updated_at: Date;
 
-  @OneToMany(() => Project, project => project.user)
+  @OneToMany(() => Project, (project) => project.user)
   projects: Project[];
 
-  @OneToMany(() => Task, task => task.user)
+  @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];
 
-  @OneToMany(() => Client, client => client.user)
+  @OneToMany(() => Client, (client) => client.user)
   clients: Client[];
 
-  @OneToMany(() => ProjectMember, member => member.user)
+  @OneToMany(() => ProjectMember, (member) => member.user)
   projectMembers: ProjectMember[];
 }

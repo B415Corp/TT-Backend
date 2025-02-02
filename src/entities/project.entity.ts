@@ -17,7 +17,10 @@ import { ProjectMember } from './project-member.entity';
 
 @Entity()
 export class Project {
-  @ApiProperty({ type: String, description: 'Unique identifier for the project' })
+  @ApiProperty({
+    type: String,
+    description: 'Unique identifier for the project',
+  })
   @PrimaryGeneratedColumn('uuid')
   project_id: string;
 
@@ -25,11 +28,17 @@ export class Project {
   @Column()
   name: string;
 
-  @ApiProperty({ type: String, description: 'Client ID associated with the project' })
+  @ApiProperty({
+    type: String,
+    description: 'Client ID associated with the project',
+  })
   @Column({ default: '' })
   client_id: string;
 
-  @ApiProperty({ type: [String], description: 'User IDs associated with the project' })
+  @ApiProperty({
+    type: [String],
+    description: 'User IDs associated with the project',
+  })
   @Column('text', { array: true })
   user_ids: string[];
 
@@ -37,7 +46,10 @@ export class Project {
   @Column({ default: '11111111-1111-1111-1111-111111111111' })
   user_owner_id: string;
 
-  @ApiProperty({ type: Number, description: 'Currency ID associated with the project' })
+  @ApiProperty({
+    type: Number,
+    description: 'Currency ID associated with the project',
+  })
   @Column({ default: 1 })
   currency_id: number;
 
@@ -53,10 +65,10 @@ export class Project {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => User, user => user.projects)
+  @ManyToOne(() => User, (user) => user.projects)
   user: User;
 
-  @OneToMany(() => Task, task => task.project)
+  @OneToMany(() => Task, (task) => task.project)
   task: Task[];
 
   @ManyToMany(() => Tag)
@@ -67,6 +79,6 @@ export class Project {
   })
   tags: Tag[];
 
-  @OneToMany(() => ProjectMember, member => member.project)
+  @OneToMany(() => ProjectMember, (member) => member.project)
   members: ProjectMember[];
 }

@@ -11,7 +11,7 @@ export class Tag {
   @Column()
   user_id: string; // Unique identifier for the user
 
-  @ApiProperty({ type: String, description: 'Name of the tag'})
+  @ApiProperty({ type: String, description: 'Name of the tag' })
   @Column({ unique: true })
   name: string; // Name of the tag
 }

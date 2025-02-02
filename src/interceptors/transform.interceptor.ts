@@ -22,7 +22,7 @@ export class TransformInterceptor implements NestInterceptor {
         }
         // Если это не пагинированный ответ, оборачиваем его в { data }
         return { data };
-      }),
+      })
     );
   }
 

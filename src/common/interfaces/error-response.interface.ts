@@ -15,4 +15,4 @@ export class ErrorResponse {
 
   @ApiProperty()
   path: string;
-} 
+}
