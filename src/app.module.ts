@@ -15,6 +15,7 @@ import * as process from 'node:process';
 import { TagsModule } from './api/tags/tags.module';
 import { SearchModule } from './api/search/search.module';
 import { ProjectMembersModule } from './api/project-members/project-members.module';
+import { TaskMembersModule } from './api/task-members/task-members.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ProjectMembersModule } from './api/project-members/project-members.modu
     TokenModule,
     ClientsModule,
     ProjectsModule,
+    TaskMembersModule,
     TasksModule,
     TimeLogsModule,
     CurrenciesModule,
