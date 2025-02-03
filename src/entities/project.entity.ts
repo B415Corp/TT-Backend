@@ -72,6 +72,6 @@ export class Project {
   })
   tags: Tag[];
 
-  @OneToMany(() => ProjectMember, (member) => member.project)
+  @OneToMany(() => ProjectMember, (member) => member.project, { onDelete: 'CASCADE' })
   members: ProjectMember[];
 }

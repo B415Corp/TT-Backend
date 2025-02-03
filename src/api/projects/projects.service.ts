@@ -13,6 +13,7 @@ import { Currency } from 'src/entities/currency.entity';
 import { User } from 'src/entities/user.entity';
 import { Tag } from '../../entities/tag.entity';
 import { ErrorMessages } from '../../common/error-messages';
+import { ProjectMember } from '../../entities/project-member.entity';
 
 @Injectable()
 export class ProjectsService {
@@ -24,7 +25,9 @@ export class ProjectsService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Tag)
-    private tagRepository: Repository<Tag>
+    private tagRepository: Repository<Tag>,
+    @InjectRepository(ProjectMember)
+    private projectMemberRepository: Repository<ProjectMember>
   ) {}
 
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
@@ -68,8 +71,6 @@ export class ProjectsService {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(''));
     }
 
-    console.log('');
-
     const { page, limit } = paginationQuery;
     const skip = (page - 1) * limit;
 
@@ -83,12 +84,17 @@ export class ProjectsService {
     return [projects, total];
   }
 
-  async remove(project_id: string): Promise<void> {
-    const result = await this.projectRepository.delete(project_id);
-
-    if (result.affected === 0) {
-      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(project_id));
+  async remove(id: string): Promise<void> {
+    const project = await this.projectRepository.findOneBy({ project_id: id });
+    if (!project) {
+      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND);
     }
+
+    // Delete associated project members
+    await this.projectMemberRepository.delete({ project_id: id });
+
+    // Now delete the project
+    await this.projectRepository.delete(id);
   }
 
   async update(

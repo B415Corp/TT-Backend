@@ -34,5 +34,5 @@ export const ErrorMessages = {
   LATEST_TIME_LOG_NOT_FOUND: (id: string) =>
     `Последняя временная отметка для задачи с ID "${id}" не найдена.`,
   TIME_LOG_ID_REQUIRED: (id: string) => `Лог ${id} не найден`,
-  PROJECT_MEMBER_NOT_FOUND: 'Участник проекта не найден',
+  PROJECT_MEMBER_NOT_FOUND: 'Нет связи права на проект с стаким пользователем',
 };
