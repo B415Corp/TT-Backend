@@ -19,7 +19,6 @@ import { AssignRoleDto } from './dto/assign-role.dto';
 import { ProjectMember } from '../../entities/project-member.entity';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/entities/user.entity';
-import { ProjectRole } from '../../common/enums/project-role.enum';
 
 @ApiTags('project-members')
 @Controller('projects')
