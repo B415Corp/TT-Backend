@@ -7,10 +7,12 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Tag } from './tag.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { Project } from './project.entity';
 
 @Entity()
 export class Client {
@@ -57,4 +59,7 @@ export class Client {
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'tag_id' },
   })
   tags: Tag[];
+
+  @OneToMany(() => Project, (project) => project.client)
+  projects: Project[];
 }

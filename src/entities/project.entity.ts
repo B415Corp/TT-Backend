@@ -34,7 +34,7 @@ export class Project {
     type: String,
     description: 'Client ID associated with the project',
   })
-  @Column({ default: '' })
+  @Column()
   client_id: string;
 
   @ApiProperty({ type: String, description: 'User ID of the project owner' })
@@ -80,4 +80,9 @@ export class Project {
     onDelete: 'CASCADE',
   })
   members: ProjectMember[];
+
+  @ApiProperty({ type: () => Client, description: 'Client associated with the project' })
+  @ManyToOne(() => Client, (client) => client.projects)
+  @JoinColumn({ name: 'client_id' })
+  client: Client;
 }
