@@ -19,6 +19,9 @@ import { AssignRoleDto } from './dto/assign-role.dto';
 import { ProjectMember } from '../../entities/project-member.entity';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/entities/user.entity';
+import { RoleGuard } from '../../guards/role.guard';
+import { Roles } from '../../guards/roles.decorator';
+import { ProjectRole } from '../../common/enums/project-role.enum';
 
 @ApiTags('project-members')
 @Controller('projects')
@@ -81,15 +84,13 @@ export class ProjectMembersController {
     );
   }
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get user role in a project' })
-  @ApiResponse({ status: 200, type: String })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RoleGuard)
+  @Roles(ProjectRole.OWNER, ProjectRole.GUEST)
   @Get(':id/members/:userId/role')
   async getUserRole(
     @Param('id') projectId: string,
     @Param('userId') userId: string
-  ): Promise<ProjectMember> {
+  ) {
     return this.projectMembersService.getUserRoleInProject(projectId, userId);
   }
 }
