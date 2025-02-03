@@ -11,7 +11,10 @@ import {
 import { TasksService } from './tasks.service';
 import {
   ApiBearerAuth,
+  ApiOkResponse,
   ApiOperation,
+  ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -22,6 +25,8 @@ import { GetUser } from '../../decorators/get-user.decorator';
 import { User } from '../../entities/user.entity';
 import { Task } from '../../entities/task.entity';
 import { PaginatedResponseDto } from '../../common/pagination/paginated-response.dto';
+import { Paginate, PaginationParams } from 'src/decorators/paginate.decorator';
+import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
 
 @ApiTags('tasks')
 @Controller('tasks')
@@ -87,15 +92,28 @@ export class TasksController {
   }
 
   @ApiBearerAuth()
+  @ApiOkResponse({ type: PaginatedResponseDto<Task> })
   @ApiOperation({ summary: 'Get all tasks for a specific project' })
-  @ApiResponse({ status: 200, type: [Task] })
+  @ApiParam({ name: 'project_id', required: true, description: 'Project ID' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number',
+  })
   @UseGuards(JwtAuthGuard)
   @Get(':project_id/tasks')
+  @Paginate()
   async getTasksByProjectId(
     @Param('project_id') projectId: string,
-    @GetUser() user: User
+    @GetUser() user: User,
+    @PaginationParams() paginationQuery: PaginationQueryDto
   ) {
-    return this.tasksService.findByProjectId(projectId, user.user_id);
+    return this.tasksService.findByProjectId(
+      projectId,
+      user.user_id,
+      paginationQuery
+    );
   }
 
   @ApiBearerAuth()

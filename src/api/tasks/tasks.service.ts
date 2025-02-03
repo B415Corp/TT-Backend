@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Like, Repository, ILike } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { Task } from '../../entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { Project } from '../../entities/project.entity';
@@ -58,19 +58,22 @@ export class TasksService {
     return task;
   }
 
-  async findByProjectId(project_id: string, userId: string): Promise<Task[]> {
-    const tasks = await this.taskRepository.find({
-      where: {
-        project_id: project_id,
-        user_id: userId,
-      },
+  async findByProjectId(
+    project_id: string,
+    userId: string,
+    paginationQuery: PaginationQueryDto
+  ) {
+    const { page, limit } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.taskRepository.findAndCount({
+      where: { project_id: project_id, user_id: userId },
+      skip,
+      take: limit,
+      order: { created_at: 'DESC' },
     });
 
-    if (!tasks.length) {
-      throw new NotFoundException(ErrorMessages.NO_TASKS_FOUND);
-    }
-
-    return tasks;
+    return [data, total];
   }
 
   async update(id: string, dto: CreateTaskDto): Promise<Task> {
