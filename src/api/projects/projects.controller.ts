@@ -118,4 +118,16 @@ export class ProjectsController {
   async remove(@Param('id') id: string) {
     return this.projectsService.remove(id);
   }
+
+  @ApiOperation({ summary: 'Populate project members for existing projects' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully populated project members for all existing projects.',
+  })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('populate-members')
+  async populateProjectMembers() {
+    return this.projectsService.createProjectMembersForExistingProjects();
+  }
 }

@@ -134,4 +134,27 @@ export class ProjectsService {
       relations: ['user'],
     });
   }
+
+  async createProjectMembersForExistingProjects(): Promise<void> {
+    const projects = await this.projectRepository.find();
+
+    for (const project of projects) {
+      // Check if the user exists
+      const userExists = await this.userRepository.findOneBy({ user_id: project.user_owner_id });
+      if (!userExists) {
+        console.warn(`User with ID ${project.user_owner_id} does not exist. Skipping project ${project.project_id}.`);
+        continue; // Skip this project if the user does not exist
+      }
+
+      // Create a ProjectMember entry for the owner
+      const projectMember = this.projectMemberRepository.create({
+        project_id: project.project_id,
+        user_id: project.user_owner_id, // Assuming the owner is the user who created the project
+        role: ProjectRole.OWNER, // Set the role as OWNER
+        approve: true, // Assuming the owner is automatically approved
+      });
+
+      await this.projectMemberRepository.save(projectMember);
+    }
+  }
 }
