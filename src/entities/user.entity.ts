@@ -13,6 +13,7 @@ import { Client } from './client.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProjectMember } from './project-member.entity';
 import { TaskMember } from './task-member.entity';
+import { TimeLog } from './time-logs.entity';
 
 @Entity({ name: 'users' }) // Указываем имя таблицы, если нужно использовать отличное от имени класса
 export class User {
@@ -58,4 +59,7 @@ export class User {
 
   // @OneToMany(() => TaskMember, (taskMember) => taskMember.user)
   // taskMembers: TaskMember[];
+
+  @OneToMany(() => TimeLog, (timeLog) => timeLog.user)
+  timeLogs: TimeLog[];
 }

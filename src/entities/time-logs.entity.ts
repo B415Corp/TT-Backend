@@ -5,7 +5,11 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { User } from './user.entity';
+import { Task } from './task.entity';
 
 @Entity()
 export class TimeLog {
@@ -46,4 +50,12 @@ export class TimeLog {
   @UpdateDateColumn()
   @ApiProperty({ type: Date })
   updated_at: Date;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @ManyToOne(() => Task)
+  @JoinColumn({ name: 'task_id' })
+  task: Task;
 }

@@ -14,6 +14,7 @@ import { Project } from './project.entity';
 import { Tag } from './tag.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { TaskMember } from './task-member.entity';
+import { TimeLog } from './time-logs.entity';
 
 @Entity()
 export class Task {
@@ -86,6 +87,9 @@ export class Task {
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'tag_id' },
   })
   tags: Tag[];
+
+  @OneToMany(() => TimeLog, (timeLog) => timeLog.task)
+  timeLogs: TimeLog[];
 
   // @OneToMany(() => TaskMember, (taskMember) => taskMember.task)
   // members: TaskMember[];
