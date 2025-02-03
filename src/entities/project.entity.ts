@@ -8,12 +8,14 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
+  JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Task } from './task.entity';
 import { Tag } from './tag.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProjectMember } from './project-member.entity';
+import { Client } from './client.entity';
 
 @Entity()
 export class Project {
@@ -58,7 +60,9 @@ export class Project {
   @UpdateDateColumn()
   updated_at: Date;
 
+  @ApiProperty({ type: () => User, description: 'User who owns the project' })
   @ManyToOne(() => User, (user) => user.projects)
+  @JoinColumn({ name: 'user_owner_id' })
   user: User;
 
   @OneToMany(() => Task, (task) => task.project)
