@@ -14,6 +14,7 @@ import { User } from 'src/entities/user.entity';
 import { Tag } from '../../entities/tag.entity';
 import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-member.entity';
+import { ProjectRole } from '../../common/enums/project-role.enum';
 
 @Injectable()
 export class ProjectsService {
@@ -51,7 +52,19 @@ export class ProjectsService {
       user_owner_id,
     });
 
-    return this.projectRepository.save(project);
+    const savedProject = await this.projectRepository.save(project);
+
+    // Create a ProjectMember entry for the owner
+    const projectMember = this.projectMemberRepository.create({
+      project_id: savedProject.project_id,
+      user_id: user_owner_id,
+      role: ProjectRole.OWNER,
+      approve: true, // Assuming the owner is automatically approved
+    });
+
+    await this.projectMemberRepository.save(projectMember);
+
+    return savedProject;
   }
 
   async findById(id: string): Promise<Project> {
