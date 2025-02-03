@@ -8,6 +8,7 @@ import {
   ManyToMany,
   JoinTable,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Tag } from './tag.entity';
@@ -49,7 +50,9 @@ export class Client {
   @UpdateDateColumn()
   updated_at: Date;
 
+  @ApiProperty({ type: () => User, description: 'User associated with the client' })
   @ManyToOne(() => User, (user) => user.clients)
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @ManyToMany(() => Tag)

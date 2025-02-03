@@ -34,7 +34,7 @@ export class Project {
     type: String,
     description: 'Client ID associated with the project',
   })
-  @Column()
+  @Column({ default: '11111111-1111-1111-1111-111111111111' })
   client_id: string;
 
   @ApiProperty({ type: String, description: 'User ID of the project owner' })

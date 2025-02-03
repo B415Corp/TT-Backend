@@ -8,6 +8,7 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
+  JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Project } from './project.entity';
@@ -75,9 +76,11 @@ export class Task {
   updated_at: Date;
 
   @ManyToOne(() => User, (user) => user.tasks)
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @ManyToOne(() => Project, (project) => project.task)
+  @JoinColumn({ name: 'project_id' })
   project: Project;
 
   @ManyToMany(() => Tag)
