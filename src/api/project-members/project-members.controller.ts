@@ -85,7 +85,6 @@ export class ProjectMembersController {
   }
 
   @UseGuards(RoleGuard)
-  @Roles(ProjectRole.OWNER, ProjectRole.GUEST)
   @Get(':id/members/:userId/role')
   async getUserRole(
     @Param('id') projectId: string,
