@@ -4,7 +4,6 @@ import {
   Param,
   UseGuards,
   Post,
-  Delete,
   Get,
   Query,
 } from '@nestjs/common';
@@ -20,6 +19,7 @@ import { AssignRoleDto } from './dto/assign-role.dto';
 import { ProjectMember } from '../../entities/project-member.entity';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/entities/user.entity';
+import { ProjectRole } from '../../common/enums/project-role.enum';
 
 @ApiTags('project-members')
 @Controller('projects')
@@ -43,17 +43,17 @@ export class ProjectMembersController {
     );
   }
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Remove a user from a project' })
-  @ApiResponse({ status: 204 })
-  @UseGuards(JwtAuthGuard)
-  @Delete(':id/members/:userId')
-  async removeMember(
-    @Param('id') projectId: string,
-    @Param('userId') userId: string
-  ): Promise<void> {
-    return this.projectMembersService.removeMember(projectId, userId);
-  }
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Remove a user from a project' })
+  // @ApiResponse({ status: 204 })
+  // @UseGuards(JwtAuthGuard)
+  // @Delete(':id/members/:userId')
+  // async removeMember(
+  //   @Param('id') projectId: string,
+  //   @Param('userId') userId: string
+  // ): Promise<void> {
+  //   return this.projectMembersService.removeMember(projectId, userId);
+  // }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Approve a user invitation' })
@@ -74,11 +74,23 @@ export class ProjectMembersController {
   @Get(':id/members')
   async getMembers(
     @Param('id') projectId: string,
-    @Query('approved') approved: boolean
+    @Query('approved') approved: boolean | undefined // Changed to allow undefined
   ): Promise<ProjectMember[]> {
     return this.projectMembersService.getMembersByApprovalStatus(
       projectId,
       approved
     );
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get user role in a project' })
+  @ApiResponse({ status: 200, type: String })
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/members/:userId/role')
+  async getUserRole(
+    @Param('id') projectId: string,
+    @Param('userId') userId: string
+  ): Promise<ProjectMember> {
+    return this.projectMembersService.getUserRoleInProject(projectId, userId);
   }
 }

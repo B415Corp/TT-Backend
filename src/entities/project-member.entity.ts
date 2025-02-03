@@ -38,7 +38,7 @@ export class ProjectMember {
   role: ProjectRole;
 
   @ApiProperty({ type: Boolean })
-  @Column()
+  @Column({ default: false })
   approve: boolean;
 
   @ApiProperty({ type: Date })

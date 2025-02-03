@@ -5,6 +5,7 @@ import { ProjectMember } from '../../entities/project-member.entity';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { ErrorMessages } from '../../common/error-messages';
 import { Project } from 'src/entities/project.entity';
+import { ProjectRole } from 'src/common/enums/project-role.enum';
 
 @Injectable()
 export class ProjectMembersService {
@@ -78,10 +79,29 @@ export class ProjectMembersService {
 
   async getMembersByApprovalStatus(
     projectId: string,
-    approved: boolean
+    approved?: boolean | undefined
   ): Promise<ProjectMember[]> {
     return this.projectMemberRepository.find({
       where: { project_id: projectId, approve: approved },
     });
+  }
+
+  async getUserRoleInProject(
+    projectId: string,
+    userId: string
+  ): Promise<ProjectMember> {
+    const projectMember = await this.projectMemberRepository.findOne({
+      where: { project_id: projectId, user_id: userId },
+    });
+
+    if (!projectMember) {
+      throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
+    }
+
+    if (!Object.values(ProjectRole).includes(projectMember.role)) {
+      throw new Error('Invalid role found in project member');
+    }
+
+    return projectMember;
   }
 }
