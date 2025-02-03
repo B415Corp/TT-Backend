@@ -6,4 +6,4 @@ export class AssignUserDto {
   @IsNotEmpty()
   @IsString()
   userId: string;
-} 
+}

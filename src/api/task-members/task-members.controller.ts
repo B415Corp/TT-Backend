@@ -8,7 +8,12 @@ import {
   Body,
 } from '@nestjs/common';
 import { TaskMembersService } from './task-members.service';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AssignUserDto } from './dto/assign-user.dto';
 
@@ -26,7 +31,10 @@ export class TaskMembersController {
     @Param('taskId') taskId: string,
     @Body() assignUserDto: AssignUserDto
   ) {
-    return this.taskMembersService.assignUserToTask(taskId, assignUserDto.userId);
+    return this.taskMembersService.assignUserToTask(
+      taskId,
+      assignUserDto.userId
+    );
   }
 
   @ApiBearerAuth()
@@ -49,4 +57,4 @@ export class TaskMembersController {
   async getUsersAssignedToTask(@Param('taskId') taskId: string) {
     return this.taskMembersService.getUsersAssignedToTask(taskId);
   }
-} 
+}

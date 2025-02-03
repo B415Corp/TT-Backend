@@ -122,7 +122,8 @@ export class ProjectsController {
   @ApiOperation({ summary: 'Populate project members for existing projects' })
   @ApiResponse({
     status: 200,
-    description: 'Successfully populated project members for all existing projects.',
+    description:
+      'Successfully populated project members for all existing projects.',
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)

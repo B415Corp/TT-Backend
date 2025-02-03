@@ -11,4 +11,4 @@ import { User } from '../../entities/user.entity';
   providers: [TaskMembersService],
   controllers: [TaskMembersController],
 })
-export class TaskMembersModule {} 
+export class TaskMembersModule {}

@@ -13,9 +13,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { SubscriptionGuard } from 'src/auth/guards/subscription.guard';
-import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
-import { Subscription } from 'src/decorators/subscription.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { GetUser } from '../../decorators/get-user.decorator';
 import { User } from '../../entities/user.entity';

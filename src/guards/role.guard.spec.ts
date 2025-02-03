@@ -9,22 +9,44 @@ describe('RoleGuard', () => {
   let projectMembersService: ProjectMembersService;
 
   beforeEach(() => {
-    projectMembersService = { getUserRoleInProject: jest.fn() } as any; // Mock service
+    projectMembersService = { getUserRoleInProject: jest.fn() } as any;
     roleGuard = new RoleGuard(new Reflector(), projectMembersService);
   });
 
   it('should allow access if no roles are specified', async () => {
-    const context = { switchToHttp: jest.fn().mockReturnValue({ getRequest: jest.fn() }) } as ExecutionContext;
-    const result = await roleGuard.canActivate(context);
+    const mockContext = {
+      switchToHttp: jest.fn().mockReturnValue({ getRequest: jest.fn() }),
+      getHandler: jest.fn(),
+      getClass: jest.fn(),
+      getArgs: jest.fn(),
+      getArgByIndex: jest.fn(),
+      getType: jest.fn(),
+      switchToRpc: jest.fn(),
+      switchToWs: jest.fn(),
+    } as ExecutionContext;
+
+    const result = await roleGuard.canActivate(mockContext);
     expect(result).toBe(true);
   });
 
   it('should deny access if user role does not match', async () => {
-    const context = { switchToHttp: jest.fn().mockReturnValue({ getRequest: jest.fn() }) } as ExecutionContext;
-    projectMembersService.getUserRoleInProject = jest.fn().mockResolvedValue({ role: ProjectRole.GUEST });
+    const mockContext = {
+      switchToHttp: jest.fn().mockReturnValue({ getRequest: jest.fn() }),
+      getHandler: jest.fn(),
+      getClass: jest.fn(),
+      getArgs: jest.fn(),
+      getArgByIndex: jest.fn(),
+      getType: jest.fn(),
+      switchToRpc: jest.fn(),
+      switchToWs: jest.fn(),
+    } as ExecutionContext;
+
+    projectMembersService.getUserRoleInProject = jest
+      .fn()
+      .mockResolvedValue({ role: ProjectRole.GUEST });
     const roles = [ProjectRole.OWNER];
 
-    const result = await roleGuard.canActivate(context);
-    expect(result).toBe(false); // Adjust based on your implementation
+    const result = await roleGuard.canActivate(mockContext);
+    expect(result).toBe(false);
   });
-}); 
+});

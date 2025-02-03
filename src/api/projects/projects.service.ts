@@ -140,9 +140,13 @@ export class ProjectsService {
 
     for (const project of projects) {
       // Check if the user exists
-      const userExists = await this.userRepository.findOneBy({ user_id: project.user_owner_id });
+      const userExists = await this.userRepository.findOneBy({
+        user_id: project.user_owner_id,
+      });
       if (!userExists) {
-        console.warn(`User with ID ${project.user_owner_id} does not exist. Skipping project ${project.project_id}.`);
+        console.warn(
+          `User with ID ${project.user_owner_id} does not exist. Skipping project ${project.project_id}.`
+        );
         continue; // Skip this project if the user does not exist
       }
 

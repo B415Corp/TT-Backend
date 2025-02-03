@@ -9,7 +9,6 @@ import { Repository } from 'typeorm';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { TimeLog } from '../../entities/time-logs.entity';
 import { ErrorMessages } from '../../common/error-messages';
-import { IsNull } from 'typeorm';
 
 @Injectable()
 export class TimeLogsService {
