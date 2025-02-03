@@ -30,27 +30,27 @@ import { ApiErrorResponses } from '../../common/decorators/api-error-responses.d
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Test free feature' })
-  @UseGuards(JwtAuthGuard, SubscriptionGuard)
-  @Get('free_feature')
-  @Subscription(
-    SubscriptionType.FREE,
-    SubscriptionType.BASIC,
-    SubscriptionType.PREMIUM
-  )
-  async getFreeFeature(@GetUser() user: User) {
-    return this.usersService.findById(user.user_id);
-  }
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Test free feature' })
+  // @UseGuards(JwtAuthGuard, SubscriptionGuard)
+  // @Get('free_feature')
+  // @Subscription(
+  //   SubscriptionType.FREE,
+  //   SubscriptionType.BASIC,
+  //   SubscriptionType.PREMIUM
+  // )
+  // async getFreeFeature(@GetUser() user: User) {
+  //   return this.usersService.findById(user.user_id);
+  // }
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Test premium feature' })
-  @UseGuards(JwtAuthGuard, SubscriptionGuard)
-  @Get('premium_feature')
-  @Subscription(SubscriptionType.PREMIUM)
-  async getPremiumFeature(@GetUser() user: User) {
-    return this.usersService.findById(user.user_id);
-  }
+  // @ApiBearerAuth()
+  // @ApiOperation({ summary: 'Test premium feature' })
+  // @UseGuards(JwtAuthGuard, SubscriptionGuard)
+  // @Get('premium_feature')
+  // @Subscription(SubscriptionType.PREMIUM)
+  // async getPremiumFeature(@GetUser() user: User) {
+  //   return this.usersService.findById(user.user_id);
+  // }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user details' })

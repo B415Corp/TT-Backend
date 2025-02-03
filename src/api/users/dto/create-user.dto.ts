@@ -7,14 +7,14 @@ export class CreateUserDto {
   readonly name: string;
 
   @ApiProperty({
-    example: 'example@example.com',
+    example: 'alexeykoh@mail.com',
     description: 'The email of the user',
   })
   @IsEmail({}, { message: 'Некорректный формат электронной почты' })
   readonly email: string;
 
   @ApiProperty({
-    example: 'strongPassword123!',
+    example: '1234567890',
     description: 'The password of the user',
   })
   @IsString()
