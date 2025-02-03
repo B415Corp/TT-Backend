@@ -6,9 +6,10 @@ import { Task } from '../../entities/task.entity';
 import { Project } from '../../entities/project.entity';
 import { TimeLog } from '../../entities/time-logs.entity';
 import { Currency } from 'src/entities/currency.entity';
+import { User } from 'src/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task, Project, TimeLog, Currency])],
+  imports: [TypeOrmModule.forFeature([Task, Project, TimeLog, Currency, User])],
   providers: [TasksService],
   exports: [TasksService],
   controllers: [TasksController],

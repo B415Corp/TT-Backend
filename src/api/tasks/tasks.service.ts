@@ -20,7 +20,9 @@ export class TasksService {
     @InjectRepository(TimeLog)
     private timeLogRepository: Repository<TimeLog>,
     @InjectRepository(Currency)
-    private currencyRepository: Repository<Currency>
+    private currencyRepository: Repository<Currency>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>
   ) {}
 
   async create(
@@ -113,5 +115,14 @@ export class TasksService {
       },
       relations: ['project'],
     });
+  }
+
+  async findTasksByUserId(userId: string): Promise<Task[]> {
+    const user = await this.userRepository.findOneBy({ user_id: userId });
+    if (!user) {
+      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
+    }
+
+    return this.taskRepository.find({ where: { user_id: userId } });
   }
 }

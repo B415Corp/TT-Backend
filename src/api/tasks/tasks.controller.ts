@@ -97,4 +97,13 @@ export class TasksController {
   ) {
     return this.tasksService.findByProjectId(projectId, user.user_id);
   }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get all tasks by user ID' })
+  @ApiResponse({ status: 200, type: [Task] })
+  @Get('user/me')
+  async getTasksByUserId(@GetUser() user: User): Promise<Task[]> {
+    return this.tasksService.findTasksByUserId(user.user_id);
+  }
 }
