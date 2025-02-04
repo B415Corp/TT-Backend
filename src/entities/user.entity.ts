@@ -11,7 +11,7 @@ import { Project } from './project.entity';
 import { Task } from './task.entity';
 import { Client } from './client.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { ProjectMember } from './project-member.entity';
+import { ProjectMember } from './project-shared.entity';
 import { TaskMember } from './task-member.entity';
 import { TimeLog } from './time-logs.entity';
 

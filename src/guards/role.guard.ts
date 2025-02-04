@@ -5,14 +5,14 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ProjectMembersService } from '../api/project-members/project-members.service';
 import { ProjectRole } from '../common/enums/project-role.enum';
+import { ProjectSharedService } from 'src/api/project-shared/project-shared.service';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private projectMembersService: ProjectMembersService
+    private projectMembersService: ProjectSharedService
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

@@ -14,9 +14,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { ProjectMembersService } from './project-members.service';
+import { ProjectSharedService } from './project-shared.service';
 import { AssignRoleDto } from './dto/assign-role.dto';
-import { ProjectMember } from '../../entities/project-member.entity';
+import { ProjectMember } from '../../entities/project-shared.entity';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/entities/user.entity';
 import { RoleGuard } from '../../guards/role.guard';
@@ -26,7 +26,7 @@ import { Roles } from 'src/guards/roles.decorator';
 @ApiTags('project-members')
 @Controller('projects')
 export class ProjectMembersController {
-  constructor(private readonly projectMembersService: ProjectMembersService) {}
+  constructor(private readonly projectMembersService: ProjectSharedService) {}
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Assign role to a user in a project' })
@@ -73,6 +73,7 @@ export class ProjectMembersController {
     );
   }
 
+  @ApiBearerAuth()
   @UseGuards(RoleGuard)
   @Get(':id/members/:userId/role')
   async getUserRole(

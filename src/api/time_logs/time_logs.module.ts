@@ -4,10 +4,10 @@ import { Task } from '../../entities/task.entity';
 import { TimeLogsService } from './time_logs.service';
 import { TimeLogsController } from './time_logs.controller';
 import { TimeLog } from '../../entities/time-logs.entity';
-import { ProjectMembersModule } from '../project-members/project-members.module';
+import { ProjectSharedModule } from '../project-shared/project-shared.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task, TimeLog]), ProjectMembersModule],
+  imports: [TypeOrmModule.forFeature([Task, TimeLog]), ProjectSharedModule],
   providers: [TimeLogsService],
   exports: [TimeLogsService],
   controllers: [TimeLogsController],

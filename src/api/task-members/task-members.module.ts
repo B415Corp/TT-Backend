@@ -5,12 +5,12 @@ import { TaskMembersController } from './task-members.controller';
 import { TaskMember } from '../../entities/task-member.entity';
 import { Task } from '../../entities/task.entity';
 import { User } from '../../entities/user.entity';
-import { ProjectMembersModule } from '../project-members/project-members.module';
+import { ProjectSharedModule } from '../project-shared/project-shared.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([TaskMember, Task, User]),
-    ProjectMembersModule,
+    ProjectSharedModule,
   ],
   providers: [TaskMembersService],
   controllers: [TaskMembersController],

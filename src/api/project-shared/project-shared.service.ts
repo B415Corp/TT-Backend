@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProjectMember } from '../../entities/project-member.entity';
+import { ProjectMember } from '../../entities/project-shared.entity';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { ErrorMessages } from '../../common/error-messages';
 import { Project } from 'src/entities/project.entity';
 import { ProjectRole } from 'src/common/enums/project-role.enum';
 
 @Injectable()
-export class ProjectMembersService {
+export class ProjectSharedService {
   constructor(
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>,

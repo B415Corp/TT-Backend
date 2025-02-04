@@ -14,8 +14,8 @@ import { CurrenciesModule } from './api/currencies/currencies.module';
 import * as process from 'node:process';
 import { TagsModule } from './api/tags/tags.module';
 import { SearchModule } from './api/search/search.module';
-import { ProjectMembersModule } from './api/project-members/project-members.module';
 import { TaskMembersModule } from './api/task-members/task-members.module';
+import { ProjectSharedModule } from './api/project-shared/project-shared.module';
 
 @Module({
   imports: [
@@ -41,7 +41,7 @@ import { TaskMembersModule } from './api/task-members/task-members.module';
     CurrenciesModule,
     TagsModule,
     SearchModule,
-    ProjectMembersModule,
+    ProjectSharedModule,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],

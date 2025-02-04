@@ -6,13 +6,13 @@ import { ProjectsController } from './projects.controller';
 import { Currency } from 'src/entities/currency.entity';
 import { User } from 'src/entities/user.entity';
 import { Tag } from '../../entities/tag.entity';
-import { ProjectMember } from '../../entities/project-member.entity';
-import { ProjectMembersModule } from '../project-members/project-members.module';
+import { ProjectMember } from '../../entities/project-shared.entity';
+import { ProjectSharedModule } from '../project-shared/project-shared.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Project, Currency, User, Tag, ProjectMember]),
-    ProjectMembersModule,
+    ProjectSharedModule,
   ],
   providers: [ProjectsService],
   exports: [ProjectsService],

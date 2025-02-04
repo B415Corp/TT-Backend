@@ -14,7 +14,7 @@ import { Currency } from 'src/entities/currency.entity';
 import { User } from 'src/entities/user.entity';
 import { Tag } from '../../entities/tag.entity';
 import { ErrorMessages } from '../../common/error-messages';
-import { ProjectMember } from '../../entities/project-member.entity';
+import { ProjectMember } from '../../entities/project-shared.entity';
 import { ProjectRole } from '../../common/enums/project-role.enum';
 import { ProjectWithMembersDto } from './dto/project-with-members.dto';
 
