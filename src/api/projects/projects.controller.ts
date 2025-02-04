@@ -44,7 +44,9 @@ export class ProjectsController {
   @ApiResponse({ status: 200, type: [ProjectWithMembersDto] })
   @UseGuards(JwtAuthGuard)
   @Get('shared')
-  async getProjectsWithMembers(@GetUser() user: User): Promise<ProjectWithMembersDto[]> {
+  async getProjectsWithMembers(
+    @GetUser() user: User
+  ): Promise<ProjectWithMembersDto[]> {
     return this.projectsService.findProjectsWithMembers(user.user_id);
   }
 
@@ -140,6 +142,4 @@ export class ProjectsController {
   async populateProjectMembers() {
     return this.projectsService.createProjectMembersForExistingProjects();
   }
-
-  
 }

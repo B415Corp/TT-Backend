@@ -31,7 +31,7 @@ export class ProjectsService {
     private tagRepository: Repository<Tag>,
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>
-  ) { }
+  ) {}
 
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
     const findByName = await this.projectRepository.findOneBy({
@@ -168,7 +168,9 @@ export class ProjectsService {
     }
   }
 
-  async findProjectsWithMembers(userId: string): Promise<ProjectWithMembersDto[]> {
+  async findProjectsWithMembers(
+    userId: string
+  ): Promise<ProjectWithMembersDto[]> {
     const projectsWithMembers = await this.projectMemberRepository
       .createQueryBuilder('project_member')
       .leftJoinAndSelect('project_member.project', 'project')
@@ -176,9 +178,9 @@ export class ProjectsService {
       .andWhere('project_member.role != :role', { role: ProjectRole.OWNER }) // Exclude role "owner"
       .getMany();
 
-    return projectsWithMembers.map(pm => ({
+    return projectsWithMembers.map((pm) => ({
       project: pm.project,
-      shared: { role: pm.role, approved: pm.approve } // Include only user ID without other related data
+      shared: { role: pm.role, approved: pm.approve }, // Include only user ID without other related data
     }));
   }
 }

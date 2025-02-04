@@ -39,4 +39,5 @@ export const ErrorMessages = {
   USER_ALREADY_ASSIGNED: 'Пользователь уже назначен на эту задачу',
   TOKEN_REQUIRED: 'Отсутствует токен авторизации',
   INVALID_TOKEN_FORMAT: 'Неверный формат токена авторизации',
+  USER_ROLE_LIMIT_EXCEEDED: 'User role limit exceeded for this project',
 };
