@@ -103,11 +103,13 @@ export class ProjectsService {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND);
     }
 
-    // Now delete the project
+    // Сначала удаляем связанные записи в project_members
+    await this.projectMemberRepository.delete({ project_id: id });
+
+    // Теперь удаляем сам проект
     const deleteResult = await this.projectRepository.delete(id);
-    if (deleteResult.affected) {
-      // Only delete associated project members if the project was successfully deleted
-      await this.projectMemberRepository.delete({ project_id: id });
+    if (!deleteResult.affected) {
+      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND);
     }
   }
 
