@@ -77,7 +77,9 @@ export class Project {
   })
   tags: Tag[];
 
-  @OneToMany(() => ProjectMember, (member) => member.project, { onDelete: 'CASCADE' })
+  @OneToMany(() => ProjectMember, (member) => member.project, {
+    onDelete: 'CASCADE',
+  })
   members: ProjectMember[];
 
   @ApiProperty({
@@ -88,7 +90,10 @@ export class Project {
   @JoinColumn({ name: 'client_id' })
   client: Client;
 
-  @ApiProperty({ type: () => Currency, description: 'Currency associated with the project' })
+  @ApiProperty({
+    type: () => Currency,
+    description: 'Currency associated with the project',
+  })
   @ManyToOne(() => Currency, (currency) => currency.projects)
   @JoinColumn({ name: 'currency_id' })
   currency: Currency;

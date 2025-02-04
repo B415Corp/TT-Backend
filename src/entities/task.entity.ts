@@ -95,7 +95,10 @@ export class Task {
   @OneToMany(() => TimeLog, (timeLog) => timeLog.task, { onDelete: 'CASCADE' })
   timeLogs: TimeLog[];
 
-  @ApiProperty({ type: () => Currency, description: 'Currency associated with the task' })
+  @ApiProperty({
+    type: () => Currency,
+    description: 'Currency associated with the task',
+  })
   @ManyToOne(() => Currency, (currency) => currency.tasks)
   @JoinColumn({ name: 'currency_id' })
   currency: Currency;
