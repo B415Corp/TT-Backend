@@ -34,9 +34,10 @@ export class Project {
   @ApiProperty({
     type: String,
     description: 'Client ID associated with the project',
+    required: false,
   })
-  @Column({ default: '11111111-1111-1111-1111-111111111111' })
-  client_id: string;
+  @Column({ nullable: true })
+  client_id: string | null;
 
   @ApiProperty({ type: String, description: 'User ID of the project owner' })
   @Column({ default: '11111111-1111-1111-1111-111111111111' })
@@ -86,7 +87,7 @@ export class Project {
     type: () => Client,
     description: 'Client associated with the project',
   })
-  @ManyToOne(() => Client, (client) => client.projects)
+  @ManyToOne(() => Client, (client) => client.projects, { nullable: true })
   @JoinColumn({ name: 'client_id' })
   client: Client;
 
