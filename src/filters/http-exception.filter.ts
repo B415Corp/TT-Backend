@@ -4,8 +4,10 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -27,11 +29,20 @@ export class HttpExceptionFilter implements ExceptionFilter {
       } else {
         message = responseBody as string; // If it's a string, use it directly
       }
+    } else if (exception instanceof TokenExpiredError) {
+      status = HttpStatus.UNAUTHORIZED;
+      message = 'Сессия истекла. Пожалуйста, войдите снова.';
+    } else if (exception instanceof JsonWebTokenError) {
+      status = HttpStatus.UNAUTHORIZED;
+      message = 'Недействительный токен. Пожалуйста, войдите снова.';
+    } else if (exception instanceof UnauthorizedException) {
+      status = HttpStatus.UNAUTHORIZED;
+      message = 'Необходима авторизация';
     } else if (exception instanceof Error) {
       // Handle specific error types here
       if (exception.message.includes('invalid input syntax for type uuid')) {
         status = HttpStatus.BAD_REQUEST;
-        message = 'Invalid UUID format provided.';
+        message = 'Неверный формат UUID';
       }
     }
 
