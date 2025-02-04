@@ -21,21 +21,23 @@ export class RoleGuard implements CanActivate {
       context.getHandler()
     );
     if (!roles) {
-      return true; // If no roles are specified, allow access
+      return true; // Если роли не указаны, доступ разрешен
     }
 
     const request = context.switchToHttp().getRequest();
-    const userId = request.user.user_id; // Assuming user ID is stored in the user object
-    const projectId = request.params.id; // Get project ID from parameters
+    const userId = request.user.user_id; // Предполагается, что ID пользователя хранится в объекте user
+    const projectId = request.params.id; // Получаем ID проекта из параметров
 
     const projectMember = await this.projectMembersService.getUserRoleInProject(
       projectId,
       userId
     );
 
+    // Текущая роль: projectMember.role
+    // Необходимая роль: roles
     if (!roles.includes(projectMember.role)) {
       throw new ForbiddenException(
-        'You do not have permission to access this resource'
+        `У вас нет разрешения на доступ к этому ресурсу. Необходимая роль: ${roles.join(', ')}`
       );
     }
 

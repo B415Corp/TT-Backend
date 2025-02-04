@@ -20,6 +20,8 @@ import { ProjectMember } from '../../entities/project-member.entity';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/entities/user.entity';
 import { RoleGuard } from '../../guards/role.guard';
+import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { Roles } from 'src/guards/roles.decorator';
 
 @ApiTags('project-members')
 @Controller('projects')
@@ -29,7 +31,8 @@ export class ProjectMembersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Assign role to a user in a project' })
   @ApiResponse({ status: 200, type: ProjectMember })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(ProjectRole.OWNER, ProjectRole.MANAGER)
   @Post(':id/members')
   async assignRole(
     @Param('id') projectId: string,
@@ -42,18 +45,6 @@ export class ProjectMembersController {
       user.user_id
     );
   }
-
-  // @ApiBearerAuth()
-  // @ApiOperation({ summary: 'Remove a user from a project' })
-  // @ApiResponse({ status: 204 })
-  // @UseGuards(JwtAuthGuard)
-  // @Delete(':id/members/:userId')
-  // async removeMember(
-  //   @Param('id') projectId: string,
-  //   @Param('userId') userId: string
-  // ): Promise<void> {
-  //   return this.projectMembersService.removeMember(projectId, userId);
-  // }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Approve a user invitation' })

@@ -19,6 +19,9 @@ import {
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { TimeLog } from '../../entities/time-logs.entity';
 import { TimeLogsPaginatedResponse } from './dto/time-logs-paginated-response.dto';
+import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { RoleGuard } from 'src/guards/role.guard';
+import { Roles } from 'src/guards/roles.decorator';
 
 @ApiTags('time-logs')
 @Controller('time-logs')
@@ -43,27 +46,29 @@ export class TimeLogsController {
     return this.timeLogsService.findById(id);
   }
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Start a time-log' })
   @ApiResponse({ status: 200, type: TimeLog })
   @ApiResponse({
     status: 200,
     description: 'The time-log has been successfully started.',
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(ProjectRole.OWNER, ProjectRole.EXECUTOR)
   @Post(':task_id/start')
   async start(@Param('task_id') id: string, @GetUser() user: User) {
     return this.timeLogsService.start(id, user.user_id);
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @ApiResponse({ status: 200, type: TimeLog })
   @ApiOperation({ summary: 'Stop a time-log' })
   @ApiResponse({
     status: 200,
     description: 'The time-log has been successfully stopped.',
   })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(ProjectRole.OWNER, ProjectRole.EXECUTOR)
   @Patch(':task_id/stop')
   async stop(@Param('task_id') id: string) {
     return this.timeLogsService.stop(id);
@@ -83,7 +88,6 @@ export class TimeLogsController {
   }
 
   @ApiOkResponse({ type: TimeLogsPaginatedResponse })
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all my time-logs in a task', description: '' })
   @ApiParam({ name: 'task_id', required: true, description: 'Task ID' })
   @ApiQuery({
@@ -92,6 +96,7 @@ export class TimeLogsController {
     type: Number,
     description: 'Page number',
   })
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get(':task_id/logs')
   @Paginate()

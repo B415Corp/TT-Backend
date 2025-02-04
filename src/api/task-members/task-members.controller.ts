@@ -16,6 +16,9 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AssignUserDto } from './dto/assign-user.dto';
+import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { RoleGuard } from 'src/guards/role.guard';
+import { Roles } from 'src/guards/roles.decorator';
 
 @ApiTags('task-members')
 @Controller('tasks')
@@ -23,9 +26,10 @@ export class TaskMembersController {
   constructor(private readonly taskMembersService: TaskMembersService) {}
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Assign a user to a task' })
   @ApiResponse({ status: 201, description: 'User assigned to task.' })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(ProjectRole.OWNER, ProjectRole.MANAGER)
   @Post(':taskId/members')
   async assignUserToTask(
     @Param('taskId') taskId: string,
@@ -38,9 +42,10 @@ export class TaskMembersController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Remove a user from a task' })
   @ApiResponse({ status: 204, description: 'User removed from task.' })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(ProjectRole.OWNER, ProjectRole.MANAGER)
   @Delete(':taskId/members/:userId')
   async removeUserFromTask(
     @Param('taskId') taskId: string,

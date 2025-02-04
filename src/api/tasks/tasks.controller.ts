@@ -27,6 +27,9 @@ import { Task } from '../../entities/task.entity';
 import { PaginatedResponseDto } from '../../common/pagination/paginated-response.dto';
 import { Paginate, PaginationParams } from 'src/decorators/paginate.decorator';
 import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
+import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { RoleGuard } from 'src/guards/role.guard';
+import { Roles } from 'src/guards/roles.decorator';
 
 @ApiTags('tasks')
 @Controller('tasks')
@@ -40,7 +43,8 @@ export class TasksController {
     description: 'The task has been successfully created.',
     type: Task,
   })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(ProjectRole.OWNER, ProjectRole.MANAGER)
   @Post('create')
   async createTask(
     @Body() createTaskDto: CreateTaskDto,
@@ -73,7 +77,8 @@ export class TasksController {
     description: 'The task has been successfully updated.',
     type: Task,
   })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(ProjectRole.OWNER, ProjectRole.MANAGER, ProjectRole.EXECUTOR)
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
     return this.tasksService.update(id, updateTaskDto);
@@ -85,7 +90,8 @@ export class TasksController {
     status: 200,
     description: 'Successfully deleted the task.',
   })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(ProjectRole.OWNER, ProjectRole.MANAGER)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.tasksService.remove(id);

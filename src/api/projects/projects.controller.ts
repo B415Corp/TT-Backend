@@ -97,7 +97,8 @@ export class ProjectsController {
     description: 'Successfully updated the project.',
     type: Project,
   })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(ProjectRole.OWNER)
   @Patch(':id')
   async updateProject(
     @Param('id') id: string,
@@ -125,8 +126,6 @@ export class ProjectsController {
     description:
       'Successfully populated project members for all existing projects.',
   })
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Post('populate-members')
   async populateProjectMembers() {
     return this.projectsService.createProjectMembersForExistingProjects();
