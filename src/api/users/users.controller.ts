@@ -58,13 +58,6 @@ export class UsersController {
     return this.usersService.findById(user.user_id);
   }
 
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, type: User })
-  @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a user by ID' })
   @ApiResponse({ status: 200, type: User })
@@ -74,6 +67,14 @@ export class UsersController {
   async findOne(@Param('id') id: string) {
     return this.usersService.findById(id);
   }
+  
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({ status: 201, type: User })
+  @Post('register')
+  async register(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user details' })
