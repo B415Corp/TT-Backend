@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
@@ -29,7 +30,7 @@ export class ProjectsService {
     private tagRepository: Repository<Tag>,
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>
-  ) {}
+  ) { }
 
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
     const findByName = await this.projectRepository.findOneBy({
@@ -164,5 +165,19 @@ export class ProjectsService {
 
       await this.projectMemberRepository.save(projectMember);
     }
+  }
+
+  async findProjectsWithMembers(userId: string) {
+    const projectsWithMembers = await this.projectMemberRepository
+      .createQueryBuilder('project_member')
+      .leftJoinAndSelect('project_member.project', 'project')
+      .where('project_member.user_id = :userId', { userId })
+      .andWhere('project_member.role != :role', { role: ProjectRole.OWNER }) // Exclude role "owner"
+      .getMany();
+
+    return projectsWithMembers.map(pm => ({
+      ...pm.project,
+      shared: { role: pm.role, approved: pm.approve } // Include only user ID without other related data
+    }));
   }
 }

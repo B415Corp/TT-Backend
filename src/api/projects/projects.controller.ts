@@ -39,6 +39,15 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get projects with members' })
+  @ApiResponse({ status: 200, type: [Project] })
+  @UseGuards(JwtAuthGuard)
+  @Get('shared')
+  async getProjectsWithMembers(@GetUser() user: User) {
+    return this.projectsService.findProjectsWithMembers(user.user_id);
+  }
+
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Create a new project' })
   @ApiResponse({
@@ -130,4 +139,6 @@ export class ProjectsController {
   async populateProjectMembers() {
     return this.projectsService.createProjectMembersForExistingProjects();
   }
+
+  
 }
