@@ -27,6 +27,16 @@ export class TimeLogsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get the latest time log for the user' })
+  @ApiResponse({ status: 200, type: TimeLog })
+  @Get('/latest')
+  async getLatestTimeLog(@GetUser() user: User){
+    console.log('user.user_id', user.user_id);
+    return this.timeLogsService.findLatestLogByUserId(user.user_id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({ status: 200, type: TimeLog })
   @ApiOperation({ summary: 'Get a time-log by id' })
   @Get(':id')
@@ -98,12 +108,5 @@ export class TimeLogsController {
     );
   }
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get the latest time log for the user' })
-  @ApiResponse({ status: 200, type: TimeLog })
-  @Get('latest')
-  async getLatestTimeLog(@GetUser() user: User): Promise<TimeLog> {
-    return this.timeLogsService.findLatestLogByUserId(user.user_id);
-  }
+  
 }

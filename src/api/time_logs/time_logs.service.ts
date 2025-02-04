@@ -173,13 +173,23 @@ export class TimeLogsService {
       throw new BadRequestException(ErrorMessages.TOKEN_REQUIRED);
     }
 
-    const latestLog = await this.timeLogRepository.findOne({
-      where: { user_id: userId },
-      order: { created_at: 'DESC' },
-    });
+    const latestLog = await this.timeLogRepository
+      .createQueryBuilder('time_log')
+      .leftJoinAndSelect('time_log.task', 'task')
+      .leftJoinAndSelect('task.project', 'project')
+      .leftJoinAndSelect('project.members', 'project_members')
+      .where('project_members.user_id = :userId', { userId })
+      .andWhere('time_log.status = :status', { status: 'in-progress' })
+      // .andWhere('project_members.role IN (:...roles)', { 
+      //   roles: [ProjectRole.OWNER, ProjectRole.ADMIN, ProjectRole.MEMBER] 
+      // })
+      .orderBy('time_log.created_at', 'DESC')
+      .getOne();
 
     if (!latestLog) {
-      throw new NotFoundException(ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(userId));
+      throw new NotFoundException(
+        ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(userId)
+      );
     }
 
     return latestLog;
