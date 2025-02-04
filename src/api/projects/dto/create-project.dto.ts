@@ -15,6 +15,10 @@ export class CreateProjectDto {
   @ApiProperty({ example: ['tag1', 'tag2'] })
   tag_ids?: string[];
 
-  @ApiProperty({ description: 'Client ID associated with the project', required: false })
+  @ApiProperty({
+    example: null,
+    description: 'Client ID associated with the project',
+    required: false,
+  })
   client_id?: string;
 }
