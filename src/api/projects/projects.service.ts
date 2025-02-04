@@ -34,6 +34,7 @@ export class ProjectsService {
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
     const findByName = await this.projectRepository.findOneBy({
       name: dto.name,
+      user_owner_id
     });
     if (findByName) {
       throw new ConflictException(ErrorMessages.PROJECT_NAME_EXISTS);
