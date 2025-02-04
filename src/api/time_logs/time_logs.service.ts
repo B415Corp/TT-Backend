@@ -167,4 +167,21 @@ export class TimeLogsService {
       );
     }
   }
+
+  async findLatestLogByUserId(userId: string): Promise<TimeLog> {
+    if (!userId) {
+      throw new BadRequestException(ErrorMessages.TOKEN_REQUIRED);
+    }
+
+    const latestLog = await this.timeLogRepository.findOne({
+      where: { user_id: userId },
+      order: { created_at: 'DESC' },
+    });
+
+    if (!latestLog) {
+      throw new NotFoundException(ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(userId));
+    }
+
+    return latestLog;
+  }
 }

@@ -97,4 +97,13 @@ export class TimeLogsController {
       paginationQuery
     );
   }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get the latest time log for the user' })
+  @ApiResponse({ status: 200, type: TimeLog })
+  @Get('latest')
+  async getLatestTimeLog(@GetUser() user: User): Promise<TimeLog> {
+    return this.timeLogsService.findLatestLogByUserId(user.user_id);
+  }
 }
