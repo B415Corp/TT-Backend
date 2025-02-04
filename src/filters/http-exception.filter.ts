@@ -5,12 +5,15 @@ import {
   HttpException,
   HttpStatus,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(HttpExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -18,6 +21,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
+
+    // Логируем исходную ошибку
+    this.logger.error('Exception:', exception);
+    if (exception instanceof Error) {
+      this.logger.error('Stack:', exception.stack);
+    }
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -45,6 +54,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         message = 'Неверный формат UUID';
       }
     }
+
+    // Логируем обработанную ошибку
+    this.logger.error(`Status: ${status}, Message: ${message}`);
 
     response.status(status).json({
       statusCode: status,
