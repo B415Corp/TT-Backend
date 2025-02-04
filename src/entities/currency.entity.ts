@@ -1,5 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Project } from './project.entity';
+import { Task } from './task.entity';
 
 @Entity()
 export class Currency {
@@ -32,4 +34,10 @@ export class Currency {
   })
   @Column({ nullable: true })
   symbol?: string;
+
+  @OneToMany(() => Project, (project) => project.currency)
+  projects: Project[];
+
+  @OneToMany(() => Task, (task) => task.currency)
+  tasks: Task[];
 }

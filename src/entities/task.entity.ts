@@ -16,6 +16,7 @@ import { Tag } from './tag.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { TaskMember } from './task-member.entity';
 import { TimeLog } from './time-logs.entity';
+import { Currency } from './currency.entity';
 
 @Entity()
 export class Task {
@@ -93,6 +94,11 @@ export class Task {
 
   @OneToMany(() => TimeLog, (timeLog) => timeLog.task)
   timeLogs: TimeLog[];
+
+  @ApiProperty({ type: () => Currency, description: 'Currency associated with the task' })
+  @ManyToOne(() => Currency, (currency) => currency.tasks)
+  @JoinColumn({ name: 'currency_id' })
+  currency: Currency;
 
   // @OneToMany(() => TaskMember, (taskMember) => taskMember.task)
   // members: TaskMember[];

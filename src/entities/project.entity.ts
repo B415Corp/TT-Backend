@@ -16,6 +16,7 @@ import { Tag } from './tag.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProjectMember } from './project-member.entity';
 import { Client } from './client.entity';
+import { Currency } from './currency.entity';
 
 @Entity()
 export class Project {
@@ -88,4 +89,9 @@ export class Project {
   @ManyToOne(() => Client, (client) => client.projects)
   @JoinColumn({ name: 'client_id' })
   client: Client;
+
+  @ApiProperty({ type: () => Currency, description: 'Currency associated with the project' })
+  @ManyToOne(() => Currency, (currency) => currency.projects)
+  @JoinColumn({ name: 'currency_id' })
+  currency: Currency;
 }
