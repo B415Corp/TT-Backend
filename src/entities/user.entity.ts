@@ -69,8 +69,11 @@ export class User {
   })
   projectMembers: ProjectMember[];
 
-  // @OneToMany(() => TaskMember, (taskMember) => taskMember.user)
-  // taskMembers: TaskMember[];
+  @OneToMany(() => TaskMember, (taskMember) => taskMember.user, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
+  taskMembers: TaskMember[];
 
   @OneToMany(() => TimeLog, (timeLog) => timeLog.user, {
     cascade: true,

@@ -16,6 +16,7 @@ import { Tag } from './tag.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { TimeLog } from './time-logs.entity';
 import { Currency } from './currency.entity';
+import { TaskMember } from './task-member.entity';
 
 @Entity()
 export class Task {
@@ -107,6 +108,9 @@ export class Task {
   @JoinColumn({ name: 'currency_id' })
   currency: Currency;
 
-  // @OneToMany(() => TaskMember, (taskMember) => taskMember.task)
-  // members: TaskMember[];
+  @OneToMany(() => TaskMember, (taskMember) => taskMember.task, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  taskMembers: TaskMember[];
 }

@@ -59,12 +59,12 @@ export class ProjectMembersController {
   @ApiOperation({ summary: 'Approve a user invitation' })
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard)
-  @Post(':id/members/:userId/approve')
+  @Post(':id/members/approve')
   async approveMember(
     @Param('id') projectId: string,
-    @Param('userId') userId: string
+    @GetUser() user: User
   ): Promise<ProjectMember> {
-    return this.projectMembersService.approveMember(projectId, userId);
+    return this.projectMembersService.approveMember(projectId, user.user_id);
   }
 
   @ApiBearerAuth()
