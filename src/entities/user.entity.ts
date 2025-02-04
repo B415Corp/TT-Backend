@@ -45,21 +45,36 @@ export class User {
   @UpdateDateColumn({ type: 'timestamp with time zone' })
   updated_at: Date;
 
-  @OneToMany(() => Project, (project) => project.user)
+  @OneToMany(() => Project, (project) => project.user, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
   projects: Project[];
 
-  @OneToMany(() => Task, (task) => task.user)
+  @OneToMany(() => Task, (task) => task.user, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
   tasks: Task[];
 
-  @OneToMany(() => Client, (client) => client.user, { onDelete: 'CASCADE' })
+  @OneToMany(() => Client, (client) => client.user, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
   clients: Client[];
 
-  @OneToMany(() => ProjectMember, (member) => member.user)
+  @OneToMany(() => ProjectMember, (member) => member.user, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
   projectMembers: ProjectMember[];
 
   // @OneToMany(() => TaskMember, (taskMember) => taskMember.user)
   // taskMembers: TaskMember[];
 
-  @OneToMany(() => TimeLog, (timeLog) => timeLog.user)
+  @OneToMany(() => TimeLog, (timeLog) => timeLog.user, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
   timeLogs: TimeLog[];
 }

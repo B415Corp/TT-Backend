@@ -35,9 +35,15 @@ export class Currency {
   @Column({ nullable: true })
   symbol?: string;
 
-  @OneToMany(() => Project, (project) => project.currency)
+  @OneToMany(() => Project, (project) => project.currency, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
   projects: Project[];
 
-  @OneToMany(() => Task, (task) => task.currency)
+  @OneToMany(() => Task, (task) => task.currency, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
   tasks: Task[];
 }

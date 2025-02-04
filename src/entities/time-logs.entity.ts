@@ -51,11 +51,15 @@ export class TimeLog {
   @ApiProperty({ type: Date })
   updated_at: Date;
 
-  @ManyToOne(() => User, (user) => user.timeLogs)
+  @ManyToOne(() => User, (user) => user.timeLogs, {
+    onDelete: 'CASCADE'
+  })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Task, (task) => task.timeLogs)
+  @ManyToOne(() => Task, (task) => task.timeLogs, {
+    onDelete: 'CASCADE'
+  })
   @JoinColumn({ name: 'task_id' })
   task: Task;
 }

@@ -49,11 +49,15 @@ export class ProjectMember {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => Project, (project) => project.members)
+  @ManyToOne(() => Project, (project) => project.members, {
+    onDelete: 'CASCADE'
+  })
   @JoinColumn({ name: 'project_id' })
   project: Project;
 
-  @ManyToOne(() => User, (user) => user.projectMembers)
+  @ManyToOne(() => User, (user) => user.projectMembers, {
+    onDelete: 'CASCADE'
+  })
   @JoinColumn({ name: 'user_id' })
   user: User;
 }

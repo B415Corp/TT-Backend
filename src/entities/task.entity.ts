@@ -14,7 +14,6 @@ import { User } from './user.entity';
 import { Project } from './project.entity';
 import { Tag } from './tag.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { TaskMember } from './task-member.entity';
 import { TimeLog } from './time-logs.entity';
 import { Currency } from './currency.entity';
 
@@ -47,7 +46,7 @@ export class Task {
   description: string;
 
   @ApiProperty({ type: Boolean, description: 'Indicates if the task is paid' })
-  @Column()
+  @Column({ default: false })
   is_paid: boolean;
 
   @ApiProperty({
@@ -80,7 +79,9 @@ export class Task {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Project, (project) => project.task)
+  @ManyToOne(() => Project, (project) => project.tasks, { 
+    onDelete: 'CASCADE' 
+  })
   @JoinColumn({ name: 'project_id' })
   project: Project;
 
@@ -92,7 +93,10 @@ export class Task {
   })
   tags: Tag[];
 
-  @OneToMany(() => TimeLog, (timeLog) => timeLog.task, { onDelete: 'CASCADE' })
+  @OneToMany(() => TimeLog, (timeLog) => timeLog.task, { 
+    cascade: true,
+    onDelete: 'CASCADE' 
+  })
   timeLogs: TimeLog[];
 
   @ApiProperty({
