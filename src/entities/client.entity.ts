@@ -50,7 +50,10 @@ export class Client {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ApiProperty({ type: () => User, description: 'User associated with the client' })
+  @ApiProperty({
+    type: () => User,
+    description: 'User associated with the client',
+  })
   @ManyToOne(() => User, (user) => user.clients)
   @JoinColumn({ name: 'user_id' })
   user: User;

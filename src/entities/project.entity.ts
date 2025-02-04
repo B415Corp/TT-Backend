@@ -81,7 +81,10 @@ export class Project {
   })
   members: ProjectMember[];
 
-  @ApiProperty({ type: () => Client, description: 'Client associated with the project' })
+  @ApiProperty({
+    type: () => Client,
+    description: 'Client associated with the project',
+  })
   @ManyToOne(() => Client, (client) => client.projects)
   @JoinColumn({ name: 'client_id' })
   client: Client;
