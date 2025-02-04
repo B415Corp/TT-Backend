@@ -80,8 +80,8 @@ export class Task {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Project, (project) => project.tasks, { 
-    onDelete: 'CASCADE' 
+  @ManyToOne(() => Project, (project) => project.tasks, {
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'project_id' })
   project: Project;
@@ -94,9 +94,9 @@ export class Task {
   })
   tags: Tag[];
 
-  @OneToMany(() => TimeLog, (timeLog) => timeLog.task, { 
+  @OneToMany(() => TimeLog, (timeLog) => timeLog.task, {
     cascade: true,
-    onDelete: 'CASCADE' 
+    onDelete: 'CASCADE',
   })
   timeLogs: TimeLog[];
 

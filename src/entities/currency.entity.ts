@@ -37,13 +37,13 @@ export class Currency {
 
   @OneToMany(() => Project, (project) => project.currency, {
     cascade: true,
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   projects: Project[];
 
   @OneToMany(() => Task, (task) => task.currency, {
     cascade: true,
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   tasks: Task[];
 }

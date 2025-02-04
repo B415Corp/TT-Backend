@@ -13,7 +13,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (info instanceof TokenExpiredError) {
       throw new UnauthorizedException(ErrorMessages.SESSION_EXPIRED);
     }
-    
+
     if (info instanceof JsonWebTokenError) {
       throw new UnauthorizedException(ErrorMessages.INVALID_TOKEN);
     }

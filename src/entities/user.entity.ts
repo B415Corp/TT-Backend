@@ -47,37 +47,37 @@ export class User {
 
   @OneToMany(() => Project, (project) => project.user, {
     cascade: true,
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   projects: Project[];
 
   @OneToMany(() => Task, (task) => task.user, {
     cascade: true,
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   tasks: Task[];
 
   @OneToMany(() => Client, (client) => client.user, {
     cascade: true,
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   clients: Client[];
 
   @OneToMany(() => ProjectMember, (member) => member.user, {
     cascade: true,
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   projectMembers: ProjectMember[];
 
   @OneToMany(() => TaskMember, (taskMember) => taskMember.user, {
     cascade: true,
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   taskMembers: TaskMember[];
 
   @OneToMany(() => TimeLog, (timeLog) => timeLog.user, {
     cascade: true,
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   timeLogs: TimeLog[];
 }

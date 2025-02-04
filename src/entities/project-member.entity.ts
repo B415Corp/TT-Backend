@@ -50,13 +50,13 @@ export class ProjectMember {
   updated_at: Date;
 
   @ManyToOne(() => Project, (project) => project.members, {
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'project_id' })
   project: Project;
 
   @ManyToOne(() => User, (user) => user.projectMembers, {
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
   user: User;

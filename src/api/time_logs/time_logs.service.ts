@@ -180,8 +180,8 @@ export class TimeLogsService {
       .leftJoinAndSelect('project.members', 'project_members')
       .where('project_members.user_id = :userId', { userId })
       .andWhere('time_log.status = :status', { status: 'in-progress' })
-      // .andWhere('project_members.role IN (:...roles)', { 
-      //   roles: [ProjectRole.OWNER, ProjectRole.ADMIN, ProjectRole.MEMBER] 
+      // .andWhere('project_members.role IN (:...roles)', {
+      //   roles: [ProjectRole.OWNER, ProjectRole.ADMIN, ProjectRole.MEMBER]
       // })
       .orderBy('time_log.created_at', 'DESC')
       .getOne();

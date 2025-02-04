@@ -55,7 +55,7 @@ export class Client {
     description: 'User associated with the client',
   })
   @ManyToOne(() => User, (user) => user.clients, {
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
   user: User;
@@ -70,7 +70,7 @@ export class Client {
 
   @OneToMany(() => Project, (project) => project.client, {
     cascade: true,
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   projects: Project[];
 }

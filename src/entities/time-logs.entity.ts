@@ -52,13 +52,13 @@ export class TimeLog {
   updated_at: Date;
 
   @ManyToOne(() => User, (user) => user.timeLogs, {
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
   @ManyToOne(() => Task, (task) => task.timeLogs, {
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'task_id' })
   task: Task;

@@ -30,8 +30,7 @@ export class TimeLogsController {
   @ApiOperation({ summary: 'Get the latest time log for the user' })
   @ApiResponse({ status: 200, type: TimeLog })
   @Get('/latest')
-  async getLatestTimeLog(@GetUser() user: User){
-    console.log('user.user_id', user.user_id);
+  async getLatestTimeLog(@GetUser() user: User) {
     return this.timeLogsService.findLatestLogByUserId(user.user_id);
   }
 
@@ -107,6 +106,4 @@ export class TimeLogsController {
       paginationQuery
     );
   }
-
-  
 }
