@@ -16,6 +16,7 @@ import { Tag } from '../../entities/tag.entity';
 import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-member.entity';
 import { ProjectRole } from '../../common/enums/project-role.enum';
+import { ProjectWithMembersDto } from './dto/project-with-members.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -167,7 +168,7 @@ export class ProjectsService {
     }
   }
 
-  async findProjectsWithMembers(userId: string) {
+  async findProjectsWithMembers(userId: string): Promise<ProjectWithMembersDto[]> {
     const projectsWithMembers = await this.projectMemberRepository
       .createQueryBuilder('project_member')
       .leftJoinAndSelect('project_member.project', 'project')
@@ -176,7 +177,7 @@ export class ProjectsService {
       .getMany();
 
     return projectsWithMembers.map(pm => ({
-      ...pm.project,
+      project: pm.project,
       shared: { role: pm.role, approved: pm.approve } // Include only user ID without other related data
     }));
   }
