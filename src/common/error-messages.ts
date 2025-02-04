@@ -1,5 +1,5 @@
 export const ErrorMessages = {
-  USER_NOT_FOUND: 'Пользователь не найден',
+  USER_NOT_FOUND: 'Пользователь не найден или был удален',
   INVALID_PASSWORD: 'Неверный пароль',
   TAG_NOT_FOUND: (id: string) => `Тег ${id} не найден`,
   TAG_ALREADY_EXISTS: (name: string) => `Тег с именем "${name}" уже существует`,
@@ -20,8 +20,8 @@ export const ErrorMessages = {
   USER_NOT_IN_PROJECT: 'Такого пользователя нет в проекте',
   INVALID_CREDENTIALS: 'Неверные учетные данные',
   ACCESS_DENIED: 'Доступ запрещен',
-  INVALID_TOKEN: 'Недействительный токен. Пожалуйста, войдите снова.',
-  SESSION_EXPIRED: 'Сессия истекла. Пожалуйста, войдите снова.',
+  INVALID_TOKEN: 'Недействительный токен авторизации',
+  SESSION_EXPIRED: 'Срок действия сессии истек. Пожалуйста, войдите снова',
   INTERNAL_ERROR: 'Внутренняя ошибка сервера',
   BAD_REQUEST: 'Неверный запрос',
   USER_EXISTS: 'Пользователь с таким email уже существует',
@@ -37,4 +37,6 @@ export const ErrorMessages = {
   PROJECT_MEMBER_NOT_FOUND: 'Нет связи права на проект с таким пользователем',
   TASK_MEMBER_NOT_FOUND: 'Нет связи права на задачу с таким пользователем',
   USER_ALREADY_ASSIGNED: 'Пользователь уже назначен на эту задачу',
+  TOKEN_REQUIRED: 'Отсутствует токен авторизации',
+  INVALID_TOKEN_FORMAT: 'Неверный формат токена авторизации',
 };
