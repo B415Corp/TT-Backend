@@ -92,7 +92,7 @@ export class Task {
   })
   tags: Tag[];
 
-  @OneToMany(() => TimeLog, (timeLog) => timeLog.task)
+  @OneToMany(() => TimeLog, (timeLog) => timeLog.task, { onDelete: 'CASCADE' })
   timeLogs: TimeLog[];
 
   @ApiProperty({ type: () => Currency, description: 'Currency associated with the task' })

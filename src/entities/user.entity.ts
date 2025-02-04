@@ -51,7 +51,7 @@ export class User {
   @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];
 
-  @OneToMany(() => Client, (client) => client.user)
+  @OneToMany(() => Client, (client) => client.user, { onDelete: 'CASCADE' })
   clients: Client[];
 
   @OneToMany(() => ProjectMember, (member) => member.user)

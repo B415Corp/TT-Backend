@@ -54,7 +54,7 @@ export class Client {
     type: () => User,
     description: 'User associated with the client',
   })
-  @ManyToOne(() => User, (user) => user.clients)
+  @ManyToOne(() => User, (user) => user.clients, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

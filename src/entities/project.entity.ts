@@ -66,7 +66,7 @@ export class Project {
   @JoinColumn({ name: 'user_owner_id' })
   user: User;
 
-  @OneToMany(() => Task, (task) => task.project)
+  @OneToMany(() => Task, (task) => task.project, { onDelete: 'CASCADE' })
   task: Task[];
 
   @ManyToMany(() => Tag)
@@ -77,9 +77,7 @@ export class Project {
   })
   tags: Tag[];
 
-  @OneToMany(() => ProjectMember, (member) => member.project, {
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => ProjectMember, (member) => member.project, { onDelete: 'CASCADE' })
   members: ProjectMember[];
 
   @ApiProperty({

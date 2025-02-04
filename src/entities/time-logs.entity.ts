@@ -51,11 +51,11 @@ export class TimeLog {
   @ApiProperty({ type: Date })
   updated_at: Date;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (user) => user.timeLogs)
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Task)
+  @ManyToOne(() => Task, (task) => task.timeLogs)
   @JoinColumn({ name: 'task_id' })
   task: Task;
 }
