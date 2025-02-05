@@ -9,6 +9,9 @@ import { TimeLog } from '../../entities/time-logs.entity';
 import { Currency } from 'src/entities/currency.entity';
 import { User } from '../../entities/user.entity';
 import { ErrorMessages } from '../../common/error-messages';
+import { TaskMember } from '../../entities/task-member.entity';
+import { ProjectRole } from 'src/common/enums/project-role.enum';
+
 
 @Injectable()
 export class TasksService {
@@ -22,7 +25,9 @@ export class TasksService {
     @InjectRepository(Currency)
     private currencyRepository: Repository<Currency>,
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+    @InjectRepository(TaskMember)
+    private taskMemberRepository: Repository<TaskMember>
   ) {}
 
   async create(
@@ -47,7 +52,18 @@ export class TasksService {
       project_id,
       user_id,
     });
-    return this.taskRepository.save(task);
+
+    const savedTask = await this.taskRepository.save(task);
+
+    const taskMember = this.taskMemberRepository.create({
+      task_id: savedTask.task_id,
+      user_id: user_id,
+      role: ProjectRole.EXECUTOR,
+    });
+
+    await this.taskMemberRepository.save(taskMember);
+
+    return savedTask;
   }
 
   async findById(id: string): Promise<Task> {
@@ -108,6 +124,9 @@ export class TasksService {
     if (result.affected === 0) {
       throw new NotFoundException(ErrorMessages.TASK_NOT_FOUND(task_id));
     }
+
+    // Delete associated TaskMembers
+    await this.taskMemberRepository.delete({ task_id });
   }
 
   async findByUserIdAndSearchTerm(userId: string, searchTerm: string) {

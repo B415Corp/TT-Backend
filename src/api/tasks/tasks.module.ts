@@ -8,10 +8,11 @@ import { TimeLog } from '../../entities/time-logs.entity';
 import { Currency } from 'src/entities/currency.entity';
 import { User } from 'src/entities/user.entity';
 import { ProjectSharedModule } from '../project-shared/project-shared.module';
+import { TaskMember } from '../../entities/task-member.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Task, Project, TimeLog, Currency, User]),
+    TypeOrmModule.forFeature([Task, Project, TimeLog, Currency, User, TaskMember]),
     ProjectSharedModule,
   ],
   providers: [TasksService],
