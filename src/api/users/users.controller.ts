@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -21,11 +22,26 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { ChangeSubscriptionDto } from './dto/change-subscription.dto';
 import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
+import { SearchUsersDto } from './dto/search-users.dto';
+import { SubscriptionGuard } from 'src/auth/guards/subscription.guard';
+import { UserTypeDto } from './dto/user-type.dto';
 
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Search for users by name or email' })
+  @ApiResponse({ status: 200, type: [User] })
+  @UseGuards(JwtAuthGuard, SubscriptionGuard)
+  @Get('search')
+  // @Subscription(SubscriptionType.BASIC)
+  async searchUsers(
+    @Query() searchUsersDto: SearchUsersDto
+  ): Promise<Array<UserTypeDto>> {
+    return this.usersService.searchUsers(searchUsersDto);
+  }
 
   // @ApiBearerAuth()
   // @ApiOperation({ summary: 'Test free feature' })

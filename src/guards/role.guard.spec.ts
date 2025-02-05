@@ -1,12 +1,12 @@
 import { RoleGuard } from './role.guard';
 import { Reflector } from '@nestjs/core';
 import { ExecutionContext } from '@nestjs/common';
-import { ProjectMembersService } from '../api/project-members/project-members.service';
 import { ProjectRole } from '../common/enums/project-role.enum';
+import { ProjectSharedService } from 'src/api/project-shared/project-shared.service';
 
 describe('RoleGuard', () => {
   let roleGuard: RoleGuard;
-  let projectMembersService: ProjectMembersService;
+  let projectMembersService: ProjectSharedService;
 
   beforeEach(() => {
     projectMembersService = { getUserRoleInProject: jest.fn() } as any;

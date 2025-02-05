@@ -23,7 +23,7 @@ import { RoleGuard } from '../../guards/role.guard';
 import { ProjectRole } from 'src/common/enums/project-role.enum';
 import { Roles } from 'src/guards/roles.decorator';
 
-@ApiTags('project-members')
+@ApiTags('project-shared')
 @Controller('projects')
 export class ProjectMembersController {
   constructor(private readonly projectMembersService: ProjectSharedService) {}
@@ -33,7 +33,7 @@ export class ProjectMembersController {
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(ProjectRole.OWNER, ProjectRole.MANAGER)
-  @Post(':id/members')
+  @Post(':id/shared')
   async assignRole(
     @Param('id') projectId: string,
     @Body() assignRoleDto: AssignRoleDto,
@@ -50,7 +50,7 @@ export class ProjectMembersController {
   @ApiOperation({ summary: 'Approve a user invitation' })
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard)
-  @Post(':id/members/approve')
+  @Post(':id/shared/approve')
   async approveMember(
     @Param('id') projectId: string,
     @GetUser() user: User
@@ -62,7 +62,7 @@ export class ProjectMembersController {
   @ApiOperation({ summary: 'Get project members by approval status' })
   @ApiResponse({ status: 200, type: [ProjectMember] })
   @UseGuards(JwtAuthGuard)
-  @Get(':id/members')
+  @Get(':id/shared')
   async getMembers(
     @Param('id') projectId: string,
     @Query('approved') approved: boolean | undefined // Changed to allow undefined
@@ -75,7 +75,7 @@ export class ProjectMembersController {
 
   @ApiBearerAuth()
   @UseGuards(RoleGuard)
-  @Get(':id/members/:userId/role')
+  @Get(':id/shared/:userId/role')
   async getUserRole(
     @Param('id') projectId: string,
     @Param('userId') userId: string

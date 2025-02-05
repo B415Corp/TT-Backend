@@ -13,6 +13,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangeSubscriptionDto } from './dto/change-subscription.dto';
 import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 import { ErrorMessages } from '../../common/error-messages';
+import { SearchUsersDto } from './dto/search-users.dto';
+import { ILike } from 'typeorm';
+import { UserTypeDto } from './dto/user-type.dto';
 
 @Injectable()
 export class UsersService {
@@ -54,12 +57,17 @@ export class UsersService {
     return this.usersRepository.findOneBy({ email });
   }
 
-  async findById(user_id: string): Promise<User | undefined> {
-    const user = await this.usersRepository.findOneBy({ user_id });
+  async findById(
+    id: string
+  ): Promise<
+    Pick<User, 'user_id' | 'name' | 'email' | 'subscriptionType'> | undefined
+  > {
+    const user = await this.usersRepository.findOneBy({ user_id: id });
     if (!user) {
       throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
     }
-    return user;
+    const { user_id, name, email, subscriptionType } = user;
+    return { user_id, name, email, subscriptionType };
   }
 
   async findAll(
@@ -108,5 +116,27 @@ export class UsersService {
 
     user.subscriptionType = changeSubscriptionDto.subscriptionType; // Update subscription type
     return this.usersRepository.save(user);
+  }
+
+  async searchUsers(searchUsersDto: SearchUsersDto): Promise<UserTypeDto[]> {
+    const { searchTerm } = searchUsersDto;
+
+    const users = await this.usersRepository.find({
+      select: ['user_id', 'name', 'email'],
+      where: [
+        { name: ILike(`%${searchTerm}%`) },
+        { email: ILike(`%${searchTerm}%`) },
+      ],
+    });
+
+    if (!users.length) {
+      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
+    }
+
+    return users.map((user) => ({
+      user_id: user.user_id,
+      name: user.name,
+      email: user.email,
+    }));
   }
 }
