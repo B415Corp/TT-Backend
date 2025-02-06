@@ -67,7 +67,10 @@ export class TaskSharedService {
     return this.taskMemberRepository.find({ where: { task_id: taskId } });
   }
 
-  async getUserRoleInTask(taskId: string, userId: string): Promise<ProjectMember> {
+  async getUserRoleInTask(
+    taskId: string,
+    userId: string
+  ): Promise<ProjectMember> {
     // Находим задачу
     const task = await this.taskRepository.findOne({
       where: { task_id: taskId },

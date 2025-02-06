@@ -11,8 +11,8 @@ import { TimeLog } from 'src/entities/time-logs.entity';
 import { User } from 'src/entities/user.entity';
 
 @Module({
-  imports: [ProjectSharedModule, TypeOrmModule.forFeature([Task]),],
+  imports: [ProjectSharedModule, TypeOrmModule.forFeature([Task])],
   providers: [RoleGuard],
   exports: [RoleGuard],
 })
-export class GuardsModule { } 
+export class GuardsModule {}

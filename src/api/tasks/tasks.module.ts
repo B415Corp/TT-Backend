@@ -13,7 +13,14 @@ import { GuardsModule } from '../../guards/guards.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Task, Project, TimeLog, Currency, User, TaskMember]),
+    TypeOrmModule.forFeature([
+      Task,
+      Project,
+      TimeLog,
+      Currency,
+      User,
+      TaskMember,
+    ]),
     ProjectSharedModule,
     GuardsModule,
   ],

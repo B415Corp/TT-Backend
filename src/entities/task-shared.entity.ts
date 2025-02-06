@@ -38,7 +38,7 @@ export class TaskMember {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-   @ApiProperty({ type: Date })
+  @ApiProperty({ type: Date })
   @CreateDateColumn({ type: 'timestamp with time zone' })
   created_at: Date;
 

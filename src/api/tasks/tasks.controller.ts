@@ -34,7 +34,7 @@ import { Roles } from 'src/guards/roles.decorator';
 @ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) { }
+  constructor(private readonly tasksService: TasksService) {}
 
   @ApiBearerAuth()
   @ApiOkResponse({ type: PaginatedResponseDto<Task> })
@@ -78,7 +78,7 @@ export class TasksController {
     type: Task,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER],'task')
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'task')
   @Post('create')
   async createTask(
     @Body() createTaskDto: CreateTaskDto,
@@ -112,9 +112,12 @@ export class TasksController {
     type: Task,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER, ProjectRole.EXECUTOR],'task')
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER, ProjectRole.EXECUTOR], 'task')
   @Patch(':task_id')
-  async update(@Param('task_id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+  async update(
+    @Param('task_id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto
+  ) {
     return this.tasksService.update(id, updateTaskDto);
   }
 
@@ -130,6 +133,4 @@ export class TasksController {
   async remove(@Param('task_id') id: string) {
     return this.tasksService.remove(id);
   }
-
- 
 }

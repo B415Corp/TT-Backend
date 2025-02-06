@@ -26,7 +26,7 @@ import { Roles } from 'src/guards/roles.decorator';
 @ApiTags('project-shared')
 @Controller('projects')
 export class ProjectMembersController {
-  constructor(private readonly projectMembersService: ProjectSharedService) { }
+  constructor(private readonly projectMembersService: ProjectSharedService) {}
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Assign role to a user in a project' })

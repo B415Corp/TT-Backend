@@ -17,4 +17,4 @@ import { ProjectSharedService } from '../project-shared/project-shared.service';
   controllers: [TaskSharedController],
   exports: [TaskSharedService],
 })
-export class TaskSharedModule { }
+export class TaskSharedModule {}

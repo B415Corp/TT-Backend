@@ -26,7 +26,7 @@ import { Roles } from 'src/guards/roles.decorator';
 @ApiTags('time-logs')
 @Controller('time-logs')
 export class TimeLogsController {
-  constructor(private readonly timeLogsService: TimeLogsService) { }
+  constructor(private readonly timeLogsService: TimeLogsService) {}
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)

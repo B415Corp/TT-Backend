@@ -37,7 +37,7 @@ import { ProjectWithMembersDto } from './dto/project-with-members.dto';
 @ApiTags('projects')
 @Controller('projects')
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) { }
+  constructor(private readonly projectsService: ProjectsService) {}
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get projects with members' })

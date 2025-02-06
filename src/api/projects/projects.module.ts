@@ -20,4 +20,4 @@ import { GuardsModule } from '../../guards/guards.module';
   exports: [ProjectsService],
   controllers: [ProjectsController],
 })
-export class ProjectsModule { }
+export class ProjectsModule {}

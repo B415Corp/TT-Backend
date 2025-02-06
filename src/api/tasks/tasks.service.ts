@@ -12,7 +12,6 @@ import { ErrorMessages } from '../../common/error-messages';
 import { TaskMember } from '../../entities/task-shared.entity';
 import { ProjectRole } from 'src/common/enums/project-role.enum';
 
-
 @Injectable()
 export class TasksService {
   constructor(

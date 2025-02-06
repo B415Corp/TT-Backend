@@ -12,4 +12,4 @@ import { Task } from 'src/entities/task.entity';
   controllers: [ProjectMembersController],
   exports: [ProjectSharedService, TypeOrmModule.forFeature([ProjectMember])],
 })
-export class ProjectSharedModule { }
+export class ProjectSharedModule {}

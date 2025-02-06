@@ -25,14 +25,17 @@ import { User } from 'src/entities/user.entity';
 @ApiTags('task-shared')
 @Controller('tasks')
 export class TaskSharedController {
-  constructor(private readonly taskMembersService: TaskSharedService) { }
+  constructor(private readonly taskMembersService: TaskSharedService) {}
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get users assigned to a task' })
   @ApiResponse({ status: 200, description: 'List of users assigned to task.' })
   @Get(':taskId/shared/role')
-  async getUserRoleByTask(@Param('taskId') taskId: string, @GetUser() user: User,) {
+  async getUserRoleByTask(
+    @Param('taskId') taskId: string,
+    @GetUser() user: User
+  ) {
     return this.taskMembersService.getUserRoleInTask(taskId, user.user_id);
   }
 
@@ -73,5 +76,4 @@ export class TaskSharedController {
   ) {
     return this.taskMembersService.removeUserFromTask(taskId, userId);
   }
-
 }
