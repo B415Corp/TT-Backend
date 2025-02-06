@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { Project } from 'src/entities/project.entity';
 import { Repository } from 'typeorm';
+import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-shared.entity';
 import { AssignRoleDto } from './dto/assign-role.dto';
-import { ErrorMessages } from '../../common/error-messages';
-import { Project } from 'src/entities/project.entity';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
 
 @Injectable()
 export class ProjectSharedService {
@@ -14,7 +14,7 @@ export class ProjectSharedService {
     private projectMemberRepository: Repository<ProjectMember>,
     @InjectRepository(Project)
     private projectRepository: Repository<Project>
-  ) {}
+  ) { }
 
   // Метод assignRole назначает роль участнику проекта.
   async assignRole(
@@ -104,6 +104,21 @@ export class ProjectSharedService {
     return this.projectMemberRepository.find({
       where: { project_id: projectId, approve: approved },
     });
+  }
+
+  async patchSharedRole(project_id: string, role: ProjectRole, user_id: string): Promise<ProjectMember> {
+    if (role === ProjectRole.OWNER) {
+      throw new ForbiddenException('Запрещено менять роль на ' + ProjectRole.OWNER);
+    }
+    const sharedItem = await this.projectMemberRepository.findOne({
+      where: { project_id, user_id },
+    });
+
+    if (!sharedItem) {
+      throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
+    }
+
+    return this.projectMemberRepository.save(sharedItem);
   }
 
   async getUserRoleInProject(

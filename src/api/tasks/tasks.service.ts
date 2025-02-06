@@ -10,7 +10,6 @@ import { Currency } from 'src/entities/currency.entity';
 import { User } from '../../entities/user.entity';
 import { ErrorMessages } from '../../common/error-messages';
 import { TaskMember } from '../../entities/task-shared.entity';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
 
 @Injectable()
 export class TasksService {
