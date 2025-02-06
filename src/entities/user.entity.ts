@@ -12,7 +12,7 @@ import { Task } from './task.entity';
 import { Client } from './client.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProjectMember } from './project-shared.entity';
-import { TaskMember } from './task-member.entity';
+import { TaskMember } from './task-shared.entity';
 import { TimeLog } from './time-logs.entity';
 
 @Entity({ name: 'users' }) // Указываем имя таблицы, если нужно использовать отличное от имени класса

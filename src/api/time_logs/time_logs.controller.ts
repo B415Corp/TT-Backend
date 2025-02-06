@@ -26,7 +26,7 @@ import { Roles } from 'src/guards/roles.decorator';
 @ApiTags('time-logs')
 @Controller('time-logs')
 export class TimeLogsController {
-  constructor(private readonly timeLogsService: TimeLogsService) {}
+  constructor(private readonly timeLogsService: TimeLogsService) { }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -54,7 +54,7 @@ export class TimeLogsController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(ProjectRole.OWNER, ProjectRole.EXECUTOR)
+  @Roles([ProjectRole.OWNER, ProjectRole.EXECUTOR], 'project')
   @Post(':task_id/start')
   async start(@Param('task_id') id: string, @GetUser() user: User) {
     return this.timeLogsService.start(id, user.user_id);
@@ -68,7 +68,7 @@ export class TimeLogsController {
     description: 'The time-log has been successfully stopped.',
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(ProjectRole.OWNER, ProjectRole.EXECUTOR)
+  @Roles([ProjectRole.OWNER, ProjectRole.EXECUTOR], 'project')
   @Patch(':task_id/stop')
   async stop(@Param('task_id') id: string) {
     return this.timeLogsService.stop(id);

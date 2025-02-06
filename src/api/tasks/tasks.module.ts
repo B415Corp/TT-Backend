@@ -8,7 +8,7 @@ import { TimeLog } from '../../entities/time-logs.entity';
 import { Currency } from 'src/entities/currency.entity';
 import { User } from 'src/entities/user.entity';
 import { ProjectSharedModule } from '../project-shared/project-shared.module';
-import { TaskMember } from '../../entities/task-member.entity';
+import { TaskMember } from '../../entities/task-shared.entity';
 
 @Module({
   imports: [

@@ -16,7 +16,7 @@ import { Tag } from './tag.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { TimeLog } from './time-logs.entity';
 import { Currency } from './currency.entity';
-import { TaskMember } from './task-member.entity';
+import { TaskMember } from './task-shared.entity';
 
 @Entity()
 export class Task {

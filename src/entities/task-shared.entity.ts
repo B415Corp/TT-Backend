@@ -4,6 +4,8 @@ import {
   ManyToOne,
   JoinColumn,
   Column,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from './user.entity';
@@ -24,17 +26,6 @@ export class TaskMember {
   @Column()
   user_id: string;
 
-  @ApiProperty({
-    enum: ProjectRole,
-    description: 'Role of the user in the task',
-  })
-  @Column({
-    type: 'enum',
-    enum: ProjectRole,
-    default: ProjectRole.GUEST,
-  })
-  role: ProjectRole;
-
   @ManyToOne(() => Task, (task) => task.taskMembers, {
     onDelete: 'CASCADE',
   })
@@ -46,4 +37,12 @@ export class TaskMember {
   })
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+   @ApiProperty({ type: Date })
+  @CreateDateColumn({ type: 'timestamp with time zone' })
+  created_at: Date;
+
+  @ApiProperty({ type: Date })
+  @UpdateDateColumn({ type: 'timestamp with time zone' })
+  updated_at: Date;
 }

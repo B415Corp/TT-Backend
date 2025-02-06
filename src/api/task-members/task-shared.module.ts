@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TaskMembersService } from './task-members.service';
-import { TaskMembersController } from './task-members.controller';
-import { TaskMember } from '../../entities/task-member.entity';
+import { TaskMembersService } from './task-shared.service';
+import { TaskMembersController } from './task-shared.controller';
+import { TaskMember } from '../../entities/task-shared.entity';
 import { Task } from '../../entities/task.entity';
 import { User } from '../../entities/user.entity';
 import { ProjectSharedModule } from '../project-shared/project-shared.module';
+import { ProjectSharedService } from '../project-shared/project-shared.service';
 
 @Module({
   imports: [

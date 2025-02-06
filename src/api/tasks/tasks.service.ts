@@ -9,7 +9,7 @@ import { TimeLog } from '../../entities/time-logs.entity';
 import { Currency } from 'src/entities/currency.entity';
 import { User } from '../../entities/user.entity';
 import { ErrorMessages } from '../../common/error-messages';
-import { TaskMember } from '../../entities/task-member.entity';
+import { TaskMember } from '../../entities/task-shared.entity';
 import { ProjectRole } from 'src/common/enums/project-role.enum';
 
 
@@ -58,7 +58,6 @@ export class TasksService {
     const taskMember = this.taskMemberRepository.create({
       task_id: savedTask.task_id,
       user_id: user_id,
-      role: ProjectRole.EXECUTOR,
     });
 
     await this.taskMemberRepository.save(taskMember);

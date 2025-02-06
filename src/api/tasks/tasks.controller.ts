@@ -34,7 +34,7 @@ import { Roles } from 'src/guards/roles.decorator';
 @ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(private readonly tasksService: TasksService) { }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new task' })
@@ -44,7 +44,7 @@ export class TasksController {
     type: Task,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(ProjectRole.OWNER, ProjectRole.MANAGER)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER],'task')
   @Post('create')
   async createTask(
     @Body() createTaskDto: CreateTaskDto,
@@ -78,7 +78,7 @@ export class TasksController {
     type: Task,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(ProjectRole.OWNER, ProjectRole.MANAGER, ProjectRole.EXECUTOR)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER, ProjectRole.EXECUTOR],'task')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
     return this.tasksService.update(id, updateTaskDto);
@@ -91,7 +91,7 @@ export class TasksController {
     description: 'Successfully deleted the task.',
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(ProjectRole.OWNER, ProjectRole.MANAGER)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'task')
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.tasksService.remove(id);

@@ -26,13 +26,13 @@ import { Roles } from 'src/guards/roles.decorator';
 @ApiTags('project-shared')
 @Controller('projects')
 export class ProjectMembersController {
-  constructor(private readonly projectMembersService: ProjectSharedService) {}
+  constructor(private readonly projectMembersService: ProjectSharedService) { }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Assign role to a user in a project' })
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(ProjectRole.OWNER, ProjectRole.MANAGER)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
   @Post(':id/shared')
   async assignRole(
     @Param('id') projectId: string,

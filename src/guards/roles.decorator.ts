@@ -6,18 +6,21 @@ import {
 } from '@nestjs/swagger';
 import { ProjectRole } from '../common/enums/project-role.enum';
 
-export const Roles = (...roles: ProjectRole[]) => {
+export const Roles = (roles: ProjectRole[], source: 'project' | 'task') => {
   return applyDecorators(
     SetMetadata('roles', roles),
+    SetMetadata('source', source),
     ApiOperation({
       summary: 'Protected resource',
-      description: `Required roles: ${roles.join(', ')}`,
+      description: `Required roles: ${roles.join(', ')}, source: ${source}`,
     }),
     ApiUnauthorizedResponse({
       description: 'Unauthorized. JWT token is missing or invalid',
     }),
     ApiForbiddenResponse({
-      description: `Forbidden. Required roles: ${roles.join(', ')}. Your role doesn't match the required roles.`,
+      description: `Forbidden. Required roles: ${roles.join(
+        ', '
+      )}. Your role doesn't match the required roles.`,
     })
   );
 };

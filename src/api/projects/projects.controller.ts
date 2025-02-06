@@ -37,7 +37,7 @@ import { ProjectWithMembersDto } from './dto/project-with-members.dto';
 @ApiTags('projects')
 @Controller('projects')
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(private readonly projectsService: ProjectsService) { }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get projects with members' })
@@ -110,7 +110,7 @@ export class ProjectsController {
     type: Project,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(ProjectRole.OWNER)
+  @Roles([ProjectRole.OWNER], 'project')
   @Patch(':id')
   async updateProject(
     @Param('id') id: string,
@@ -126,7 +126,7 @@ export class ProjectsController {
     description: 'Successfully deleted the project.',
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(ProjectRole.OWNER)
+  @Roles([ProjectRole.OWNER], 'project')
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.projectsService.remove(id);
