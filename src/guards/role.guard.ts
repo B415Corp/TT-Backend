@@ -1,18 +1,18 @@
 import {
-  Injectable,
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ProjectRole } from '../common/enums/project-role.enum';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ProjectMember } from 'src/entities/project-shared.entity';
-import { ErrorMessages } from '../common/error-messages';
-import { Task } from 'src/entities/task.entity';
 import { ProjectSharedService } from 'src/api/project-shared/project-shared.service';
+import { ProjectMember } from 'src/entities/project-shared.entity';
+import { Task } from 'src/entities/task.entity';
+import { Repository } from 'typeorm';
+import { ProjectRole } from '../common/enums/project-role.enum';
+import { ErrorMessages } from '../common/error-messages';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
@@ -23,7 +23,7 @@ export class RoleGuard implements CanActivate {
     private projectMemberRepository: Repository<ProjectMember>,
     @InjectRepository(Task)
     private taskRepository: Repository<Task>
-  ) {}
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.get<ProjectRole[]>(
@@ -37,16 +37,15 @@ export class RoleGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const userId = request.user.user_id; // ID пользователя
-    const projectId = request.params.id || request.body.project_id; // ID проекта
-    const taskId = request.params.task_id || request.body.task_id; // ID задачи
+    const userId: string = request.user.user_id; // ID пользователя
+    const projectId: string = request.params.id || request.body.project_id; // ID проекта
+    const taskId: string = request.params.task_id || request.body.task_id; // ID задачи
 
     let member: ProjectMember;
 
     if (source === 'project') {
       member = await this.getRoleInProjectShared(projectId, userId);
     } else if (source === 'task') {
-      console.log('taskId, userId');
       member = await this.getRoleByTask(taskId, userId);
     } else {
       throw new ForbiddenException('Неизвестный источник');
@@ -68,10 +67,9 @@ export class RoleGuard implements CanActivate {
 
   async getRoleByTask(taskId: string, userId: string): Promise<ProjectMember> {
     // Находим задачу
-    console.log('getRoleByTask', taskId, userId);
     const task = await this.taskRepository.findOne({
       where: { task_id: taskId },
-      select: ['project_id'], // Выбираем только project_id для оптимизации
+
     });
 
     if (!task) {

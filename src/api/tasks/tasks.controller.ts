@@ -8,7 +8,6 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { TasksService } from './tasks.service';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -18,23 +17,24 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { GetUser } from '../../decorators/get-user.decorator';
-import { User } from '../../entities/user.entity';
-import { Task } from '../../entities/task.entity';
-import { PaginatedResponseDto } from '../../common/pagination/paginated-response.dto';
-import { Paginate, PaginationParams } from 'src/decorators/paginate.decorator';
-import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
 import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
+import { Paginate, PaginationParams } from 'src/decorators/paginate.decorator';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/guards/roles.decorator';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { PaginatedResponseDto } from '../../common/pagination/paginated-response.dto';
+import { GetUser } from '../../decorators/get-user.decorator';
+import { Task } from '../../entities/task.entity';
+import { User } from '../../entities/user.entity';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { TasksService } from './tasks.service';
 
 @ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(private readonly tasksService: TasksService) { }
 
   @ApiBearerAuth()
   @ApiOkResponse({ type: PaginatedResponseDto<Task> })
@@ -78,7 +78,7 @@ export class TasksController {
     type: Task,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'task')
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
   @Post('create')
   async createTask(
     @Body() createTaskDto: CreateTaskDto,
