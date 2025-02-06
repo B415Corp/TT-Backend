@@ -16,7 +16,7 @@ export class RoleGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private projectMembersService: ProjectSharedService,
-    private taskMembersService: TaskSharedService
+    // private taskSharedService: TaskSharedService
   ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -38,7 +38,8 @@ export class RoleGuard implements CanActivate {
     if (source === 'project') {
       member = await this.projectMembersService.getUserRoleInProject(projectId, userId);
     } else if (source === 'task') {
-      member = await this.taskMembersService.getUserRoleInTask(taskId, userId);
+      // member = await this.taskSharedService.getUserRoleInTask(taskId, userId);
+      throw new ForbiddenException('Неизвестный источник');
     } else {
       throw new ForbiddenException('Неизвестный источник');
     }

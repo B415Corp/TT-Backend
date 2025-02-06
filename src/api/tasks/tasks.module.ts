@@ -9,11 +9,13 @@ import { Currency } from 'src/entities/currency.entity';
 import { User } from 'src/entities/user.entity';
 import { ProjectSharedModule } from '../project-shared/project-shared.module';
 import { TaskMember } from '../../entities/task-shared.entity';
+import { GuardsModule } from '../../guards/guards.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Task, Project, TimeLog, Currency, User, TaskMember]),
     ProjectSharedModule,
+    GuardsModule,
   ],
   providers: [TasksService],
   exports: [TasksService],
