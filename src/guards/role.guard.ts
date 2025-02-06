@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { ProjectRole } from '../common/enums/project-role.enum';
 import { ProjectSharedService } from 'src/api/project-shared/project-shared.service';
 import { ErrorMessages } from 'src/common/error-messages';
-import { TaskMembersService } from 'src/api/task-members/task-shared.service';
+import { TaskSharedService } from 'src/api/task-members/task-shared.service';
 import { ProjectMember } from 'src/entities/project-shared.entity';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class RoleGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private projectMembersService: ProjectSharedService,
-    // private taskMembersService: TaskMembersService
+    private taskMembersService: TaskSharedService
   ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -38,8 +38,7 @@ export class RoleGuard implements CanActivate {
     if (source === 'project') {
       member = await this.projectMembersService.getUserRoleInProject(projectId, userId);
     } else if (source === 'task') {
-      //  В задаче нет метода getUserRoleInTask,  нужно его добавить в TaskMembersService
-      throw new ForbiddenException('Неизвестный источник');
+      member = await this.taskMembersService.getUserRoleInTask(taskId, userId);
     } else {
       throw new ForbiddenException('Неизвестный источник');
     }

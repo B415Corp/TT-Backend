@@ -7,7 +7,7 @@ import {
   Get,
   Body,
 } from '@nestjs/common';
-import { TaskMembersService } from './task-shared.service';
+import { TaskSharedService } from './task-shared.service';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -24,15 +24,15 @@ import { User } from 'src/entities/user.entity';
 
 @ApiTags('task-shared')
 @Controller('tasks')
-export class TaskMembersController {
-  constructor(private readonly taskMembersService: TaskMembersService) { }
+export class TaskSharedController {
+  constructor(private readonly taskMembersService: TaskSharedService) { }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get users assigned to a task' })
   @ApiResponse({ status: 200, description: 'List of users assigned to task.' })
   @Get(':taskId/shared/role')
-  async getUserRoleByTask(@GetUser() user: User, @Param('taskId') taskId: string) {
+  async getUserRoleByTask(@Param('taskId') taskId: string, @GetUser() user: User,) {
     return this.taskMembersService.getUserRoleInTask(taskId, user.user_id);
   }
 

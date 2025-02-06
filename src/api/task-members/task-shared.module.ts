@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TaskMembersService } from './task-shared.service';
-import { TaskMembersController } from './task-shared.controller';
+import { TaskSharedService } from './task-shared.service';
+import { TaskSharedController } from './task-shared.controller';
 import { TaskMember } from '../../entities/task-shared.entity';
 import { Task } from '../../entities/task.entity';
 import { User } from '../../entities/user.entity';
@@ -13,7 +13,8 @@ import { ProjectSharedService } from '../project-shared/project-shared.service';
     TypeOrmModule.forFeature([TaskMember, Task, User]),
     ProjectSharedModule,
   ],
-  providers: [TaskMembersService],
-  controllers: [TaskMembersController],
+  providers: [TaskSharedService, ProjectSharedService,],
+  controllers: [TaskSharedController],
+  exports: [TaskSharedService],
 })
-export class TaskMembersModule {}
+export class TaskSharedModule { }
