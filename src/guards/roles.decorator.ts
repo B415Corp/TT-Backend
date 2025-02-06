@@ -5,6 +5,7 @@ import {
   ApiForbiddenResponse,
 } from '@nestjs/swagger';
 import { ProjectRole } from '../common/enums/project-role.enum';
+import { GetUser } from '../decorators/get-user.decorator'; // Импортируем декоратор для получения пользователя
 
 export const Roles = (roles: ProjectRole[], source: 'project' | 'task') => {
   return applyDecorators(
@@ -21,6 +22,8 @@ export const Roles = (roles: ProjectRole[], source: 'project' | 'task') => {
       description: `Forbidden. Required roles: ${roles.join(
         ', '
       )}. Your role doesn't match the required roles.`,
-    })
+    }),
+    GetUser, // Добавляем возможность получать user_id из токена
+    SetMetadata('user_id', GetUser) // Добавляем user_id в метаданные
   );
 };

@@ -16,6 +16,7 @@ import { TagsModule } from './api/tags/tags.module';
 import { SearchModule } from './api/search/search.module';
 import { TaskSharedModule } from './api/task-members/task-shared.module';
 import { ProjectSharedModule } from './api/project-shared/project-shared.module';
+import { GuardsModule } from './guards/guards.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ProjectSharedModule } from './api/project-shared/project-shared.module'
     AuthModule,
     TokenModule,
     ClientsModule,
+    GuardsModule,
     ProjectsModule,
     TaskSharedModule,
     TasksModule,

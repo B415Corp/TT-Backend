@@ -13,7 +13,7 @@ import { ProjectSharedService } from '../project-shared/project-shared.service';
     TypeOrmModule.forFeature([TaskMember, Task, User]),
     ProjectSharedModule,
   ],
-  providers: [TaskSharedService,],
+  providers: [TaskSharedService],
   controllers: [TaskSharedController],
   exports: [TaskSharedService],
 })

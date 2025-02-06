@@ -37,67 +37,6 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) { }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a new task' })
-  @ApiResponse({
-    status: 201,
-    description: 'The task has been successfully created.',
-    type: Task,
-  })
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER],'task')
-  @Post('create')
-  async createTask(
-    @Body() createTaskDto: CreateTaskDto,
-    @GetUser() user: User
-  ) {
-    return this.tasksService.create(
-      createTaskDto,
-      user.user_id,
-      createTaskDto.project_id
-    );
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get a task by ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Successfully retrieved task.',
-    type: Task,
-  })
-  @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  async getTaskById(@Param('id') id: string) {
-    return this.tasksService.findById(id);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a task' })
-  @ApiResponse({
-    status: 200,
-    description: 'The task has been successfully updated.',
-    type: Task,
-  })
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER, ProjectRole.EXECUTOR],'task')
-  @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.update(id, updateTaskDto);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete a task' })
-  @ApiResponse({
-    status: 200,
-    description: 'Successfully deleted the task.',
-  })
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'task')
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.tasksService.remove(id);
-  }
-
-  @ApiBearerAuth()
   @ApiOkResponse({ type: PaginatedResponseDto<Task> })
   @ApiOperation({ summary: 'Get all tasks for a specific project' })
   @ApiParam({ name: 'project_id', required: true, description: 'Project ID' })
@@ -126,8 +65,71 @@ export class TasksController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get all tasks by user ID' })
   @ApiResponse({ status: 200, type: [Task] })
-  @Get('user/me')
+  @Get('me')
   async getTasksByUserId(@GetUser() user: User): Promise<Task[]> {
     return this.tasksService.findTasksByUserId(user.user_id);
   }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new task' })
+  @ApiResponse({
+    status: 201,
+    description: 'The task has been successfully created.',
+    type: Task,
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER],'task')
+  @Post('create')
+  async createTask(
+    @Body() createTaskDto: CreateTaskDto,
+    @GetUser() user: User
+  ) {
+    return this.tasksService.create(
+      createTaskDto,
+      user.user_id,
+      createTaskDto.project_id
+    );
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get a task by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved task.',
+    type: Task,
+  })
+  @UseGuards(JwtAuthGuard)
+  @Get(':task_id')
+  async getTaskById(@Param('task_id') id: string) {
+    return this.tasksService.findById(id);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a task' })
+  @ApiResponse({
+    status: 200,
+    description: 'The task has been successfully updated.',
+    type: Task,
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER, ProjectRole.EXECUTOR],'task')
+  @Patch(':task_id')
+  async update(@Param('task_id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+    return this.tasksService.update(id, updateTaskDto);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a task' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully deleted the task.',
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'task')
+  @Delete(':task_id')
+  async remove(@Param('task_id') id: string) {
+    return this.tasksService.remove(id);
+  }
+
+ 
 }
