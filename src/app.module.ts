@@ -17,6 +17,7 @@ import { SearchModule } from './api/search/search.module';
 import { TaskSharedModule } from './api/task-members/task-shared.module';
 import { ProjectSharedModule } from './api/project-shared/project-shared.module';
 import { GuardsModule } from './guards/guards.module';
+import { NotesModule } from './api/notes/notes.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { GuardsModule } from './guards/guards.module';
     TagsModule,
     SearchModule,
     ProjectSharedModule,
+    NotesModule,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],
