@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectRole } from 'src/common/enums/project-role.enum';
 import { Project } from 'src/entities/project.entity';
@@ -6,6 +10,7 @@ import { Repository } from 'typeorm';
 import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-shared.entity';
 import { AssignRoleDto } from './dto/assign-role.dto';
+import { ProjectWithMembersDto } from '../projects/dto/project-with-members.dto';
 
 @Injectable()
 export class ProjectSharedService {
@@ -14,7 +19,23 @@ export class ProjectSharedService {
     private projectMemberRepository: Repository<ProjectMember>,
     @InjectRepository(Project)
     private projectRepository: Repository<Project>
-  ) { }
+  ) {}
+
+  async findProjectsWithMembers(
+    userId: string
+  ): Promise<ProjectWithMembersDto[]> {
+    const projectsWithMembers = await this.projectMemberRepository
+      .createQueryBuilder('project_member')
+      .leftJoinAndSelect('project_member.project', 'project')
+      .where('project_member.user_id = :userId', { userId })
+      .andWhere('project_member.role != :role', { role: ProjectRole.OWNER }) // Exclude role "owner"
+      .getMany();
+
+    return projectsWithMembers.map((pm) => ({
+      project: pm.project,
+      shared: { role: pm.role, approved: pm.approve }, // Include only user ID without other related data
+    }));
+  }
 
   // Метод assignRole назначает роль участнику проекта.
   async assignRole(
@@ -98,17 +119,22 @@ export class ProjectSharedService {
   }
 
   async getMembersByApprovalStatus(
-    projectId: string,
-    approved?: boolean | undefined
+    projectId: string
   ): Promise<ProjectMember[]> {
     return this.projectMemberRepository.find({
-      where: { project_id: projectId, approve: approved },
+      where: { project_id: projectId },
     });
   }
 
-  async patchSharedRole(project_id: string, role: ProjectRole, user_id: string): Promise<ProjectMember> {
+  async patchSharedRole(
+    project_id: string,
+    role: ProjectRole,
+    user_id: string
+  ): Promise<ProjectMember> {
     if (role === ProjectRole.OWNER) {
-      throw new ForbiddenException('Запрещено менять роль на ' + ProjectRole.OWNER);
+      throw new ForbiddenException(
+        'Запрещено менять роль на ' + ProjectRole.OWNER
+      );
     }
     const sharedItem = await this.projectMemberRepository.findOne({
       where: { project_id, user_id },

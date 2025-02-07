@@ -32,23 +32,11 @@ import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto
 import { Roles } from 'src/guards/roles.decorator';
 import { ProjectRole } from 'src/common/enums/project-role.enum';
 import { RoleGuard } from 'src/guards/role.guard';
-import { ProjectWithMembersDto } from './dto/project-with-members.dto';
 
 @ApiTags('projects')
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
-
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get projects with members' })
-  @ApiResponse({ status: 200, type: [ProjectWithMembersDto] })
-  @UseGuards(JwtAuthGuard)
-  @Get('shared')
-  async getProjectsWithMembers(
-    @GetUser() user: User
-  ): Promise<ProjectWithMembersDto[]> {
-    return this.projectsService.findProjectsWithMembers(user.user_id);
-  }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)

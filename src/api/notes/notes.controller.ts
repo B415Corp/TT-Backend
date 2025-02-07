@@ -45,7 +45,7 @@ export class NotesController {
 
   @ApiBearerAuth()
   @ApiOkResponse({ type: PaginatedResponseDto<Notes> })
-  @ApiOperation({ summary: 'Create all notes' })
+  @ApiOperation({ summary: 'Get all user notes' })
   @ApiQuery({
     name: 'page',
     required: false,

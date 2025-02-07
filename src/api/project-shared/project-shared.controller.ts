@@ -24,45 +24,51 @@ import { RoleGuard } from '../../guards/role.guard';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { PatchRoleDto } from './dto/patch-role.dto.js';
 import { ProjectSharedService } from './project-shared.service';
+import { ProjectWithMembersDto } from '../projects/dto/project-with-members.dto';
 
 @ApiTags('project-shared')
-@Controller('projects')
+@Controller('projects/shared')
 export class ProjectMembersController {
-  constructor(private readonly projectMembersService: ProjectSharedService) { }
+  constructor(private readonly projectMembersService: ProjectSharedService) {}
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get projects with members' })
+  @ApiResponse({ status: 200, type: [ProjectWithMembersDto] })
+  @UseGuards(JwtAuthGuard)
+  @Get('')
+  async getProjectsWithMembers(
+    @GetUser() user: User
+  ): Promise<ProjectWithMembersDto[]> {
+    return this.projectMembersService.findProjectsWithMembers(user.user_id);
+  }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get project members by approval status' })
   @ApiResponse({ status: 200, type: [ProjectMember] })
   @UseGuards(JwtAuthGuard)
-  @Get(':id/shared')
-  async getMembers(
-    @Param('id') projectId: string,
-    @Query('approved') approved: boolean | undefined // Changed to allow undefined
-  ): Promise<ProjectMember[]> {
-    return this.projectMembersService.getMembersByApprovalStatus(
-      projectId,
-      approved
-    );
+  @Get(':project_id')
+  async getMembers(@Param('project_id') projectId: string): Promise<ProjectMember[]> {
+    return this.projectMembersService.getMembersByApprovalStatus(projectId);
   }
 
-  @ApiBearerAuth()
-  @UseGuards(RoleGuard)
-  @Get(':id/shared/:userId/role')
-  async getUserRole(
-    @Param('id') projectId: string,
-    @Param('userId') userId: string
-  ) {
-    return this.projectMembersService.getUserRoleInProject(projectId, userId);
-  }
+  // @ApiBearerAuth()
+  // @UseGuards(RoleGuard)
+  // @Get(':id/shared/:userId/role')
+  // async getUserRole(
+  //   @Param('id') projectId: string,
+  //   @Param('userId') userId: string
+  // ) {
+  //   return this.projectMembersService.getUserRoleInProject(projectId, userId);
+  // }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Assign role to a user in a project' })
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
-  @Post(':id/shared')
+  @Post(':project_id')
   async assignRole(
-    @Param('id') projectId: string,
+    @Param('project_id') projectId: string,
     @Body() assignRoleDto: AssignRoleDto,
     @GetUser() user: User
   ) {
@@ -77,9 +83,9 @@ export class ProjectMembersController {
   @ApiOperation({ summary: 'Approve a user invitation' })
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard)
-  @Post(':id/shared/approve')
+  @Post(':project_id/approve-invitation')
   async approveMember(
-    @Param('id') projectId: string,
+    @Param('project_id') projectId: string,
     @GetUser() user: User
   ): Promise<ProjectMember> {
     return this.projectMembersService.approveMember(projectId, user.user_id);
@@ -90,16 +96,16 @@ export class ProjectMembersController {
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
-  @Patch(':id/shared')
+  @Patch(':project_id')
   async patchRole(
-    @Param('id') projectId: string,
-    @Body() assignRoleDto: PatchRoleDto,
+    @Param('project_id') projectId: string,
+    @Body() assignRoleDto: PatchRoleDto
     // @GetUser() user: User
   ) {
     return this.projectMembersService.patchSharedRole(
       projectId,
       assignRoleDto.role,
-      assignRoleDto.user_id,
+      assignRoleDto.user_id
     );
   }
 }

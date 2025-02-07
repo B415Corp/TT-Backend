@@ -23,7 +23,7 @@ import { GetUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/entities/user.entity';
 
 @ApiTags('task-shared')
-@Controller('tasks')
+@Controller('tasks/shared')
 export class TaskSharedController {
   constructor(private readonly taskMembersService: TaskSharedService) {}
 
@@ -31,7 +31,7 @@ export class TaskSharedController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get users assigned to a task' })
   @ApiResponse({ status: 200, description: 'List of users assigned to task.' })
-  @Get(':taskId/shared/role')
+  @Get(':taskId/role')
   async getUserRoleByTask(
     @Param('taskId') taskId: string,
     @GetUser() user: User
@@ -43,7 +43,7 @@ export class TaskSharedController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get users assigned to a task' })
   @ApiResponse({ status: 200, description: 'List of users assigned to task.' })
-  @Get(':taskId/shared')
+  @Get(':taskId')
   async getUsersAssignedToTask(@Param('taskId') taskId: string) {
     return this.taskMembersService.getUsersAssignedToTask(taskId);
   }
@@ -53,7 +53,7 @@ export class TaskSharedController {
   @ApiResponse({ status: 201, description: 'User assigned to task.' })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
-  @Post(':taskId/shared')
+  @Post(':taskId')
   async assignUserToTask(
     @Param('taskId') taskId: string,
     @Body() assignUserDto: AssignUserDto
@@ -69,7 +69,7 @@ export class TaskSharedController {
   @ApiResponse({ status: 204, description: 'User removed from task.' })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
-  @Delete(':taskId/shared/:userId')
+  @Delete(':taskId/:userId')
   async removeUserFromTask(
     @Param('taskId') taskId: string,
     @Param('userId') userId: string
