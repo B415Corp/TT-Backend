@@ -10,6 +10,7 @@ import { Currency } from 'src/entities/currency.entity';
 import { User } from '../../entities/user.entity';
 import { ErrorMessages } from '../../common/error-messages';
 import { TaskMember } from '../../entities/task-shared.entity';
+import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -89,7 +90,8 @@ export class TasksService {
     return [data, total];
   }
 
-  async update(id: string, dto: CreateTaskDto): Promise<Task> {
+  async update(id: string, dto: UpdateTaskDto): Promise<Task> {
+    console.log('dto', dto);
     const task = await this.taskRepository.preload({
       task_id: id,
       ...dto,
@@ -111,6 +113,8 @@ export class TasksService {
     if (project.user_owner_id !== task.user_id) {
       throw new NotFoundException(ErrorMessages.UNAUTHORIZED);
     }
+
+    console.log('task', task);
 
     return this.taskRepository.save(task);
   }

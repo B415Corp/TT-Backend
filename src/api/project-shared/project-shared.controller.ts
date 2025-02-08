@@ -5,7 +5,6 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -47,7 +46,9 @@ export class ProjectMembersController {
   @ApiResponse({ status: 200, type: [ProjectMember] })
   @UseGuards(JwtAuthGuard)
   @Get(':project_id')
-  async getMembers(@Param('project_id') projectId: string): Promise<ProjectMember[]> {
+  async getMembers(
+    @Param('project_id') projectId: string
+  ): Promise<ProjectMember[]> {
     return this.projectMembersService.getMembersByApprovalStatus(projectId);
   }
 

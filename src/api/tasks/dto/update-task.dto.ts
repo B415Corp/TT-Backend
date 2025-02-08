@@ -4,11 +4,6 @@ export class UpdateTaskDto {
   @ApiProperty()
   name: string;
 
-  @ApiProperty({
-    example: 'd086f135-a6a3-45c7-a07b-a2a364e38d90',
-  })
-  project_id: string;
-
   @ApiProperty()
   description: string;
 
