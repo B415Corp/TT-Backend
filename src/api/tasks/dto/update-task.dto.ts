@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { popularCurrencies } from 'src/common/constants';
 
 export class UpdateTaskDto {
   @ApiProperty()
@@ -19,6 +20,6 @@ export class UpdateTaskDto {
   @ApiProperty()
   rate: number;
 
-  @ApiProperty({ example: 0 })
-  currency_id: number;
+  @ApiProperty({ example: popularCurrencies[0].code })
+  currency_id: string;
 }

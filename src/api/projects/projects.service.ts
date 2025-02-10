@@ -40,8 +40,11 @@ export class ProjectsService {
       throw new ConflictException(ErrorMessages.PROJECT_NAME_EXISTS);
     }
 
+
+
+
     const currencyExist = await this.currencyRepository.findOneBy({
-      currency_id: dto.currency_id,
+      code: dto.currency_id,
     });
     if (!currencyExist) {
       throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
@@ -50,10 +53,12 @@ export class ProjectsService {
     // const user = await this.userRepository.findOneBy({ user_id: user_owner_id });
     const project = this.projectRepository.create({
       ...dto,
+      currency_id: currencyExist.currency_id,
       user_owner_id,
     });
 
     const savedProject = await this.projectRepository.save(project);
+
 
     // Create a ProjectMember entry for the owner
     const projectMember = this.projectMemberRepository.create({
@@ -118,9 +123,17 @@ export class ProjectsService {
     project_id: string,
     dto: UpdateProjectDto
   ): Promise<Project | undefined> {
+    const currencyExist = await this.currencyRepository.findOneBy({
+      code: dto.currency_id,
+    });
+    if (!currencyExist) {
+      throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
+    }
+
     const project = await this.projectRepository.preload({
       project_id,
       ...dto,
+      currency_id: currencyExist.currency_id,
     });
     if (!project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(project_id));

@@ -40,7 +40,7 @@ export class TasksService {
     }
 
     const currencyExist = await this.currencyRepository.findOneBy({
-      currency_id: dto.currency_id,
+      code: dto.currency_id,
     });
     if (!currencyExist) {
       throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
@@ -50,6 +50,7 @@ export class TasksService {
       ...dto,
       project_id,
       user_id,
+      currency_id: currencyExist.currency_id,
     });
 
     const savedTask = await this.taskRepository.save(task);
@@ -91,10 +92,17 @@ export class TasksService {
   }
 
   async update(id: string, dto: UpdateTaskDto): Promise<Task> {
-    console.log('dto', dto);
+    const currencyExist = await this.currencyRepository.findOneBy({
+      code: dto.currency_id,
+    });
+    if (!currencyExist) {
+      throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
+    }
+
     const task = await this.taskRepository.preload({
       task_id: id,
       ...dto,
+      currency_id: currencyExist.currency_id,
     });
     if (!task) {
       throw new NotFoundException(ErrorMessages.TASK_NOT_FOUND(id));
