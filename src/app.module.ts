@@ -22,12 +22,24 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: process.env.NODE_ENV === 'production' ? '.env' : '.env.dev',
+      envFilePath: (() => {
+        switch (process.env.NODE_ENV) {
+          case 'local':
+            return '.env.local';
+          case 'development':
+            return '.env.dev';
+          case 'production':
+            return '.env.prod';
+          default:
+            return '.env';
+        }
+      })(),
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService): PostgresConnectionOptions => {
+        const environment = configService.get('NODE_ENV');
         const dbConfig: PostgresConnectionOptions = {
           type: 'postgres',
           host: configService.get<string>('DB_HOST'),
@@ -36,16 +48,13 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
           password: configService.get<string>('DB_PASSWORD'),
           database: configService.get<string>('DB_NAME'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          // autoLoadEntities: true,
-          synchronize: configService.get<string>('NODE_ENV') !== 'production',
+          synchronize: environment === 'local' || environment === 'development', // Only enable synchronize for local development
+          logging: environment !== 'production', // Disable logging in production
         };
 
         console.log('Database connection config:', {
-          host: dbConfig.host,
-          port: dbConfig.port,
-          username: dbConfig.username,
-          database: dbConfig.database,
-          nodeEnv: configService.get('NODE_ENV'),
+          ...dbConfig,
+          host_port: configService.get<number>('PORT'),
         });
 
         return dbConfig;

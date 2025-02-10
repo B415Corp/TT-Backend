@@ -13,24 +13,39 @@ async function bootstrap() {
   logger.log('Application is starting...');
 
   const configService = app.get(ConfigService);
-  const environment = configService.get('NODE_ENV') || 'development';
+  logger.log('ConfigService loaded');
+
+  // Добавляем задержку для обеспечения полной загрузки конфигурации
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  logger.log(`NODE_ENV from process.env: ${process.env.NODE_ENV}`);
+  logger.log(`NODE_ENV from ConfigService: ${configService.get('NODE_ENV')}`);
+
+  const environment = process.env.NODE_ENV || configService.get('NODE_ENV') || 'development';
+  logger.log(`Final environment: ${environment}`);
 
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
 
   app.enableCors({
-    origin: '*', // This allows all domains to access your resources
+    origin: '*',
   });
 
   const environmentInfo = {
     environment: environment.toUpperCase(),
     databaseHost: configService.get('DB_HOST'),
-    // Add other relevant information, but be careful with sensitive data
+    nodeEnv: process.env.NODE_ENV,
+    configNodeEnv: configService.get('NODE_ENV'),
   };
 
+  logger.log(`Environment Info: ${process.env.NODE_ENV}`);
+
   const config = new DocumentBuilder()
-    .setTitle('API')
-    .setDescription(`API description (Environment Info: ${JSON.stringify(environmentInfo)})`)
+    .setTitle(`API ${JSON.stringify(environmentInfo)}`)
+    .setDescription(`API description (Environment Info: ${JSON.stringify(environmentInfo)})
+                     Raw NODE_ENV: ${process.env.NODE_ENV}
+                     ConfigService NODE_ENV: ${configService.get('NODE_ENV')}
+                     Final environment: ${environment}`)
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -65,13 +80,12 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.PORT || 3000; // Use the port from the environment variable or default to 3000
+  const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
 
-  // Log the host and port information
-  const host = process.env.HOST || 'localhost'; // Default to localhost if HOST is not set
-  console.log(`Server is running on http://${host}:${port}`);
-  console.log(`Environment: ${environment.toUpperCase()}`);
+  const host = process.env.HOST || 'localhost';
+  logger.log(`Server is running on http://${host}:${port}`);
+  logger.log(`Environment: ${environment.toUpperCase()}`);
 }
 
 bootstrap();
