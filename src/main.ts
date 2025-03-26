@@ -81,6 +81,12 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT || 3000;
+
+  // Добавление маршрута для возврата JSON схемы
+  app.use('/api-json', (req, res) => {
+    res.json(document);
+  });
+
   await app.listen(port, '0.0.0.0');
 
   const host = process.env.HOST || 'localhost';
