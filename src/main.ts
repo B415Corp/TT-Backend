@@ -16,12 +16,13 @@ async function bootstrap() {
   logger.log('ConfigService loaded');
 
   // Добавляем задержку для обеспечения полной загрузки конфигурации
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 
   logger.log(`NODE_ENV from process.env: ${process.env.NODE_ENV}`);
   logger.log(`NODE_ENV from ConfigService: ${configService.get('NODE_ENV')}`);
 
-  const environment = process.env.NODE_ENV || configService.get('NODE_ENV') || 'development';
+  const environment =
+    process.env.NODE_ENV || configService.get('NODE_ENV') || 'development';
   logger.log(`Final environment: ${environment}`);
 
   app.useGlobalInterceptors(new TransformInterceptor());
@@ -31,21 +32,20 @@ async function bootstrap() {
     origin: '*',
   });
 
-  const environmentInfo = {
-    environment: environment.toUpperCase(),
-    databaseHost: configService.get('DB_HOST'),
-    nodeEnv: process.env.NODE_ENV,
-    configNodeEnv: configService.get('NODE_ENV'),
-  };
+  // const environmentInfo = {
+  //   environment: environment.toUpperCase(),
+  //   databaseHost: configService.get('DB_HOST'),
+  //   nodeEnv: process.env.NODE_ENV,
+  //   configNodeEnv: configService.get('NODE_ENV'),
+  // };
 
   logger.log(`Environment Info: ${process.env.NODE_ENV}`);
 
   const config = new DocumentBuilder()
-    .setTitle(`API ${JSON.stringify(environmentInfo)}`)
-    .setDescription(`API description (Environment Info: ${JSON.stringify(environmentInfo)})
-                     Raw NODE_ENV: ${process.env.NODE_ENV}
-                     ConfigService NODE_ENV: ${configService.get('NODE_ENV')}
-                     Final environment: ${environment}`)
+    .setTitle(`API: "${process.env.NODE_ENV}" environment`) 
+    .setDescription(
+      `API description (Environment Info: ${process.env.NODE_ENV})`
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();

@@ -48,14 +48,14 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
           password: configService.get<string>('DB_PASSWORD'),
           database: configService.get<string>('DB_NAME'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
-          synchronize: environment === 'local' || environment === 'development', // Only enable synchronize for local development
-          logging: environment !== 'production', // Disable logging in production
+          synchronize: true,
+          logging: environment !== 'production' ? ["error"] : false, // Disable logging in production
         };
 
-        console.log('Database connection config:', {
-          ...dbConfig,
-          host_port: configService.get<number>('PORT'),
-        });
+        // console.log('Database connection config:', {
+        //   ...dbConfig,
+        //   host_port: configService.get<number>('PORT'),
+        // });
 
         return dbConfig;
       },
