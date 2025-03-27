@@ -88,6 +88,18 @@ services:
     networks:
       - app-network
 
+  frontend:
+    environment:
+      VITE_DB: http://localhost:3000
+    build:
+      context: ./../TT-Frontend/TimeTracker
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - app-prod
+    restart: unless-stopped
+
 volumes:
   postgres_data_dev:
   postgres_data_prod:
