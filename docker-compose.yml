@@ -92,7 +92,7 @@ services:
     environment:
       VITE_DB: http://localhost:3000
     build:
-      context: ./../TT-Frontend/TimeTracker
+      context: ./../tt-trontend/TimeTracker
       dockerfile: Dockerfile
     ports:
       - "80:80"
