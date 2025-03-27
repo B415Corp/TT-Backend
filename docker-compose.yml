@@ -89,8 +89,6 @@ services:
       - app-network
 
   frontend:
-    environment:
-      VITE_DB: http://localhost:3000
     build:
       context: ./../tt_frontend/TimeTracker
       dockerfile: Dockerfile
