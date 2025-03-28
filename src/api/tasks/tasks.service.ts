@@ -66,7 +66,24 @@ export class TasksService {
   }
 
   async findById(id: string): Promise<Task> {
-    const task = await this.taskRepository.findOneBy({ task_id: id });
+    const task = await this.taskRepository.findOne({
+      where: { task_id: id },
+      relations: ['currency'],
+      select: {
+        task_id: true,
+        name: true,
+        description: true,
+        is_paid: true,
+        payment_type: true,
+        rate: true,
+        created_at: true,
+        currency: {
+          currency_id: true,
+          code: true,
+          name: true,
+        },
+      },
+    });
     if (!task) {
       throw new NotFoundException(ErrorMessages.TASK_NOT_FOUND(id));
     }
@@ -86,6 +103,7 @@ export class TasksService {
       skip,
       take: limit,
       order: { created_at: 'DESC' },
+      relations: ['currency'],
       select: {
         task_id: true,
         name: true,
@@ -94,6 +112,11 @@ export class TasksService {
         payment_type: true,
         rate: true,
         created_at: true,
+        currency: {
+          currency_id: true,
+          code: true,
+          name: true,
+        },
       },
     });
 
@@ -163,6 +186,23 @@ export class TasksService {
       throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
     }
 
-    return this.taskRepository.find({ where: { user_id: userId } });
+    return this.taskRepository.find({
+      where: { user_id: userId },
+      relations: ['currency'],
+      select: {
+        task_id: true,
+        name: true,
+        description: true,
+        is_paid: true,
+        payment_type: true,
+        rate: true,
+        created_at: true,
+        currency: {
+          currency_id: true,
+          code: true,
+          name: true,
+        },
+      },
+    });
   }
 }
