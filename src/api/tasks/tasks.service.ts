@@ -86,6 +86,15 @@ export class TasksService {
       skip,
       take: limit,
       order: { created_at: 'DESC' },
+      select: {
+        task_id: true,
+        name: true,
+        description: true,
+        is_paid: true,
+        payment_type: true,
+        rate: true,
+        created_at: true,
+      },
     });
 
     return [data, total];

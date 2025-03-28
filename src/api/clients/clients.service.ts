@@ -43,6 +43,11 @@ export class ClientsService {
       skip,
       take: limit,
       order: { created_at: 'DESC' },
+      select: {
+        client_id: true,
+        name: true,
+        contact_info: true,
+      },
     });
 
     return [clients, total];

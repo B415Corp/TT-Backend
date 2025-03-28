@@ -25,6 +25,13 @@ export class NotesService {
       skip,
       take: limit,
       order: { created_at: 'DESC' },
+      select: {
+        notes_id: true,
+        name: true,
+        text_content: true,
+        created_at: true,
+        updated_at: true,
+      },
     });
 
     return [data, total];

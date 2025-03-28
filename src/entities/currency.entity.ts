@@ -16,13 +16,6 @@ export class Currency {
   @Column()
   name: string;
 
-  @ApiProperty({
-    type: Number,
-    description: 'User ID associated with the currency',
-  })
-  @Column()
-  user_id: number;
-
   @ApiProperty({ type: String, required: false, description: 'Currency code' })
   @Column({ nullable: true })
   code?: string;
