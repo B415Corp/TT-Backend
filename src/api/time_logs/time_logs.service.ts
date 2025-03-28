@@ -176,9 +176,19 @@ export class TimeLogsService {
 
     const latestLog = await this.timeLogRepository
       .createQueryBuilder('time_log')
-      .leftJoinAndSelect('time_log.task', 'task')
-      .leftJoinAndSelect('task.project', 'project')
-      .leftJoinAndSelect('project.members', 'project_members')
+      .leftJoin('time_log.task', 'task')
+      .leftJoin('task.project', 'project')
+      .leftJoin('project.members', 'project_members')
+      .select([
+        'time_log.log_id',
+        'time_log.created_at',
+        'task.task_id',
+        'task.name',
+        'project.project_id',
+        'project.name',
+        'project_members.member_id',
+        'project_members.role',
+      ])
       .where('project_members.user_id = :userId', { userId })
       .andWhere('time_log.status = :status', { status: 'in-progress' })
       .andWhere('project_members.role IN (:...roles)', {
