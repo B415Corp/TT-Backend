@@ -70,7 +70,7 @@ export class ProjectsController {
     @GetUser() user: User,
     @PaginationParams() paginationQuery: PaginationQueryDto
   ) {
-    return this.projectsService.findByKey(
+    return this.projectsService.findMyProjects(
       'user_owner_id',
       user.user_id,
       paginationQuery

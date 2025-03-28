@@ -39,18 +39,12 @@ export class ProjectsService {
     if (findByName) {
       throw new ConflictException(ErrorMessages.PROJECT_NAME_EXISTS);
     }
-
-
-
-
     const currencyExist = await this.currencyRepository.findOneBy({
       code: dto.currency_id,
     });
     if (!currencyExist) {
       throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
     }
-
-    // const user = await this.userRepository.findOneBy({ user_id: user_owner_id });
     const project = this.projectRepository.create({
       ...dto,
       currency_id: currencyExist.currency_id,
@@ -58,7 +52,6 @@ export class ProjectsService {
     });
 
     const savedProject = await this.projectRepository.save(project);
-
 
     // Create a ProjectMember entry for the owner
     const projectMember = this.projectMemberRepository.create({
@@ -79,6 +72,44 @@ export class ProjectsService {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(id));
     }
     return project;
+  }
+
+  async findMyProjects(
+    key: keyof Project,
+    value: string,
+    paginationQuery: PaginationQueryDto
+  ) {
+    if (!value || !key) {
+      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(''));
+    }
+
+    const { page, limit } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [projects, total] = await this.projectRepository.findAndCount({
+      where: { [key]: value },
+      skip,
+      take: limit,
+      order: { project_id: 'ASC' },
+      relations: ['currency', 'client'], // Добавляем связь с валютой и клиентом
+      select: {
+        project_id: true,
+        name: true,
+        created_at: true,
+        currency: {
+          name: true,
+          code: true,
+          symbol: true,
+        },
+        client: {
+          client_id: true,
+          name: true,
+          contact_info: true,
+        },
+      },
+    });
+
+    return [projects, total];
   }
 
   async findByKey(
