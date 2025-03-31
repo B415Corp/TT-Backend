@@ -7,6 +7,7 @@ import {
   Post,
   Query,
   UseGuards,
+  Version,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -25,15 +26,17 @@ import { ApiErrorResponses } from '../../common/decorators/api-error-responses.d
 import { SearchUsersDto } from './dto/search-users.dto';
 import { SubscriptionGuard } from 'src/auth/guards/subscription.guard';
 import { UserTypeDto } from './dto/user-type.dto';
+import { UserTypeV2Dto } from './dto/user-type-v2.dto';
 
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Version('1')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Search for users by name or email' })
-  @ApiResponse({ status: 200, type: [User] })
+  @ApiOperation({ summary: 'Search for users by name or email (v1)' })
+  @ApiResponse({ status: 200, type: [UserTypeDto] })
   @UseGuards(JwtAuthGuard, SubscriptionGuard)
   @Get('search')
   // @Subscription(SubscriptionType.BASIC)
@@ -41,6 +44,18 @@ export class UsersController {
     @Query() searchUsersDto: SearchUsersDto
   ): Promise<Array<UserTypeDto>> {
     return this.usersService.searchUsers(searchUsersDto);
+  }
+
+  @Version('2')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Enhanced search for users with additional data (v2)' })
+  @ApiResponse({ status: 200, type: [UserTypeV2Dto] })
+  @UseGuards(JwtAuthGuard, SubscriptionGuard)
+  @Get('search')
+  async searchUsersV2(
+    @Query() searchUsersDto: SearchUsersDto
+  ): Promise<Array<UserTypeV2Dto>> {
+    return this.usersService.enhancedSearchUsers(searchUsersDto);
   }
 
   // @ApiBearerAuth()

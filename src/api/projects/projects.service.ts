@@ -67,7 +67,26 @@ export class ProjectsService {
   }
 
   async findById(id: string): Promise<Project> {
-    const project = await this.projectRepository.findOneBy({ project_id: id });
+const project = await this.projectRepository.findOne({
+  where: { project_id: id },
+  relations: ['currency', 'client'],
+  select: {
+    rate: true,
+    project_id: true,
+    name: true,
+    created_at: true,
+    currency: {
+      name: true,
+      code: true,
+      symbol: true,
+    },
+    client: {
+      client_id: true,
+      name: true,
+      contact_info: true,
+    },
+  },
+});
     if (!project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(id));
     }
@@ -93,6 +112,7 @@ export class ProjectsService {
       order: { project_id: 'ASC' },
       relations: ['currency', 'client'], // Добавляем связь с валютой и клиентом
       select: {
+        rate: true,
         project_id: true,
         name: true,
         created_at: true,

@@ -16,6 +16,7 @@ import { ErrorMessages } from '../../common/error-messages';
 import { SearchUsersDto } from './dto/search-users.dto';
 import { ILike } from 'typeorm';
 import { UserTypeDto } from './dto/user-type.dto';
+import { UserTypeV2Dto } from './dto/user-type-v2.dto';
 
 @Injectable()
 export class UsersService {
@@ -137,6 +138,38 @@ export class UsersService {
       user_id: user.user_id,
       name: user.name,
       email: user.email,
+    }));
+  }
+
+  /**
+   * Расширенный поиск пользователей (версия 2 API)
+   * Включает дополнительные возможности по сравнению с базовым поиском
+   */
+  async enhancedSearchUsers(searchUsersDto: SearchUsersDto): Promise<UserTypeV2Dto[]> {
+    const { searchTerm } = searchUsersDto;
+
+    // В версии 2 API мы можем добавить дополнительную логику
+    // Например, более точный поиск, сортировку, дополнительные фильтры и т.д.
+    const users = await this.usersRepository.find({
+      select: ['user_id', 'name', 'email', 'subscriptionType', 'created_at'],
+      where: [
+        { name: ILike(`%${searchTerm}%`) },
+        { email: ILike(`%${searchTerm}%`) },
+      ],
+      order: { created_at: 'DESC' }, // Сортировка по дате создания (новые первыми)
+    });
+
+    if (!users.length) {
+      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
+    }
+
+    // Возвращаем расширенную информацию о пользователях
+    return users.map((user) => ({
+      user_id: user.user_id,
+      name: user.name,
+      email: user.email,
+      subscriptionType: user.subscriptionType, // Дополнительное поле в v2
+      created_at: user.created_at, // Дополнительное поле в v2
     }));
   }
 }
