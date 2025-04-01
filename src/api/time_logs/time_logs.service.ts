@@ -146,6 +146,12 @@ export class TimeLogsService {
       order: { created_at: 'DESC' },
     });
 
+    if (!latestLog) {
+      throw new NotFoundException(
+        ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(task_id)
+      );
+    }
+
     const commonDuration = await this.timeLogRepository
       .createQueryBuilder('time_log')
       .select('SUM(time_log.duration)', 'sum')
@@ -154,13 +160,6 @@ export class TimeLogsService {
 
     latestLog.common_duration = commonDuration.sum || 0;
 
-    if (!latestLog) {
-      throw new NotFoundException(
-        ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(task_id)
-      );
-    }
-
-    console.log('latestLog', latestLog);
     return latestLog;
   }
 
@@ -190,6 +189,7 @@ export class TimeLogsService {
       .leftJoin('project.members', 'project_members')
       .select([
         'time_log.log_id',
+        'time_log.status',
         'time_log.created_at',
         'task.task_id',
         'task.name',
@@ -199,7 +199,6 @@ export class TimeLogsService {
         'project_members.role',
       ])
       .where('project_members.user_id = :userId', { userId })
-      .andWhere('time_log.status = :status', { status: 'in-progress' })
       .andWhere('project_members.role IN (:...roles)', {
         roles: [ProjectRole.OWNER, ProjectRole.MANAGER, ProjectRole.EXECUTOR],
       })
