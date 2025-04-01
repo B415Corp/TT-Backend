@@ -146,12 +146,21 @@ export class TimeLogsService {
       order: { created_at: 'DESC' },
     });
 
+    const commonDuration = await this.timeLogRepository
+      .createQueryBuilder('time_log')
+      .select('SUM(time_log.duration)', 'sum')
+      .where('time_log.task_id = :task_id', { task_id })
+      .getRawOne();
+
+    latestLog.common_duration = commonDuration.sum || 0;
+
     if (!latestLog) {
       throw new NotFoundException(
         ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(task_id)
       );
     }
 
+    console.log('latestLog', latestLog);
     return latestLog;
   }
 

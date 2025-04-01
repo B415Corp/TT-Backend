@@ -62,4 +62,6 @@ export class TimeLog {
   })
   @JoinColumn({ name: 'task_id' })
   task: Task;
+  @ApiProperty({ type: Number, description: 'Сумма всех duration в task_id', required: false })
+  common_duration?: number;
 }
