@@ -17,8 +17,8 @@ import { SearchUsersDto } from './dto/search-users.dto';
 import { ILike } from 'typeorm';
 import { UserTypeDto } from './dto/user-type.dto';
 import { UserTypeV2Dto } from './dto/user-type-v2.dto';
-import { thumbs } from '@dicebear/collection';
-import { createAvatar } from '@dicebear/core';
+// import { thumbs } from '@dicebear/collection';
+// import { createAvatar } from '@dicebear/core';
 
 
 
@@ -188,11 +188,11 @@ export class UsersService {
   }
 
   async showAvatar(): Promise<string> {
-    const avatar = createAvatar(thumbs, {
-      // ... options
-    });
+    // const avatar = createAvatar(thumbs, {
+    //   // ... options
+    // });
 
-    const dataUri = avatar.toDataUri();
-    return dataUri;
+    // const dataUri = avatar.toDataUri();
+    return 'dataUri';
   }
 }
