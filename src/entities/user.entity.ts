@@ -37,6 +37,13 @@ export class User {
   @Column({ enum: SubscriptionType, default: SubscriptionType.FREE })
   subscriptionType: SubscriptionType;
 
+  @Column({
+    type: String,
+    default:
+      'https://api.dicebear.com/9.x/thumbs/svg?backgroundColor=000000&mouth=variant2',
+  })
+  avatar: string;
+
   @ApiProperty({ type: Date })
   @CreateDateColumn({ type: 'timestamp with time zone' })
   created_at: Date;

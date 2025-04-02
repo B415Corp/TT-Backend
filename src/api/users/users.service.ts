@@ -17,6 +17,10 @@ import { SearchUsersDto } from './dto/search-users.dto';
 import { ILike } from 'typeorm';
 import { UserTypeDto } from './dto/user-type.dto';
 import { UserTypeV2Dto } from './dto/user-type-v2.dto';
+import { thumbs } from '@dicebear/collection';
+import { createAvatar } from '@dicebear/core';
+
+
 
 @Injectable()
 export class UsersService {
@@ -38,6 +42,7 @@ export class UsersService {
     const user = this.usersRepository.create({
       ...createUserDto,
       password: hashedPassword,
+      avatar: '',
     });
 
     return this.usersRepository.save(user);
@@ -119,7 +124,11 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async searchUsers(searchUsersDto: SearchUsersDto, maxResults: number, offset: number): Promise<UserTypeDto[]> {
+  async searchUsers(
+    searchUsersDto: SearchUsersDto,
+    maxResults: number,
+    offset: number
+  ): Promise<UserTypeDto[]> {
     const { searchTerm } = searchUsersDto;
 
     const users = await this.usersRepository.find({
@@ -148,7 +157,9 @@ export class UsersService {
    * Расширенный поиск пользователей (версия 2 API)
    * Включает дополнительные возможности по сравнению с базовым поиском
    */
-  async enhancedSearchUsers(searchUsersDto: SearchUsersDto): Promise<UserTypeV2Dto[]> {
+  async enhancedSearchUsers(
+    searchUsersDto: SearchUsersDto
+  ): Promise<UserTypeV2Dto[]> {
     const { searchTerm } = searchUsersDto;
 
     // В версии 2 API мы можем добавить дополнительную логику
@@ -174,5 +185,14 @@ export class UsersService {
       subscriptionType: user.subscriptionType, // Дополнительное поле в v2
       created_at: user.created_at, // Дополнительное поле в v2
     }));
+  }
+
+  async showAvatar(): Promise<string> {
+    const avatar = createAvatar(thumbs, {
+      // ... options
+    });
+
+    const dataUri = avatar.toDataUri();
+    return dataUri;
   }
 }

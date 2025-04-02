@@ -33,6 +33,13 @@ import { UserTypeV2Dto } from './dto/user-type-v2.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ApiOperation({ summary: 'Show avatars' })
+  @ApiResponse({ status: 200 })
+  @Get('/avatar')
+  async showAvatar() {
+    return this.usersService.showAvatar();
+  }
+
   @Version('1')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Search for users by name or email (v1)' })
