@@ -119,7 +119,7 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async searchUsers(searchUsersDto: SearchUsersDto): Promise<UserTypeDto[]> {
+  async searchUsers(searchUsersDto: SearchUsersDto, maxResults: number, offset: number): Promise<UserTypeDto[]> {
     const { searchTerm } = searchUsersDto;
 
     const users = await this.usersRepository.find({
@@ -128,6 +128,9 @@ export class UsersService {
         { name: ILike(`%${searchTerm}%`) },
         { email: ILike(`%${searchTerm}%`) },
       ],
+      take: maxResults,
+      skip: offset,
+      order: { created_at: 'DESC' },
     });
 
     if (!users.length) {

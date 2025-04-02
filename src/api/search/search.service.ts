@@ -15,21 +15,36 @@ export class SearchService {
     private readonly usersService: UsersService // Добавляем UsersService в конструктор
   ) {}
 
-  async search(user: User, searchTerm: string) {
+  async search(
+    user: User,
+    searchTerm: string,
+    maxResults: number = 5,
+    offset: number = 0
+  ) {
     // Поиск проектов, задач, клиентов и пользователей, связанных с пользователем
     const projects = await this.projectsService.findByUserIdAndSearchTerm(
       user.user_id,
-      searchTerm
+      searchTerm,
+      maxResults,
+      offset
     );
     const tasks = await this.tasksService.findByUserIdAndSearchTerm(
       user.user_id,
-      searchTerm
+      searchTerm,
+      maxResults,
+      offset
     );
     const clients = await this.clientsService.findByUserIdAndSearchTerm(
       user.user_id,
-      searchTerm
+      searchTerm,
+      maxResults,
+      offset
     );
-    const users = await this.usersService.searchUsers({ searchTerm }); // Поиск пользователей
+    const users = await this.usersService.searchUsers(
+      { searchTerm },
+      maxResults,
+      offset
+    ); // Поиск пользователей
 
     if (!projects && !tasks && !clients && !users.length) {
       // Проверяем наличие пользователей
@@ -42,5 +57,47 @@ export class SearchService {
       clients,
       users, // Возвращаем найденных пользователей
     };
+  }
+
+  async searchV2(
+    user: User,
+    searchTerm: string,
+    searchLocation: 'all' | 'projects' | 'tasks' | 'clients' = 'all',
+    maxResults: number = 5,
+    offset: number = 0
+  ) {
+    const results = {
+      projects: [],
+      tasks: [],
+      clients: [],
+      users: [],
+    };
+
+    if (searchLocation === 'all' || searchLocation === 'projects') {
+      results.projects = await this.projectsService.findByUserIdAndSearchTerm(
+        user.user_id,
+        searchTerm,
+        maxResults,
+        offset
+      );
+    }
+    if (searchLocation === 'all' || searchLocation === 'tasks') {
+      results.tasks = await this.tasksService.findByUserIdAndSearchTerm(
+        user.user_id,
+        searchTerm,
+        maxResults,
+        offset
+      );
+    }
+    if (searchLocation === 'all' || searchLocation === 'clients') {
+      results.clients = await this.clientsService.findByUserIdAndSearchTerm(
+        user.user_id,
+        searchTerm,
+        maxResults,
+        offset
+      );
+    }
+
+    return results;
   }
 }

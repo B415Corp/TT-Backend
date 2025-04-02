@@ -170,13 +170,40 @@ export class TasksService {
     await this.taskMemberRepository.delete({ task_id });
   }
 
-  async findByUserIdAndSearchTerm(userId: string, searchTerm: string) {
+  async findByUserIdAndSearchTerm(
+    userId: string,
+    searchTerm: string,
+    maxResults: number,
+    offset: number
+  ) {
+    const whereCondition: any = {
+      user_id: userId,
+    };
+
+    if (searchTerm) {
+      whereCondition.name = ILike(`%${searchTerm}%`);
+    }
+
     return this.taskRepository.find({
-      where: {
-        user_id: userId,
-        name: ILike(`%${searchTerm}%`),
+      where: whereCondition,
+      relations: ['currency', 'user'],
+      take: maxResults,
+      skip: offset,
+      order: { created_at: 'DESC' },
+      select: {
+        task_id: true,
+        name: true,
+        description: true,
+        is_paid: true,
+        payment_type: true,
+        rate: true,
+        created_at: true,
+        updated_at: true,
+        user: {
+          name: true,
+          email: true,
+        },
       },
-      relations: ['project'],
     });
   }
 

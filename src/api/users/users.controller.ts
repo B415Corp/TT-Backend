@@ -43,12 +43,16 @@ export class UsersController {
   async searchUsers(
     @Query() searchUsersDto: SearchUsersDto
   ): Promise<Array<UserTypeDto>> {
-    return this.usersService.searchUsers(searchUsersDto);
+    const { maxResults = 5, page = 1 } = searchUsersDto;
+    const offset = (page - 1) * maxResults;
+    return this.usersService.searchUsers(searchUsersDto, maxResults, offset);
   }
 
   @Version('2')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Enhanced search for users with additional data (v2)' })
+  @ApiOperation({
+    summary: 'Enhanced search for users with additional data (v2)',
+  })
   @ApiResponse({ status: 200, type: [UserTypeV2Dto] })
   @UseGuards(JwtAuthGuard, SubscriptionGuard)
   @Get('search')

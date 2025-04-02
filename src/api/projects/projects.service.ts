@@ -67,26 +67,26 @@ export class ProjectsService {
   }
 
   async findById(id: string): Promise<Project> {
-const project = await this.projectRepository.findOne({
-  where: { project_id: id },
-  relations: ['currency', 'client'],
-  select: {
-    rate: true,
-    project_id: true,
-    name: true,
-    created_at: true,
-    currency: {
-      name: true,
-      code: true,
-      symbol: true,
-    },
-    client: {
-      client_id: true,
-      name: true,
-      contact_info: true,
-    },
-  },
-});
+    const project = await this.projectRepository.findOne({
+      where: { project_id: id },
+      relations: ['currency', 'client'],
+      select: {
+        rate: true,
+        project_id: true,
+        name: true,
+        created_at: true,
+        currency: {
+          name: true,
+          code: true,
+          symbol: true,
+        },
+        client: {
+          client_id: true,
+          name: true,
+          contact_info: true,
+        },
+      },
+    });
     if (!project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(id));
     }
@@ -193,13 +193,42 @@ const project = await this.projectRepository.findOne({
     return this.projectRepository.save(project);
   }
 
-  async findByUserIdAndSearchTerm(userId: string, searchTerm: string) {
+  async findByUserIdAndSearchTerm(
+    userId: string,
+    searchTerm: string,
+    maxResults: number,
+    offset: number
+  ) {
+    const whereCondition: any = {
+      user_owner_id: userId,
+    };
+
+    if (searchTerm) {
+      whereCondition.name = ILike(`%${searchTerm}%`);
+    }
+
     return this.projectRepository.find({
-      where: {
-        user_owner_id: userId,
-        name: ILike(`%${searchTerm}%`),
+      where: whereCondition,
+      relations: ['user', 'client', 'currency'],
+      take: maxResults,
+      skip: offset,
+      order: { created_at: 'DESC' },
+      select: {
+        project_id: true,
+        rate: true,
+        name: true,
+        created_at: true,
+        updated_at: true,
+        user: {
+          name: true,
+          email: true,
+        },
+        client: {
+          client_id: true,
+          name: true,
+          contact_info: true,
+        },
       },
-      relations: ['user'],
     });
   }
 
