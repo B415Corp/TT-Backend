@@ -33,14 +33,12 @@ export class TimeLog {
   @ApiProperty({ type: Date })
   end_time: Date;
 
-  @Column()
-  @ApiProperty({ type: String })
   @Column({ default: 'in-progress' })
+  @ApiProperty({ type: String })
   status: 'in-progress' | 'completed';
 
-  @Column()
-  @ApiProperty({ type: Number })
   @Column({ default: 0 })
+  @ApiProperty({ type: Number })
   duration: number;
 
   @CreateDateColumn()
@@ -62,6 +60,10 @@ export class TimeLog {
   })
   @JoinColumn({ name: 'task_id' })
   task: Task;
-  @ApiProperty({ type: Number, description: 'Сумма всех duration в task_id', required: false })
+  @ApiProperty({
+    type: Number,
+    description: 'Сумма всех duration в task_id',
+    required: false,
+  })
   common_duration?: number;
 }

@@ -152,13 +152,25 @@ export class TimeLogsService {
       );
     }
 
+    // Получаем сумму всех duration
     const commonDuration = await this.timeLogRepository
       .createQueryBuilder('time_log')
       .select('SUM(time_log.duration)', 'sum')
       .where('time_log.task_id = :task_id', { task_id })
       .getRawOne();
 
-    latestLog.common_duration = commonDuration.sum || 0;
+    let totalDuration: number = Number(commonDuration?.sum ?? 0);
+
+    // Если последний лог в процессе, добавляем разницу со start_time
+    if (latestLog.status === 'in-progress' && latestLog.start_time) {
+      const now: Date = new Date(); // Текущая дата и время
+      const startTime: Date = new Date(latestLog.start_time); // Парсим строку в объект Date
+      const diffInMs = now.getTime() - startTime.getTime();
+
+      totalDuration += diffInMs;
+    }
+
+    latestLog.common_duration = totalDuration;
 
     return latestLog;
   }
@@ -187,16 +199,24 @@ export class TimeLogsService {
       .leftJoin('time_log.task', 'task')
       .leftJoin('task.project', 'project')
       .leftJoin('project.members', 'project_members')
+      .leftJoin('task.currency', 'currency')
       .select([
         'time_log.log_id',
         'time_log.status',
         'time_log.created_at',
         'task.task_id',
+        'task.rate',
+        'task.is_paid',
+        'task.payment_type',
         'task.name',
         'project.project_id',
         'project.name',
         'project_members.member_id',
         'project_members.role',
+        'currency.currency_id',
+        'currency.name',
+        'currency.code',
+        'currency.symbol',
       ])
       .where('project_members.user_id = :userId', { userId })
       .andWhere('project_members.role IN (:...roles)', {
