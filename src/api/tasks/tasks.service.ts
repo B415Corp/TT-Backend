@@ -113,6 +113,7 @@ export class TasksService {
         rate: true,
         created_at: true,
         currency: {
+          symbol: true,
           currency_id: true,
           code: true,
           name: true,
@@ -186,7 +187,7 @@ export class TasksService {
 
     return this.taskRepository.find({
       where: whereCondition,
-      relations: ['currency', 'user'],
+      relations: ['currency', 'user', 'project'],
       take: maxResults,
       skip: offset,
       order: { created_at: 'DESC' },
@@ -202,6 +203,10 @@ export class TasksService {
         user: {
           name: true,
           email: true,
+        },
+        project: {
+          project_id: true,
+          name: true,
         },
       },
     });

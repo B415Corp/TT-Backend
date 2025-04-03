@@ -219,10 +219,10 @@ export class ProjectsService {
         name: true,
         created_at: true,
         updated_at: true,
-        user: {
-          name: true,
-          email: true,
-        },
+        // user: {
+        //   name: true,
+        //   email: true,
+        // },
         client: {
           client_id: true,
           name: true,

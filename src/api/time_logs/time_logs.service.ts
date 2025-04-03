@@ -147,9 +147,10 @@ export class TimeLogsService {
     });
 
     if (!latestLog) {
-      throw new NotFoundException(
-        ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(task_id)
-      );
+      return null
+      // throw new NotFoundException(
+      //   ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(task_id)
+      // );
     }
 
     // Получаем сумму всех duration

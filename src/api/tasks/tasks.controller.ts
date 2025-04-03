@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  Version,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -35,6 +36,50 @@ import { TasksService } from './tasks.service';
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) { }
+
+  @Version('2')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new task' })
+  @ApiResponse({
+    status: 201,
+    description: 'The task has been successfully created.',
+    type: Task,
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Post()
+  async createTaskV2(
+    @Body() createTaskDto: CreateTaskDto,
+    @GetUser() user: User
+  ) {
+    return this.tasksService.create(
+      createTaskDto,
+      user.user_id,
+      createTaskDto.project_id
+    );
+  }
+
+  @Version('1')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new task' })
+  @ApiResponse({
+    status: 201,
+    description: 'The task has been successfully created.',
+    type: Task,
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Post('create')
+  async createTask(
+    @Body() createTaskDto: CreateTaskDto,
+    @GetUser() user: User
+  ) {
+    return this.tasksService.create(
+      createTaskDto,
+      user.user_id,
+      createTaskDto.project_id
+    );
+  }
 
   @ApiBearerAuth()
   @ApiOkResponse({ type: PaginatedResponseDto<Task> })
@@ -70,26 +115,7 @@ export class TasksController {
     return this.tasksService.findTasksByUserId(user.user_id);
   }
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a new task' })
-  @ApiResponse({
-    status: 201,
-    description: 'The task has been successfully created.',
-    type: Task,
-  })
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
-  @Post('create')
-  async createTask(
-    @Body() createTaskDto: CreateTaskDto,
-    @GetUser() user: User
-  ) {
-    return this.tasksService.create(
-      createTaskDto,
-      user.user_id,
-      createTaskDto.project_id
-    );
-  }
+ 
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a task by ID' })
