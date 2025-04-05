@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Project } from './project.entity';
 import { Task } from './task.entity';
+import { Plan } from './plan.entity';
 
 @Entity()
 export class Currency {
@@ -39,4 +40,8 @@ export class Currency {
     onDelete: 'CASCADE',
   })
   tasks: Task[];
+
+  // Связь с тарифами (Plan)
+  @OneToMany(() => Plan, (plan) => plan.currency)
+  plans: Plan[]; // Теперь TypeORM "видит" это свойство
 }

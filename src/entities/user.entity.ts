@@ -14,6 +14,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ProjectMember } from './project-shared.entity';
 import { TaskMember } from './task-shared.entity';
 import { TimeLog } from './time-logs.entity';
+import { Subscription } from './subscription.entity';
 
 @Entity({ name: 'users' }) // Указываем имя таблицы, если нужно использовать отличное от имени класса
 export class User {
@@ -43,6 +44,9 @@ export class User {
       'https://api.dicebear.com/9.x/thumbs/svg?backgroundColor=000000&mouth=variant2',
   })
   avatar: string;
+
+  @OneToMany(() => Subscription, (subscription) => subscription.user)
+  subscriptions: Subscription[];
 
   @ApiProperty({ type: Date })
   @CreateDateColumn({ type: 'timestamp with time zone' })
