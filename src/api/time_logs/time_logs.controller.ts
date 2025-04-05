@@ -22,7 +22,7 @@ import { TimeLogsPaginatedResponse } from './dto/time-logs-paginated-response.dt
 import { ProjectRole } from 'src/common/enums/project-role.enum';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/guards/roles.decorator';
-import { SubscriptionGuard } from 'src/auth/guards/subscription.guard';
+import { SubscriptionGuard } from 'src/guards/subscription.guard';
 import { Subscription } from 'src/decorators/subscription.decorator';
 import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 

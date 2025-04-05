@@ -18,6 +18,8 @@ import { ProjectSharedModule } from './api/project-shared/project-shared.module'
 import { GuardsModule } from './guards/guards.module';
 import { NotesModule } from './api/notes/notes.module';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import { PlansModule } from './api/plans/plans.module';
+import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -75,6 +77,8 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
     SearchModule,
     ProjectSharedModule,
     NotesModule,
+    PlansModule,
+    SubscriptionsModule,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],

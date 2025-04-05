@@ -23,6 +23,10 @@ export const ErrorMessages = {
   TASK_MEMBER_NOT_FOUND: 'У вас нет прав на изменение или удаление этой задачи',
   // Валюта
   CURRENCY_NOT_FOUND: 'Указанная валюта не найдена',
+  // Планы
+  PLAN_NOT_FOUND: 'План подписки не найлен',
+  // Подписка
+  SUBSCR_NOT_FOUND: 'План подписки не найлен',
   // Подписка
   SUBSCRIPTION_TYPE_NOT_FOUND: (type: string) =>
     `Тип подписки "${type}" не существует`,

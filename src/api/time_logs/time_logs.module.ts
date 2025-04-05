@@ -5,9 +5,11 @@ import { TimeLogsService } from './time_logs.service';
 import { TimeLogsController } from './time_logs.controller';
 import { TimeLog } from '../../entities/time-logs.entity';
 import { ProjectSharedModule } from '../project-shared/project-shared.module';
+import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
+import { PlansModule } from '../plans/plans.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task, TimeLog]), ProjectSharedModule],
+  imports: [TypeOrmModule.forFeature([Task, TimeLog]), ProjectSharedModule, SubscriptionsModule, PlansModule],
   providers: [TimeLogsService],
   exports: [TimeLogsService],
   controllers: [TimeLogsController],

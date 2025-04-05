@@ -24,7 +24,7 @@ import { UsersService } from './users.service';
 import { ChangeSubscriptionDto } from './dto/change-subscription.dto';
 import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
 import { SearchUsersDto } from './dto/search-users.dto';
-import { SubscriptionGuard } from 'src/auth/guards/subscription.guard';
+import { SubscriptionGuard } from 'src/guards/subscription.guard';
 import { UserTypeDto } from './dto/user-type.dto';
 import { UserTypeV2Dto } from './dto/user-type-v2.dto';
 

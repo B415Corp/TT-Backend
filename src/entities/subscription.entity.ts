@@ -4,7 +4,7 @@ import { User } from './user.entity';
 @Entity()
 export class Subscription {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
   @Column()
   planId: string; // Идентификатор тарифа (например, "basic", "premium")
