@@ -26,8 +26,10 @@ export const ErrorMessages = {
   // Планы
   PLAN_NOT_FOUND: 'План подписки не найлен',
   // Подписка
-  SUBSCR_NOT_FOUND: 'План подписки не найлен',
-  // Подписка
+  SUBSCR_ALREADY_EXISTS: 'Подписка уже существует',
+  SUBSCR_NOT_FOUND: 'Подписка не найдена',
+  ACCESS_DENYED: (name: string, subsctiptions: string[]) =>
+    `Доступ запрещен: у вас подписка "${name}", а требуется одна из следующих: ${subsctiptions.join(', ')}.`,
   SUBSCRIPTION_TYPE_NOT_FOUND: (type: string) =>
     `Тип подписки "${type}" не существует`,
   // Клиенты

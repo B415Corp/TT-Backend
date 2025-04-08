@@ -10,8 +10,6 @@ import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto
 import { User } from '../../entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ChangeSubscriptionDto } from './dto/change-subscription.dto';
-import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 import { ErrorMessages } from '../../common/error-messages';
 import { SearchUsersDto } from './dto/search-users.dto';
 import { ILike } from 'typeorm';
@@ -19,8 +17,6 @@ import { UserTypeDto } from './dto/user-type.dto';
 import { UserTypeV2Dto } from './dto/user-type-v2.dto';
 // import { thumbs } from '@dicebear/collection';
 // import { createAvatar } from '@dicebear/core';
-
-
 
 @Injectable()
 export class UsersService {
@@ -45,7 +41,9 @@ export class UsersService {
       avatar: '',
     });
 
-    return this.usersRepository.save(user);
+    const newUser = await this.usersRepository.save(user);
+    
+    return newUser;
   }
 
   async update(user_id: string, updateUserDto: UpdateUserDto): Promise<User> {
@@ -65,15 +63,13 @@ export class UsersService {
 
   async findById(
     id: string
-  ): Promise<
-    Pick<User, 'user_id' | 'name' | 'email' | 'subscriptionType'> | undefined
-  > {
+  ): Promise<Pick<User, 'user_id' | 'name' | 'email'> | undefined> {
     const user = await this.usersRepository.findOneBy({ user_id: id });
     if (!user) {
       throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
     }
-    const { user_id, name, email, subscriptionType } = user;
-    return { user_id, name, email, subscriptionType };
+    const { user_id, name, email } = user;
+    return { user_id, name, email };
   }
 
   async findAll(
@@ -97,31 +93,6 @@ export class UsersService {
     if (result.affected === 0) {
       throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
     }
-  }
-
-  async changeSubscription(
-    userId: string,
-    changeSubscriptionDto: ChangeSubscriptionDto
-  ): Promise<User> {
-    const user = await this.usersRepository.findOneBy({ user_id: userId });
-    if (!user) {
-      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
-    }
-
-    // Check if the provided subscription type is valid
-    const validSubscriptionTypes = Object.values(SubscriptionType);
-    if (
-      !validSubscriptionTypes.includes(changeSubscriptionDto.subscriptionType)
-    ) {
-      throw new ConflictException(
-        ErrorMessages.SUBSCRIPTION_TYPE_NOT_FOUND(
-          changeSubscriptionDto.subscriptionType
-        )
-      );
-    }
-
-    user.subscriptionType = changeSubscriptionDto.subscriptionType; // Update subscription type
-    return this.usersRepository.save(user);
   }
 
   async searchUsers(
@@ -165,7 +136,7 @@ export class UsersService {
     // В версии 2 API мы можем добавить дополнительную логику
     // Например, более точный поиск, сортировку, дополнительные фильтры и т.д.
     const users = await this.usersRepository.find({
-      select: ['user_id', 'name', 'email', 'subscriptionType', 'created_at'],
+      select: ['user_id', 'name', 'email', 'created_at'],
       where: [
         { name: ILike(`%${searchTerm}%`) },
         { email: ILike(`%${searchTerm}%`) },
@@ -182,7 +153,6 @@ export class UsersService {
       user_id: user.user_id,
       name: user.name,
       email: user.email,
-      subscriptionType: user.subscriptionType, // Дополнительное поле в v2
       created_at: user.created_at, // Дополнительное поле в v2
     }));
   }

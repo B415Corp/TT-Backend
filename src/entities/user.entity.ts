@@ -1,4 +1,3 @@
-import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 import {
   Column,
   CreateDateColumn,
@@ -34,9 +33,9 @@ export class User {
   @Column()
   password: string;
 
-  @ApiProperty({ enum: SubscriptionType, enumName: 'SubscriptionType' })
-  @Column({ enum: SubscriptionType, default: SubscriptionType.FREE })
-  subscriptionType: SubscriptionType;
+  // @ApiProperty({ enum: SubscriptionType, enumName: 'SubscriptionType' })
+  // @Column({ enum: SubscriptionType, default: SubscriptionType.FREE })
+  // subscriptionType: SubscriptionType;
 
   @Column({
     type: String,
@@ -48,7 +47,6 @@ export class User {
   @OneToMany(() => Subscription, (subscription) => subscription.user)
   subscriptions: Subscription[];
 
-  @ApiProperty({ type: Date })
   @CreateDateColumn({ type: 'timestamp with time zone' })
   created_at: Date;
 

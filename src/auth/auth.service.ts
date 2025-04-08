@@ -30,7 +30,6 @@ export class AuthService {
       user_id: existUser.user_id,
       name: existUser.name,
       email: existUser.email,
-      subscriptionType: existUser.subscriptionType,
     };
 
     const token = await this.tokenService.createToken(userData);

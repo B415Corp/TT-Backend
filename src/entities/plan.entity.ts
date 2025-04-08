@@ -17,24 +17,24 @@ export class Plan {
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;  // Цена ($10.99)
-
-  @ManyToOne(() => Currency, (currency) => currency.plans, { eager: true }) // Автоматически подгружаем валюту
-  currency: Currency;  // Валюта, в которой указана цена
-
+ 
   @Column()
   billingPeriod: 'month' | 'year';  // Период оплаты
-
+  
   @Column({ default: true })
   isActive: boolean;  // Доступен для покупки
-
+  
   @Column({ type: 'json', nullable: true })
   features: {  // Список возможностей
     maxProjects: number;
     storageGB: number;
     prioritySupport: boolean;
   };
-
+  
   // Если есть пробные периоды
   @Column({ nullable: true })
   trialDays: number;  // Например, 14 дней
+ 
+  @ManyToOne(() => Currency, (currency) => currency.plans, { eager: true }) // Автоматически подгружаем валюту
+  currency: Currency;  // Валюта, в которой указана цена
 }

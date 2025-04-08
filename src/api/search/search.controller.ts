@@ -16,6 +16,7 @@ import { SearchDtoV2 } from './dto/search.dtoV2';
 
 @ApiTags('search')
 @Controller('search')
+
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 

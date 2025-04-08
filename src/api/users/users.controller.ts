@@ -21,7 +21,6 @@ import { User } from '../../entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { ChangeSubscriptionDto } from './dto/change-subscription.dto';
 import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
 import { SearchUsersDto } from './dto/search-users.dto';
 import { SubscriptionGuard } from 'src/guards/subscription.guard';
@@ -124,20 +123,5 @@ export class UsersController {
   @Patch('me')
   async update(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(user.user_id, updateUserDto);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Change user subscription' })
-  @ApiResponse({ status: 200, type: User })
-  @UseGuards(JwtAuthGuard)
-  @Patch('me/subscription')
-  async changeSubscription(
-    @GetUser() user: User,
-    @Body() changeSubscriptionDto: ChangeSubscriptionDto
-  ) {
-    return this.usersService.changeSubscription(
-      user.user_id,
-      changeSubscriptionDto
-    );
   }
 }
