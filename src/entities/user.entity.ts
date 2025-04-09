@@ -14,6 +14,8 @@ import { ProjectMember } from './project-shared.entity';
 import { TaskMember } from './task-shared.entity';
 import { TimeLog } from './time-logs.entity';
 import { Subscription } from './subscription.entity';
+import { Friendship } from './friend.entity';
+import { Notification } from './notification.entity';
 
 @Entity({ name: 'users' }) // Указываем имя таблицы, если нужно использовать отличное от имени класса
 export class User {
@@ -89,4 +91,13 @@ export class User {
     onDelete: 'CASCADE',
   })
   timeLogs: TimeLog[];
+
+  @OneToMany(() => Friendship, (friendship) => friendship.user, { cascade: true })
+  friendships: Friendship[];
+
+  @OneToMany(() => Friendship, (friendship) => friendship.friend, { cascade: true })
+  friends: Friendship[];
+
+  @OneToMany(() => Notification, notification => notification.user)
+  notifications: Notification[];
 }

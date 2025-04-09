@@ -20,6 +20,8 @@ import { NotesModule } from './api/notes/notes.module';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { PlansModule } from './api/plans/plans.module';
 import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
+import { FriendshipModule } from './api/friendship/friendship.module';
+import { NotificationModule } from './api/notification/notification.module';
 
 @Module({
   imports: [
@@ -79,6 +81,8 @@ import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
     NotesModule,
     PlansModule,
     SubscriptionsModule,
+    FriendshipModule,
+    NotificationModule,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],

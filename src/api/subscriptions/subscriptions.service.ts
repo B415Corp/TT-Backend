@@ -15,7 +15,7 @@ export class SubscriptionsService {
     private userRepository: Repository<User>
   ) {}
 
-  findAll(): Promise<Subscription[]> {
+  async findAll(): Promise<Subscription[]> {
     return this.subscriptionRepository.find();
   }
 

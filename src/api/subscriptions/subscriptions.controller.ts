@@ -9,7 +9,7 @@ import { SubscribeDto } from './dto/subscribe.dto';
 
 @Controller('subscriptions')
 export class SubscriptionsController {
-  constructor(private readonly searchService: SubscriptionsService) {}
+  constructor(private readonly subscriptionService: SubscriptionsService) {}
 
   @ApiBearerAuth()
   @ApiOperation({
@@ -22,7 +22,7 @@ export class SubscriptionsController {
     @GetUser() user: User,
     @Query() subscribeDto: SubscribeDto
   ): Promise<Subscription> {
-    return this.searchService.subscribe(user.user_id, subscribeDto.plan);
+    return this.subscriptionService.subscribe(user.user_id, subscribeDto.plan);
   }
 
   @ApiBearerAuth()
@@ -34,6 +34,6 @@ export class SubscriptionsController {
   @UseGuards(JwtAuthGuard)
   @Get('/me')
   async search(@GetUser() user: User): Promise<Subscription> {
-    return this.searchService.getActiveSubscription(user.user_id);
+    return this.subscriptionService.getActiveSubscription(user.user_id);
   }
 }

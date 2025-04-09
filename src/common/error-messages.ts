@@ -15,6 +15,8 @@ export const ErrorMessages = {
   PROJECT_NO_ACCESS: 'Проект не найден либо вы не являетесь его владельцем',
   PROJECT_MEMBER_NOT_FOUND:
     'У вас нет прав на изменение или удаление этого проекта',
+  // Дружба
+  FRIENDSHIP_NOT_FOUND: 'Такой связи с пользователем не найдено',
   // Задачи
   TASK_NOT_FOUND: (id: string) => `Задача ${id} не найдена`,
   NO_TASKS_FOUND: 'Задачи не найдены',
