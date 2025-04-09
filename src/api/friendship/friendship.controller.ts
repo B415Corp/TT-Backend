@@ -42,7 +42,7 @@ export class FriendshipController {
     @GetUser() user: User,
     @Param('friendId') friendId: string
   ): Promise<Friendship> {
-    return this.friendshipService.create(user.user_id, friendId);
+    return this.friendshipService.create(user.user_id, friendId, user.name);
   }
 
   @ApiBearerAuth()

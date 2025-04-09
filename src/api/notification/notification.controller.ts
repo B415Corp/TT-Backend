@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards, Patch } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -16,5 +16,14 @@ export class NotificationController {
   @Get('me')
   async getNotifications(@GetUser() user: User) {
     return this.notificationService.getNotifications(user.user_id);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Mark notification as read' })
+  @ApiResponse({ status: 200 })
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async markNotificationAsRead(@Param('id') id: string) {
+    return this.notificationService.markNotificationAsRead(id);
   }
 }

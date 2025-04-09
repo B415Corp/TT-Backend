@@ -11,7 +11,7 @@ import {
 import { User } from './user.entity';
 import { FriendshipStatus } from 'src/common/enums/friendship-status.enum';
 
-@Entity({ name: 'Friendship' }) // Указываем имя таблицы, если нужно использовать отличное от имени класса
+@Entity({ name: 'friendship' }) // Указываем имя таблицы, если нужно использовать отличное от имени класса
 export class Friendship {
   @ApiProperty({ type: String, description: 'UUID пользователя' })
   @PrimaryGeneratedColumn('uuid')
@@ -48,8 +48,8 @@ export class Friendship {
   deleted_at: Date;
 
   @ManyToOne(() => User, (user) => user.subscriptions)
-  user: User;
+  sender: User;
 
   @ManyToOne(() => User, (user) => user.friends, { onDelete: 'CASCADE' })
-  friend: User;
+  recipient: User;
 }

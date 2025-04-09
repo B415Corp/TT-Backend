@@ -17,6 +17,11 @@ export const ErrorMessages = {
     'У вас нет прав на изменение или удаление этого проекта',
   // Дружба
   FRIENDSHIP_NOT_FOUND: 'Такой связи с пользователем не найдено',
+  FRIENDSHIP_INVITE_EXIST: 'Запрос дружбы уже отправлен',
+  FRIENDSHIP_EXIST: `Этот пользователь уже добавлен в друзья`,
+  FRIENDSHIP_SELF: `Вы не можете отправить запрос дружбы самому себе`,
+  FRIENDSHIP_NOT_RECEIVER:'Пользователь не является получателем запроса',
+  FRIENDSHIP_ALREADY_HANDLED:'Запроса на дружбу уже "в ожидании"',
   // Задачи
   TASK_NOT_FOUND: (id: string) => `Задача ${id} не найдена`,
   NO_TASKS_FOUND: 'Задачи не найдены',

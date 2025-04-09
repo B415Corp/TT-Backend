@@ -92,10 +92,10 @@ export class User {
   })
   timeLogs: TimeLog[];
 
-  @OneToMany(() => Friendship, (friendship) => friendship.user, { cascade: true })
+  @OneToMany(() => Friendship, (friendship) => friendship.sender, { cascade: true })
   friendships: Friendship[];
 
-  @OneToMany(() => Friendship, (friendship) => friendship.friend, { cascade: true })
+  @OneToMany(() => Friendship, (friendship) => friendship.recipient, { cascade: true })
   friends: Friendship[];
 
   @OneToMany(() => Notification, notification => notification.user)
