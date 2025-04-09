@@ -13,20 +13,20 @@ export class NotificationService {
   async createNotification(userId: string, message: string): Promise<Notification> {
     const notification = this.notificationRepository.create({
       message,
-      user: { id: userId },
+user: { user_id: userId },
     });
     return this.notificationRepository.save(notification);
   }
 
   async getNotifications(userId: string): Promise<Notification[]> {
     return this.notificationRepository.find({
-      where: { user: { id: userId } },
+where: { user: { user_id: userId } },
       order: { createdAt: 'DESC' },
     });
   }
 
   async markNotificationAsRead(notificationId: string): Promise<Notification> {
-    const notification = await this.notificationRepository.findOne(notificationId);
+const notification = await this.notificationRepository.findOneBy({ id: notificationId });
     if (!notification) {
       throw new Error('Notification not found');
     }
