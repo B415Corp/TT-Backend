@@ -1,4 +1,4 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { PlansService } from './plans.service';
 import { PlansController } from './plans.controller';
 import { PlanSeeder } from './plan.seeder';
@@ -12,12 +12,6 @@ import { Currency } from 'src/entities/currency.entity';
   ],
   providers: [PlanSeeder, PlansService],
   controllers: [PlansController],
-  exports: [PlansService],
+  exports: [PlansService, PlanSeeder],
 })
-export class PlansModule implements OnModuleInit {
-  constructor(private readonly planSeeder: PlanSeeder) {}
-
-  async onModuleInit() {
-    await this.planSeeder.seed();
-  }
-}
+export class PlansModule {}

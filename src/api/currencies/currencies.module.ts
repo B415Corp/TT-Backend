@@ -1,4 +1,4 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CurrenciesService } from './currencies.service';
 import { CurrenciesController } from './currencies.controller';
@@ -9,11 +9,6 @@ import { CurrencySeeder } from './currency.seeder';
   imports: [TypeOrmModule.forFeature([Currency])],
   controllers: [CurrenciesController],
   providers: [CurrenciesService, CurrencySeeder],
+  exports: [CurrencySeeder],
 })
-export class CurrenciesModule implements OnModuleInit {
-  constructor(private readonly currencySeeder: CurrencySeeder) {}
-
-  async onModuleInit() {
-    await this.currencySeeder.seed();
-  }
-}
+export class CurrenciesModule {}

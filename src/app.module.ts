@@ -20,6 +20,7 @@ import { NotesModule } from './api/notes/notes.module';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { PlansModule } from './api/plans/plans.module';
 import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
+import { SeederModule } from './seeder.module';
 import { FriendshipModule } from './api/friendship/friendship.module';
 import { NotificationModule } from './api/notification/notification.module';
 
@@ -44,6 +45,7 @@ import { NotificationModule } from './api/notification/notification.module';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService): PostgresConnectionOptions => {
         const environment = configService.get('NODE_ENV');
+
         const dbConfig: PostgresConnectionOptions = {
           type: 'postgres',
           host: configService.get<string>('DB_HOST'),
@@ -53,8 +55,10 @@ import { NotificationModule } from './api/notification/notification.module';
           database: configService.get<string>('DB_NAME'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
           synchronize: true,
-          logging: environment !== 'production' ? ["error"] : false, // Disable logging in production
+          logging: environment !== 'production' ? ['error'] : false, // Disable logging in production
         };
+        console.log('dbConfig', dbConfig);
+        
 
         // console.log('Database connection config:', {
         //   ...dbConfig,
@@ -80,6 +84,7 @@ import { NotificationModule } from './api/notification/notification.module';
     ProjectSharedModule,
     NotesModule,
     PlansModule,
+    SeederModule,
     SubscriptionsModule,
     FriendshipModule,
     NotificationModule,
