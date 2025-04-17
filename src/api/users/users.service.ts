@@ -25,7 +25,7 @@ export class UsersService {
     private usersRepository: Repository<User>
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto) {
     const existingUser = await this.usersRepository.findOne({
       where: { email: createUserDto.email },
     });
@@ -42,8 +42,12 @@ export class UsersService {
     });
 
     const newUser = await this.usersRepository.save(user);
-    
-    return newUser;
+
+    return {
+      user_id: newUser.user_id,
+      name: newUser.name,
+      email: newUser.email,
+    };
   }
 
   async update(user_id: string, updateUserDto: UpdateUserDto): Promise<User> {
