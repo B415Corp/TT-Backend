@@ -21,7 +21,7 @@ export class NotificationService {
       message,
       user: { user_id: userId },
       type: type,
-      data
+      data,
     });
     return this.notificationRepository.save(notification);
   }
@@ -31,6 +31,16 @@ export class NotificationService {
       where: { user: { user_id: userId } },
       order: { created_at: 'DESC' },
     });
+  }
+
+  async readAllNotifications(userId: string): Promise<Notification[]> {
+    const notifications = await this.notificationRepository.find({
+      where: { user: { user_id: userId }, isRead: false },
+    });
+    notifications.forEach((notification) => {
+      notification.isRead = true;
+    });
+    return this.notificationRepository.save(notifications);
   }
 
   async markNotificationAsRead(notificationId: string): Promise<Notification> {

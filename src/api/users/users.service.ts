@@ -15,6 +15,8 @@ import { SearchUsersDto } from './dto/search-users.dto';
 import { ILike } from 'typeorm';
 import { UserTypeDto } from './dto/user-type.dto';
 import { UserTypeV2Dto } from './dto/user-type-v2.dto';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 // import { thumbs } from '@dicebear/collection';
 // import { createAvatar } from '@dicebear/core';
 
@@ -22,7 +24,8 @@ import { UserTypeV2Dto } from './dto/user-type-v2.dto';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>
+    private usersRepository: Repository<User>,
+    private subscriptionsService: SubscriptionsService
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -42,6 +45,7 @@ export class UsersService {
     });
 
     const newUser = await this.usersRepository.save(user);
+    await this.subscriptionsService.subscribe(newUser.user_id, SubscriptionType.FREE);
 
     return {
       user_id: newUser.user_id,

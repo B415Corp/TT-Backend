@@ -19,10 +19,19 @@ export class NotificationController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Mark all notifications as read' })
+  @ApiResponse({ status: 200 })
+  @UseGuards(JwtAuthGuard)
+  @Patch('/read/all')
+  async readAllNotifications(@GetUser() user: User) {
+    return this.notificationService.readAllNotifications(user.user_id);
+  }
+
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Mark notification as read' })
   @ApiResponse({ status: 200 })
   @UseGuards(JwtAuthGuard)
-  @Patch(':id')
+  @Patch('/read/:id')
   async markNotificationAsRead(@Param('id') id: string) {
     return this.notificationService.markNotificationAsRead(id);
   }
