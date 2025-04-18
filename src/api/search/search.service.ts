@@ -12,7 +12,7 @@ export class SearchService {
     private readonly projectsService: ProjectsService,
     private readonly tasksService: TasksService,
     private readonly clientsService: ClientsService,
-    private readonly usersService: UsersService // Добавляем UsersService в конструктор
+    private readonly usersService: UsersService ,
   ) {}
 
   async search(
@@ -62,7 +62,7 @@ export class SearchService {
   async searchV2(
     user: User,
     searchTerm: string,
-    searchLocation: 'all' | 'projects' | 'tasks' | 'clients' = 'all',
+    searchLocation: 'all' | 'projects' | 'tasks' | 'clients' | 'users' = 'all',
     maxResults: number = 5,
     offset: number = 0
   ) {
@@ -93,6 +93,13 @@ export class SearchService {
       results.clients = await this.clientsService.findByUserIdAndSearchTerm(
         user.user_id,
         searchTerm,
+        maxResults,
+        offset
+      );
+    }
+    if (searchLocation === 'all' || searchLocation === 'users') {
+      results.users = await this.usersService.searchUsers(
+        { searchTerm },
         maxResults,
         offset
       );

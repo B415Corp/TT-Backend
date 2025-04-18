@@ -111,6 +111,13 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, type: User })
+  @Get('find/:id')
+  async findUser(@GetUser() user: User, @Param('id') id: string) {
+    return this.usersService.findUser(id);
+  }
+
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({ status: 201, type: User })
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);

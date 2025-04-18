@@ -40,7 +40,7 @@ export class NotificationService {
     notifications.forEach((notification) => {
       notification.isRead = true;
     });
-    return this.notificationRepository.save(notifications);
+    return;
   }
 
   async markNotificationAsRead(notificationId: string): Promise<Notification> {

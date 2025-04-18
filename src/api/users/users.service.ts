@@ -17,8 +17,6 @@ import { UserTypeDto } from './dto/user-type.dto';
 import { UserTypeV2Dto } from './dto/user-type-v2.dto';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
-// import { thumbs } from '@dicebear/collection';
-// import { createAvatar } from '@dicebear/core';
 
 @Injectable()
 export class UsersService {
@@ -45,7 +43,10 @@ export class UsersService {
     });
 
     const newUser = await this.usersRepository.save(user);
-    await this.subscriptionsService.subscribe(newUser.user_id, SubscriptionType.FREE);
+    await this.subscriptionsService.subscribe(
+      newUser.user_id,
+      SubscriptionType.FREE
+    );
 
     return {
       user_id: newUser.user_id,
@@ -101,6 +102,15 @@ export class UsersService {
     if (result.affected === 0) {
       throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
     }
+  }
+
+  async findUser(user_id: string) {
+    const user = await this.usersRepository.find({
+      relations: ['friendships'],
+      where: [{ user_id: user_id }],
+      // select: ['user_id', 'name', 'email'],s
+    });
+    return user[0];
   }
 
   async searchUsers(
