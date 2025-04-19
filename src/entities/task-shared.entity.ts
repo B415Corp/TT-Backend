@@ -10,7 +10,6 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from './user.entity';
 import { Task } from './task.entity';
-import { ProjectRole } from '../common/enums/project-role.enum';
 
 @Entity('task_members')
 export class TaskMember {

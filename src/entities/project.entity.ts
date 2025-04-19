@@ -9,6 +9,7 @@ import {
   ManyToMany,
   JoinTable,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Task } from './task.entity';
@@ -17,6 +18,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ProjectMember } from './project-shared.entity';
 import { Client } from './client.entity';
 import { Currency } from './currency.entity';
+import { TaskStatus } from './task-status.entity';
 
 @Entity()
 export class Project {
@@ -102,4 +104,7 @@ export class Project {
   @ManyToOne(() => Currency, (currency) => currency.projects)
   @JoinColumn({ name: 'currency_id' })
   currency: Currency;
+
+  @OneToOne(() => TaskStatus, (taskStatus) => taskStatus.project)
+  taskStatus: TaskStatus;
 }

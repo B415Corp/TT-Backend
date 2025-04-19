@@ -11,7 +11,6 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { Currency } from 'src/entities/currency.entity';
 import { User } from 'src/entities/user.entity';
-import { Tag } from '../../entities/tag.entity';
 import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-shared.entity';
 import { ProjectRole } from '../../common/enums/project-role.enum';
@@ -25,8 +24,6 @@ export class ProjectsService {
     private currencyRepository: Repository<Currency>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Tag)
-    private tagRepository: Repository<Tag>,
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>
   ) {}
