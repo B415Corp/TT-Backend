@@ -131,9 +131,9 @@ export class UsersService {
       order: { created_at: 'DESC' },
     });
 
-    if (!users.length) {
-      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
-    }
+    // if (!users.length) {
+    //   throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
+    // }
 
     return users.map((user) => ({
       user_id: user.user_id,
