@@ -51,9 +51,16 @@ export class TaskStatusService {
   }
 
   async findByProjectId(project_id: string) {
-    return await this.taskStatusRepository.find({
+    const result = await this.taskStatusRepository.find({
       where: { project: { project_id } },
     });
+    // Сортируем поле names по order по возрастанию для каждого TaskStatus
+    return result.map((taskStatus) => ({
+      ...taskStatus,
+      names: Array.isArray(taskStatus.names)
+        ? [...taskStatus.names].sort((a, b) => a.order - b.order)
+        : taskStatus.names,
+    }));
   }
 
   async create(
