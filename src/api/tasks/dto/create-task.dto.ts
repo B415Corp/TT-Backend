@@ -32,4 +32,11 @@ export class CreateTaskDto {
     example: ['tag1', 'tag2'],
   })
   tag_ids?: string[];
+
+  @ApiProperty({
+    description: 'ID статуса задачи (TaskStatus)',
+    example: 'b1234567-89ab-cdef-0123-456789abcdef',
+    required: true,
+  })
+  task_status_id: string;
 }

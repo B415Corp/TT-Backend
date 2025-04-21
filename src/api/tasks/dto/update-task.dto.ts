@@ -22,4 +22,11 @@ export class UpdateTaskDto {
 
   @ApiProperty({ example: popularCurrencies[0].code })
   currency_id: string;
+
+  @ApiProperty({
+    description: 'ID статуса задачи (TaskStatus)',
+    example: 'b1234567-89ab-cdef-0123-456789abcdef',
+    required: false,
+  })
+  task_status_id?: string;
 }

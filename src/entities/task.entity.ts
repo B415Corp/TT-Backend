@@ -17,6 +17,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TimeLog } from './time-logs.entity';
 import { Currency } from './currency.entity';
 import { TaskMember } from './task-shared.entity';
+import { TaskStatus } from './task-status.entity';
 
 @Entity()
 export class Task {
@@ -113,4 +114,11 @@ export class Task {
     onDelete: 'CASCADE',
   })
   taskMembers: TaskMember[];
+
+  @ManyToOne(() => TaskStatus, (taskStatus) => taskStatus.tasks, { nullable: true })
+  @JoinColumn({ name: 'task_status_id' })
+  taskStatus: TaskStatus;
+
+  @Column({ name: 'task_status_id', type: 'uuid', nullable: true })
+  task_status_id: string;
 }

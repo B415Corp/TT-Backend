@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
@@ -53,7 +54,6 @@ export class TaskStatusColumn {
   @JoinColumn()
   project: Project;
 
-  @ManyToOne(() => TaskStatus, (taskStatus) => taskStatus.id)
-  @JoinColumn()
-  taskStatus: TaskStatus;
+  @OneToMany(() => TaskStatus, (taskStatus) => taskStatus.taskStatusColumn)
+  taskStatuses: TaskStatus[];
 }

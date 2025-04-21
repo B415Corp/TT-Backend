@@ -11,6 +11,7 @@ import { User } from '../../entities/user.entity';
 import { ErrorMessages } from '../../common/error-messages';
 import { TaskMember } from '../../entities/task-shared.entity';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { TaskStatus } from '../../entities/task-status.entity';
 
 @Injectable()
 export class TasksService {
@@ -44,6 +45,26 @@ export class TasksService {
     });
     if (!currencyExist) {
       throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
+    }
+
+    // Проверка статуса задачи
+    if (dto.task_status_id) {
+      const taskStatus = await this.taskRepository.manager.getRepository(TaskStatus).findOne({
+        where: { id: dto.task_status_id },
+        relations: ['taskStatusColumn', 'taskStatusColumn.project'],
+      });
+      if (!taskStatus) {
+        throw new NotFoundException('Task status not found');
+      }
+      if (
+        !taskStatus.taskStatusColumn ||
+        !taskStatus.taskStatusColumn.project ||
+        taskStatus.taskStatusColumn.project.project_id !== project_id
+      ) {
+        throw new NotFoundException(
+          'Task status does not belong to this project'
+        );
+      }
     }
 
     const task = this.taskRepository.create({
@@ -130,6 +151,33 @@ export class TasksService {
     });
     if (!currencyExist) {
       throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
+    }
+
+    // Проверка статуса задачи
+    if (dto.task_status_id) {
+      const taskStatus = await this.taskRepository.manager.getRepository(TaskStatus).findOne({
+        where: { id: dto.task_status_id },
+        relations: ['taskStatusColumn', 'taskStatusColumn.project'],
+      });
+      if (!taskStatus) {
+        throw new NotFoundException('Task status not found');
+      }
+      // Получаем задачу для project_id
+      const existingTask = await this.taskRepository.findOne({
+        where: { task_id: id },
+      });
+      if (!existingTask) {
+        throw new NotFoundException(ErrorMessages.TASK_NOT_FOUND(id));
+      }
+      if (
+        !taskStatus.taskStatusColumn ||
+        !taskStatus.taskStatusColumn.project ||
+        taskStatus.taskStatusColumn.project.project_id !== existingTask.project_id
+      ) {
+        throw new NotFoundException(
+          'Task status does not belong to this project'
+        );
+      }
     }
 
     const task = await this.taskRepository.preload({
