@@ -60,13 +60,13 @@ export class TaskStatusColumnService {
         project,
       },
       {
-        order: 2,
+        order: 3,
         name: 'BLOCKED',
         color: '#f87171',
         project,
       },
       {
-        order: 3,
+        order: 4,
         name: 'DONE',
         color: '#4ade80',
         project,

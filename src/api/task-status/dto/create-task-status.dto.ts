@@ -1,15 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TaskStatusNameDTO } from './task-status-name.dto';
 
 export class CreateTaskStatusDTO {
   @ApiProperty({
-    type: () => [TaskStatusNameDTO],
-    description: 'Массив статусов задач с порядком следования',
-    example: [
-      { name: 'TO DO', order: 1 },
-      { name: 'IN PROGRESS', order: 2 },
-      { name: 'DONE', order: 3 },
-    ],
+    type: String,
+    description: 'ID задачи',
+    example: 'b1e7c8a2-1234-4cde-9f1a-123456789abc',
   })
-  names: TaskStatusNameDTO[];
+  task_id: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'ID колонки статуса',
+    example: 'a2e7c8b1-5678-4cde-9f1a-abcdef123456',
+  })
+  task_status_column_id: string;
 }
