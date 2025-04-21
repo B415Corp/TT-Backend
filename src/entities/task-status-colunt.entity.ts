@@ -2,26 +2,40 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   Entity,
   PrimaryGeneratedColumn,
+  Column,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-  OneToOne,
-  OneToMany,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Project } from './project.entity';
-import { Task } from './task.entity';
-import { TaskStatusColumn } from './task-status-colunt.entity';
+import { TaskStatus } from './task-status.entity';
 
 @Entity()
-export class TaskStatus {
+export class TaskStatusColumn {
   @ApiProperty({
     type: String,
     description: 'Unique identifier for the task status',
   })
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Order in list',
+    example: 1,
+  })
+  @Column()
+  order: number;
+
+  @ApiProperty({ type: String, description: 'Color of the task status' })
+  @Column({ nullable: true })
+  color?: string
+
+  @ApiProperty({ type: String, description: 'Name of the task status' })
+  @Column()
+  name: string;
 
   @ApiProperty({ type: Date, description: 'Creation date of the task' })
   @CreateDateColumn()
@@ -35,15 +49,11 @@ export class TaskStatus {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToOne(() => Project, (project) => project.taskStatus)
+  @ManyToOne(() => Project, (project) => project.taskStatus)
   @JoinColumn()
   project: Project;
 
-  @OneToMany(() => Task, (task) => task.task_id)
+  @ManyToOne(() => TaskStatus, (taskStatus) => taskStatus.id)
   @JoinColumn()
-  task: Task;
-
-  @OneToMany(() => TaskStatusColumn, (taskStatusColumn) => taskStatusColumn.id)
-  @JoinColumn()
-  taskStatusColumn: TaskStatusColumn;
+  taskStatus: TaskStatus;
 }

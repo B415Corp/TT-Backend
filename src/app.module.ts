@@ -24,6 +24,7 @@ import { SeederModule } from './seeder.module';
 import { FriendshipModule } from './api/friendship/friendship.module';
 import { NotificationModule } from './api/notification/notification.module';
 import { TaskStatusModule } from './api/task-status/task-status.module';
+import { TaskStatusColumnModule } from './api/task-status-column/task-status-column.module';
 
 @Module({
   imports: [
@@ -90,6 +91,7 @@ import { TaskStatusModule } from './api/task-status/task-status.module';
     FriendshipModule,
     NotificationModule,
     TaskStatusModule,
+    TaskStatusColumnModule,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],

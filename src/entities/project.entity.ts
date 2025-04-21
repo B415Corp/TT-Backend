@@ -18,7 +18,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ProjectMember } from './project-shared.entity';
 import { Client } from './client.entity';
 import { Currency } from './currency.entity';
-import { TaskStatus } from './task-status.entity';
+import { TaskStatusColumn } from './task-status-colunt.entity';
 
 @Entity()
 export class Project {
@@ -105,6 +105,6 @@ export class Project {
   @JoinColumn({ name: 'currency_id' })
   currency: Currency;
 
-  @OneToOne(() => TaskStatus, (taskStatus) => taskStatus.project)
-  taskStatus: TaskStatus;
+  @OneToOne(() => TaskStatusColumn, (taskStatus) => taskStatus.project)
+  taskStatus: TaskStatusColumn;
 }
