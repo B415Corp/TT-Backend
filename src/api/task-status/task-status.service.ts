@@ -31,14 +31,53 @@ export class TaskStatusService {
     if (!taskStatusColumn) {
       throw new Error('Task status column not found');
     }
+
+    // Проверяем, есть ли уже связь TaskStatus для этой задачи
+    let taskStatus = await this.taskStatusRepository.findOne({
+      where: { task: { task_id: dto.task_id } },
+      relations: ['task', 'taskStatusColumn'],
+    });
+
+    if (taskStatus) {
+      // Обновляем колонку статуса
+      taskStatus.taskStatusColumn = taskStatusColumn;
+    } else {
+      // Создаем новую связь
+      taskStatus = this.taskStatusRepository.create({
+        task: task,
+        taskStatusColumn,
+      });
+    }
+
+    return this.taskStatusRepository.save(taskStatus);
+  }
+
+  async getTaskStatus(task_id: string) {
+    return this.taskStatusRepository.findOne({
+      where: { task: { task_id } },
+      relations: ['task', 'taskStatusColumn'],
+    });
+  }
+
+  async updateStatus(task_id: string, dto: CreateTaskStatusDTO) {
+    const taskStatusColumn = await this.taskStatusColumnRepository.findOne({
+      where: { id: dto.task_status_column_id },
+    });
+
     if (!taskStatusColumn) {
       throw new Error('Task status column not found');
     }
 
-    const taskStatus = this.taskStatusRepository.create({
-      task: task,
-      taskStatusColumn,
+    const taskStatus = await this.taskStatusRepository.findOne({
+      where: { task: { task_id } },
+      relations: ['task', 'taskStatusColumn'],
     });
+
+    if (!taskStatus) {
+      throw new Error('Task status not found');
+    }
+
+    taskStatus.taskStatusColumn = taskStatusColumn;
 
     return this.taskStatusRepository.save(taskStatus);
   }

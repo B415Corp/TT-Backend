@@ -49,10 +49,12 @@ export class TasksService {
 
     // Проверка статуса задачи
     if (dto.task_status_id) {
-      const taskStatus = await this.taskRepository.manager.getRepository(TaskStatus).findOne({
-        where: { id: dto.task_status_id },
-        relations: ['taskStatusColumn', 'taskStatusColumn.project'],
-      });
+      const taskStatus = await this.taskRepository.manager
+        .getRepository(TaskStatus)
+        .findOne({
+          where: { id: dto.task_status_id },
+          relations: ['taskStatusColumn', 'taskStatusColumn.project'],
+        });
       if (!taskStatus) {
         throw new NotFoundException('Task status not found');
       }
@@ -155,10 +157,12 @@ export class TasksService {
 
     // Проверка статуса задачи
     if (dto.task_status_id) {
-      const taskStatus = await this.taskRepository.manager.getRepository(TaskStatus).findOne({
-        where: { id: dto.task_status_id },
-        relations: ['taskStatusColumn', 'taskStatusColumn.project'],
-      });
+      const taskStatus = await this.taskRepository.manager
+        .getRepository(TaskStatus)
+        .findOne({
+          where: { id: dto.task_status_id },
+          relations: ['taskStatusColumn', 'taskStatusColumn.project'],
+        });
       if (!taskStatus) {
         throw new NotFoundException('Task status not found');
       }
@@ -172,7 +176,8 @@ export class TasksService {
       if (
         !taskStatus.taskStatusColumn ||
         !taskStatus.taskStatusColumn.project ||
-        taskStatus.taskStatusColumn.project.project_id !== existingTask.project_id
+        taskStatus.taskStatusColumn.project.project_id !==
+          existingTask.project_id
       ) {
         throw new NotFoundException(
           'Task status does not belong to this project'
@@ -268,7 +273,7 @@ export class TasksService {
 
     return this.taskRepository.find({
       where: { user_id: userId },
-      relations: ['currency'],
+      relations: ['currency', 'taskStatus', 'taskStatus.taskStatusColumn'],
       select: {
         task_id: true,
         name: true,
