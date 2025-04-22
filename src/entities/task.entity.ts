@@ -9,6 +9,7 @@ import {
   ManyToMany,
   JoinTable,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Project } from './project.entity';
@@ -115,10 +116,7 @@ export class Task {
   })
   taskMembers: TaskMember[];
 
-  @ManyToOne(() => TaskStatus, (taskStatus) => taskStatus.tasks, { nullable: true })
+  @OneToOne(() => TaskStatus, (taskStatus) => taskStatus.task, { nullable: true })
   @JoinColumn({ name: 'task_status_id' })
   taskStatus: TaskStatus;
-
-  @Column({ name: 'task_status_id', type: 'uuid', nullable: true })
-  task_status_id: string;
 }

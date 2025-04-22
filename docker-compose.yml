@@ -88,15 +88,15 @@ services:
     networks:
       - app-network
 
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - app-prod
-    restart: unless-stopped
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - app-prod
+  #   restart: unless-stopped
 
 volumes:
   postgres_data_dev:

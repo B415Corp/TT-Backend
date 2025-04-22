@@ -1,47 +1,45 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Project } from 'src/entities/project.entity';
 import { Repository } from 'typeorm';
 import { TaskStatus } from 'src/entities/task-status.entity';
 import { TaskStatusColumn } from 'src/entities/task-status-colunt.entity';
+import { CreateTaskStatusDTO } from './dto/create-task-status.dto';
+import { Task } from 'src/entities/task.entity';
 
 @Injectable()
 export class TaskStatusService {
   constructor(
     @InjectRepository(TaskStatus)
     private taskStatusRepository: Repository<TaskStatus>,
-    @InjectRepository(Project)
-    private projectRepository: Repository<Project>,
+    @InjectRepository(Task)
+    private taskRepository: Repository<Task>,
     @InjectRepository(TaskStatusColumn)
     private taskStatusColumnRepository: Repository<TaskStatusColumn>
   ) {}
 
-  async getByTaskId(task_id: string) {
-    return this.taskStatusRepository.findOneBy({ id: task_id });
-  }
+  async setStatusToTask(dto: CreateTaskStatusDTO) {
+    const taskStatusColumn = await this.taskStatusColumnRepository.findOne({
+      where: { id: dto.task_status_column_id },
+    });
+    const task = await this.taskRepository.findOne({
+      where: { task_id: dto.task_id },
+    });
 
-  async findAll() {
-    return this.taskStatusRepository.find();
-  }
+    if (!task) {
+      throw new Error('Task not found');
+    }
+    if (!taskStatusColumn) {
+      throw new Error('Task status column not found');
+    }
+    if (!taskStatusColumn) {
+      throw new Error('Task status column not found');
+    }
 
-  async create(taskStatus: Partial<TaskStatus>) {
+    const taskStatus = this.taskStatusRepository.create({
+      task: task,
+      taskStatusColumn,
+    });
+
     return this.taskStatusRepository.save(taskStatus);
-  }
-
-  async findColumnById(id: string) {
-    return this.taskStatusColumnRepository.findOneBy({ id });
-  }
-
-  async createColumn(data: Partial<TaskStatusColumn>) {
-    return this.taskStatusColumnRepository.save(data);
-  }
-
-  async update(id: string, updateData: Partial<TaskStatus>) {
-    await this.taskStatusRepository.update(id, updateData);
-    return this.taskStatusRepository.findOneBy({ id });
-  }
-
-  async remove(id: string) {
-    return this.taskStatusRepository.delete(id);
   }
 }
