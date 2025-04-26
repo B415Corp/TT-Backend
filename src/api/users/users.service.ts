@@ -32,7 +32,7 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new ConflictException(ErrorMessages.INVALID_CREDENTIALS);
+      throw new ConflictException(ErrorMessages.USER_EXISTS);
     }
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
