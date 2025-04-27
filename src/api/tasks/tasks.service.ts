@@ -12,6 +12,8 @@ import { ErrorMessages } from '../../common/error-messages';
 import { TaskMember } from '../../entities/task-shared.entity';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskStatus } from '../../entities/task-status.entity';
+import { TaskStatusService } from '../task-status/task-status.service';
+import { TaskStatusColumnService } from '../task-status-column/task-status-column.service';
 
 @Injectable()
 export class TasksService {
@@ -27,7 +29,9 @@ export class TasksService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(TaskMember)
-    private taskMemberRepository: Repository<TaskMember>
+    private taskMemberRepository: Repository<TaskMember>,
+    private taskStatusService: TaskStatusService,
+    private taskStatusColumnService: TaskStatusColumnService
   ) {}
 
   async create(
@@ -83,6 +87,19 @@ export class TasksService {
       user_id: user_id,
     });
 
+    // Получаем первую колонку статуса
+    const taskStatusColumtItem =
+      await this.taskStatusColumnService.getByProjectId(project_id);
+
+    if (taskStatusColumtItem) {
+      // Устанавливаем статус
+      const taskStatus = await this.taskStatusService.setStatusToTask({
+        task_id: savedTask.task_id,
+        task_status_column_id: taskStatusColumtItem[0].id,
+      });
+      savedTask.taskStatus = taskStatus;
+    }
+
     await this.taskMemberRepository.save(taskMember);
 
     return savedTask;
@@ -91,7 +108,7 @@ export class TasksService {
   async findById(id: string): Promise<Task> {
     const task = await this.taskRepository.findOne({
       where: { task_id: id },
-      relations: ['currency'],
+      relations: ['currency', 'taskStatus', 'taskStatus.taskStatusColumn'],
       select: {
         task_id: true,
         name: true,
@@ -104,6 +121,14 @@ export class TasksService {
           currency_id: true,
           code: true,
           name: true,
+        },
+        taskStatus: {
+          id: true,
+          taskStatusColumn: {
+            id: true,
+            name: true,
+            color: true,
+          },
         },
       },
     });
@@ -126,7 +151,7 @@ export class TasksService {
       skip,
       take: limit,
       order: { created_at: 'DESC' },
-      relations: ['currency'],
+      relations: ['currency', 'taskStatus', 'taskStatus.taskStatusColumn'],
       select: {
         task_id: true,
         name: true,
@@ -141,9 +166,17 @@ export class TasksService {
           code: true,
           name: true,
         },
+        taskStatus: {
+          id: true,
+          taskStatusColumn: {
+            name: true,
+            id: true,
+            color: true,
+          },
+        },
       },
     });
-
+    console.log('findByProjectId', data);
     return [data, total];
   }
 
@@ -240,7 +273,13 @@ export class TasksService {
 
     return this.taskRepository.find({
       where: whereCondition,
-      relations: ['currency', 'user', 'project'],
+      relations: [
+        'currency',
+        'user',
+        'project',
+        'taskStatus',
+        'taskStatus.taskStatusColumn',
+      ],
       take: maxResults,
       skip: offset,
       order: { created_at: 'DESC' },
@@ -260,6 +299,14 @@ export class TasksService {
         project: {
           project_id: true,
           name: true,
+        },
+        taskStatus: {
+          id: true,
+          taskStatusColumn: {
+            id: true,
+            name: true,
+            color: true,
+          },
         },
       },
     });
@@ -286,6 +333,14 @@ export class TasksService {
           currency_id: true,
           code: true,
           name: true,
+        },
+        taskStatus: {
+          id: true,
+          taskStatusColumn: {
+            id: true,
+            name: true,
+            color: true,
+          },
         },
       },
     });

@@ -14,5 +14,6 @@ import { TaskStatusColumn } from 'src/entities/task-status-colunt.entity';
   ],
   providers: [TaskStatusColumnService],
   controllers: [TaskStatusColumnController],
+  exports: [TaskStatusColumnService],
 })
 export class TaskStatusColumnModule {}

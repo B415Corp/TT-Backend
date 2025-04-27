@@ -14,6 +14,7 @@ import { User } from 'src/entities/user.entity';
 import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-shared.entity';
 import { ProjectRole } from '../../common/enums/project-role.enum';
+import { TaskStatusColumnService } from '../task-status-column/task-status-column.service';
 
 @Injectable()
 export class ProjectsService {
@@ -25,7 +26,8 @@ export class ProjectsService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(ProjectMember)
-    private projectMemberRepository: Repository<ProjectMember>
+    private projectMemberRepository: Repository<ProjectMember>,
+    private taskStatusColumnService: TaskStatusColumnService
   ) {}
 
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
@@ -49,6 +51,11 @@ export class ProjectsService {
     });
 
     const savedProject = await this.projectRepository.save(project);
+
+    // Create default task status columns
+    await this.taskStatusColumnService.createManyDefault(
+      savedProject.project_id
+    );
 
     // Create a ProjectMember entry for the owner
     const projectMember = this.projectMemberRepository.create({

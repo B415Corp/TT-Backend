@@ -14,5 +14,6 @@ import { Task } from 'src/entities/task.entity';
   ],
   providers: [TaskStatusService],
   controllers: [TaskStatusController],
+  exports: [TaskStatusService],
 })
 export class TaskStatusModule {}

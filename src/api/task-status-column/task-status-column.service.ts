@@ -39,7 +39,7 @@ export class TaskStatusColumnService {
     return this.taskStatusColumnRepository.save(taskStatusColumn);
   }
 
-  async createMany(project_id: string) {
+  async createManyDefault(project_id: string) {
     const project = await this.projectRepository.findOne({
       where: { project_id },
     });
