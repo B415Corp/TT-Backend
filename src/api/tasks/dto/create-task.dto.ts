@@ -25,6 +25,9 @@ export class CreateTaskDto {
   @ApiProperty({ example: 10 })
   rate: number;
 
+  @ApiProperty({ example: 0 })
+  order: number;
+
   @ApiProperty({ example: popularCurrencies[0].code })
   currency_id: string;
 

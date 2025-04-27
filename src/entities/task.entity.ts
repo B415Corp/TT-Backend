@@ -48,6 +48,10 @@ export class Task {
   @Column('text', { default: '' })
   description: string;
 
+  @ApiProperty({ type: Number, description: 'Task order' })
+  @Column({ nullable: true })
+  order: number;
+
   @ApiProperty({ type: Boolean, description: 'Indicates if the task is paid' })
   @Column({ default: false })
   is_paid: boolean;
@@ -116,7 +120,9 @@ export class Task {
   })
   taskMembers: TaskMember[];
 
-  @OneToOne(() => TaskStatus, (taskStatus) => taskStatus.task, { nullable: true })
+  @OneToOne(() => TaskStatus, (taskStatus) => taskStatus.task, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'task_status_id' })
   taskStatus: TaskStatus;
 }

@@ -115,6 +115,7 @@ export class TasksService {
         description: true,
         is_paid: true,
         payment_type: true,
+        order: true,
         rate: true,
         created_at: true,
         currency: {
@@ -158,6 +159,7 @@ export class TasksService {
         description: true,
         is_paid: true,
         payment_type: true,
+        order: true,
         rate: true,
         created_at: true,
         currency: {
@@ -290,6 +292,7 @@ export class TasksService {
         is_paid: true,
         payment_type: true,
         rate: true,
+        order: true,
         created_at: true,
         updated_at: true,
         user: {
@@ -326,6 +329,7 @@ export class TasksService {
         name: true,
         description: true,
         is_paid: true,
+        order: true,
         payment_type: true,
         rate: true,
         created_at: true,

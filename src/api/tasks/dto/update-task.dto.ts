@@ -20,6 +20,9 @@ export class UpdateTaskDto {
   @ApiProperty()
   rate: number;
 
+  @ApiProperty()
+  order: number;
+
   @ApiProperty({ example: popularCurrencies[0].code })
   currency_id: string;
 
