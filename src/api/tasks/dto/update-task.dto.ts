@@ -14,7 +14,7 @@ export class UpdateTaskDto {
   @ApiProperty({
     enum: ['fixed', 'hourly'],
     example: 'hourly',
-  })
+  })дуф
   payment_type: 'fixed' | 'hourly';
 
   @ApiProperty()
