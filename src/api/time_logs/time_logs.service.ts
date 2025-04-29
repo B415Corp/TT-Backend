@@ -147,7 +147,7 @@ export class TimeLogsService {
     });
 
     if (!latestLog) {
-      return null
+      return null;
       // throw new NotFoundException(
       //   ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(task_id)
       // );
@@ -227,9 +227,10 @@ export class TimeLogsService {
       .getOne();
 
     if (!latestLog) {
-      throw new NotFoundException(
-        ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(userId)
-      );
+      // throw new NotFoundException(
+      //   ErrorMessages.LATEST_TIME_LOG_NOT_FOUND(userId)
+      // );
+      return null;
     }
 
     return latestLog;

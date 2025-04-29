@@ -55,7 +55,7 @@ export class UsersService {
     };
   }
 
-  async update(user_id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(user_id: string, updateUserDto: UpdateUserDto): Promise<UserTypeDto> {
     const user = await this.usersRepository.findOneBy({ user_id });
 
     if (!user) {
@@ -63,7 +63,12 @@ export class UsersService {
     }
 
     Object.assign(user, updateUserDto);
-    return this.usersRepository.save(user);
+    const updatedUser = await this.usersRepository.save(user);
+    return {
+      user_id: updatedUser.user_id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+    };
   }
 
   async findByEmail(email: string): Promise<User | undefined> {
@@ -104,13 +109,20 @@ export class UsersService {
     }
   }
 
-  async findUser(user_id: string) {
-    const user = await this.usersRepository.find({
+  async findUser(user_id: string): Promise<UserTypeDto | undefined> {
+    const user = await this.usersRepository.findOne({
+      where: { user_id },
       relations: ['friendships'],
-      where: [{ user_id: user_id }],
-      // select: ['user_id', 'name', 'email'],s
+      select: ['user_id', 'name', 'email'],
     });
-    return user[0];
+    if (!user) {
+      throw new NotFoundException(ErrorMessages.USER_NOT_FOUND);
+    }
+    return {
+      user_id: user.user_id,
+      name: user.name,
+      email: user.email,
+    };
   }
 
   async searchUsers(

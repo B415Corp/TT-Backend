@@ -73,7 +73,13 @@ export class ProjectsService {
   async findById(id: string): Promise<Project> {
     const project = await this.projectRepository.findOne({
       where: { project_id: id },
-      relations: ['currency', 'client', 'members', 'members.user'],
+      relations: [
+        'currency',
+        'client',
+        'members',
+        'members.user',
+        'members.user.subscriptions',
+      ],
       select: {
         rate: true,
         project_id: true,
@@ -88,6 +94,18 @@ export class ProjectsService {
           client_id: true,
           name: true,
           contact_info: true,
+        },
+        members: {
+          role: true,
+          user: {
+            user_id: true,
+            name: true,
+            email: true,
+            subscriptions: {
+              planId: true,
+              status: true,
+            },
+          },
         },
       },
     });
@@ -114,7 +132,13 @@ export class ProjectsService {
       skip,
       take: limit,
       order: { project_id: 'ASC' },
-      relations: ['currency', 'client'], // Добавляем связь с валютой и клиентом
+      relations: [
+        'currency',
+        'client',
+        'members',
+        'members.user',
+        'members.user.subscriptions',
+      ], // Добавляем связь с валютой и клиентом
       select: {
         rate: true,
         project_id: true,
@@ -129,6 +153,18 @@ export class ProjectsService {
           client_id: true,
           name: true,
           contact_info: true,
+        },
+        members: {
+          role: true,
+          user: {
+            user_id: true,
+            name: true,
+            email: true,
+            subscriptions: {
+              status: true,
+              planId: true,
+            },
+          },
         },
       },
     });

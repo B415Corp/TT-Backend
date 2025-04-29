@@ -92,43 +92,43 @@ export class UsersController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user details' })
-  @ApiResponse({ status: 200, type: User })
+  @ApiResponse({ status: 200, type: UserTypeDto })
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async me(@GetUser() user: User) {
-    return this.usersService.findById(user.user_id);
+  async me(@GetUser() user: User): Promise<UserTypeDto> {
+    return this.usersService.findById(user.user_id) as Promise<UserTypeDto>;
   }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a user by ID' })
-  @ApiResponse({ status: 200, type: User })
+  @ApiResponse({ status: 200, type: UserTypeDto })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiErrorResponses()
-  async findOne(@Param('id') id: string) {
-    return this.usersService.findById(id);
+  async findOne(@Param('id') id: string): Promise<UserTypeDto> {
+    return this.usersService.findById(id) as Promise<UserTypeDto>;
   }
 
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, type: User })
+  @ApiOperation({ summary: 'Find a user by ID' })
+  @ApiResponse({ status: 200, type: UserTypeDto })
   @Get('find/:id')
-  async findUser(@GetUser() user: User, @Param('id') id: string) {
+  async findUser(@GetUser() user: User, @Param('id') id: string): Promise<UserTypeDto | undefined> {
     return this.usersService.findUser(id);
   }
 
   @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, type: User })
+  @ApiResponse({ status: 201, type: UserTypeDto })
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async register(@Body() createUserDto: CreateUserDto): Promise<UserTypeDto> {
+    return this.usersService.create(createUserDto) as Promise<UserTypeDto>;
   }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user details' })
-  @ApiResponse({ status: 200, type: User })
+  @ApiResponse({ status: 200, type: UserTypeDto })
   @UseGuards(JwtAuthGuard)
   @Patch('me')
-  async update(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto) {
+  async update(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto): Promise<UserTypeDto> {
     return this.usersService.update(user.user_id, updateUserDto);
   }
 }
