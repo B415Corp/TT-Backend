@@ -122,6 +122,7 @@ export class TasksService {
           currency_id: true,
           code: true,
           name: true,
+          symbol: true,
         },
         taskStatus: {
           id: true,

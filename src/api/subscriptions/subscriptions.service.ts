@@ -46,9 +46,16 @@ export class SubscriptionsService {
     user_id: string,
     plan: SubscriptionType
   ): Promise<Subscription> {
-    const subscription = await this.getActiveSubscription(user_id);
-    if (subscription) {
-      throw new NotFoundException(ErrorMessages.SUBSCR_ALREADY_EXISTS);
+    const currentSubscription = await this.getActiveSubscription(user_id);
+    if (currentSubscription) {
+      // Если уже есть активная подписка на этот же план — ошибка
+      if (currentSubscription.planId === plan) {
+        throw new NotFoundException(ErrorMessages.SUBSCR_ALREADY_EXISTS);
+      }
+      // Иначе отменяем старую и создаём новую
+      currentSubscription.status = 'canceled';
+      currentSubscription.endDate = new Date();
+      await this.subscriptionRepository.save(currentSubscription);
     }
 
     const user = await this.userRepository.findOneBy({ user_id });
