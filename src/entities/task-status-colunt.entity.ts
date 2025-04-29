@@ -50,7 +50,7 @@ export class TaskStatusColumn {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Project, (project) => project.taskStatus)
+  @ManyToOne(() => Project, (project) => project.taskStatus, { onDelete: 'CASCADE' })
   @JoinColumn()
   project: Project;
 

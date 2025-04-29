@@ -73,7 +73,7 @@ export class ProjectsService {
   async findById(id: string): Promise<Project> {
     const project = await this.projectRepository.findOne({
       where: { project_id: id },
-      relations: ['currency', 'client'],
+      relations: ['currency', 'client', 'members', 'members.user'],
       select: {
         rate: true,
         project_id: true,

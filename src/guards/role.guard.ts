@@ -94,7 +94,7 @@ export class RoleGuard implements CanActivate {
     userId: string
   ): Promise<ProjectMember> {
     const projectShared = await this.projectMemberRepository.findOne({
-      where: { project_id: projectId, user_id: userId },
+      where: { project_id: projectId, user_id: userId, approve: true },
     });
     return projectShared;
   }
