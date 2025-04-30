@@ -111,15 +111,19 @@ export class FriendshipService {
       }, 86400000) // 1 день в миллисекундах
     );
 
+
+    // Сохраняем новый запрос на дружбу в базе данных
+    const savedFriendship = await this.friendshipRepository.save(newFriendship);
+
     // Создаем уведомление для получателя запроса на дружбу
     await this.notificationService.createNotification(
       recipient_id,
       `Пользователь {${sender_name}:${sender_id}} отправил вам заявку в друзья`,
-      NotificationType.FRIENDSHIP_INVITATION
+      NotificationType.FRIENDSHIP_INVITATION,
+      JSON.stringify(savedFriendship)
     );
 
-    // Сохраняем новый запрос на дружбу в базе данных
-    return this.friendshipRepository.save(newFriendship);
+    return savedFriendship
   }
 
   async accept(friendship_id: string, user_id: string): Promise<Friendship> {
