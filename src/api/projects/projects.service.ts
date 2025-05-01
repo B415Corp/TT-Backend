@@ -71,7 +71,7 @@ export class ProjectsService {
   }
 
   async findById(id: string): Promise<Project> {
-    const project = await this.projectRepository.findOne({
+    const project = await this.projectRepository.find({
       where: { project_id: id },
       relations: [
         'currency',
@@ -112,62 +112,37 @@ export class ProjectsService {
     if (!project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(id));
     }
-    return project;
+
+    return project[0];
   }
 
-  async findMyProjects(
-    key: keyof Project,
-    value: string,
-    paginationQuery: PaginationQueryDto
-  ) {
-    if (!value || !key) {
-      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(''));
-    }
-
+  async findMyProjects(user_id: string, paginationQuery: PaginationQueryDto) {
     const { page, limit } = paginationQuery;
     const skip = (page - 1) * limit;
 
-    const [projects, total] = await this.projectRepository.findAndCount({
-      where: { [key]: value },
-      skip,
-      take: limit,
-      order: { project_id: 'ASC' },
-      relations: [
-        'currency',
-        'client',
-        'members',
-        'members.user',
-        'members.user.subscriptions',
-      ], // Добавляем связь с валютой и клиентом
-      select: {
-        rate: true,
-        project_id: true,
-        name: true,
-        created_at: true,
-        currency: {
-          name: true,
-          code: true,
-          symbol: true,
-        },
-        client: {
-          client_id: true,
-          name: true,
-          contact_info: true,
-        },
-        members: {
-          role: true,
-          user: {
-            user_id: true,
-            name: true,
-            email: true,
-            subscriptions: {
-              status: true,
-              planId: true,
-            },
-          },
-        },
-      },
-    });
+    const qb = this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.currency', 'currency')
+      .leftJoinAndSelect('project.client', 'client')
+      .leftJoinAndSelect('project.members', 'members')
+      .leftJoinAndSelect('members.user', 'user')
+      .leftJoinAndSelect('user.subscriptions', 'subscriptions')
+      .where((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('member.project_id')
+          .from('project_members', 'member') // укажите реальное имя таблицы связей members, если отличается
+          .leftJoin('member.user', 'memberUser')
+          .where('memberUser.user_id = :user_id', { user_id })
+          .andWhere('member.approve = true')
+          .getQuery();
+        return 'project.project_id IN ' + subQuery;
+      })
+      .orderBy('project.project_id', 'ASC')
+      .skip(skip)
+      .take(limit);
+
+    const [projects, total] = await qb.getManyAndCount();
 
     return [projects, total];
   }

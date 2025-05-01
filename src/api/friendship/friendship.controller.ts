@@ -38,8 +38,8 @@ export class FriendshipController {
   @ApiResponse({ status: 200, type: Friendship, isArray: true })
   @UseGuards(JwtAuthGuard)
   @Get('/me')
-  async search(@GetUser() user: User): Promise<Friendship[]> {
-    return this.friendshipService.findAll(user.user_id);
+  async search(@GetUser() user: User) {
+    return this.friendshipService.invitedFriends(user.user_id);
   }
 
   @ApiOkResponse({ type: PaginatedResponseDto<Friendship> })

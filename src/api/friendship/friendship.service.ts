@@ -267,18 +267,22 @@ export class FriendshipService {
   }
 
   async getFriends(user_id: string, paginationQuery: FindFriendshipDto) {
-    const { page, limit } = paginationQuery;
+    const { page, limit, status } = paginationQuery;
     const skip = (page - 1) * limit;
 
+    // Базовые условия: дружба, где пользователь - отправитель или получатель
+    const baseWhere = [{ sender: { user_id } }, { recipient: { user_id } }];
+
+    // Добавляем фильтрацию по статусу, если он указан
+    const where = status
+      ? baseWhere.map((condition) => ({
+          ...condition,
+          status,
+        }))
+      : baseWhere;
+
     const [friendships, total] = await this.friendshipRepository.findAndCount({
-      where: [
-        {
-          sender: { user_id },
-        },
-        {
-          recipient: { user_id },
-        },
-      ],
+      where,
       skip,
       take: limit,
       order: { created_at: 'ASC' },
@@ -298,6 +302,66 @@ export class FriendshipService {
     });
 
     return [friendships, total];
+  }
+
+  async invitedFriends(user_id: string) {
+    // Получаем все дружбы, где пользователь - отправитель или получатель, и статус ACCEPTED
+    const friendships = await this.friendshipRepository.find({
+      where: [
+        { recipient: { user_id }, status: FriendshipStatus.ACCEPTED },
+        { sender: { user_id }, status: FriendshipStatus.ACCEPTED },
+      ],
+      relations: ['sender', 'recipient'],
+      select: {
+        friendship_id: true,
+        status: true,
+        created_at: true,
+        updated_at: true,
+        sender: {
+          user_id: true,
+          name: true,
+          email: true,
+        },
+        recipient: {
+          user_id: true,
+          name: true,
+          email: true,
+        },
+      },
+    });
+
+    // Формируем список друзей, исключая самого пользователя
+    const friends = friendships.map((friendship) => {
+      // Если текущий пользователь - отправитель, то друг - получатель
+      if (friendship.sender.user_id === user_id) {
+        return {
+          friendship_id: friendship.friendship_id,
+          status: friendship.status,
+          created_at: friendship.created_at,
+          updated_at: friendship.updated_at,
+          friend: {
+            user_id: friendship.recipient.user_id,
+            name: friendship.recipient.name,
+            email: friendship.recipient.email,
+          },
+        };
+      } else {
+        // Иначе друг - отправитель
+        return {
+          friendship_id: friendship.friendship_id,
+          status: friendship.status,
+          created_at: friendship.created_at,
+          updated_at: friendship.updated_at,
+          friend: {
+            user_id: friendship.sender.user_id,
+            name: friendship.sender.name,
+            email: friendship.sender.email,
+          },
+        };
+      }
+    });
+
+    return friends;
   }
 
   async getPendingFriendshipRequests(user_id: string): Promise<Friendship[]> {
