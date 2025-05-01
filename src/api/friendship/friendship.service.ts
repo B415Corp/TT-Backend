@@ -12,7 +12,7 @@ import { Repository } from 'typeorm';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from 'src/common/enums/notification-type.enum';
-import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
+import { FindFriendshipDto } from './dto/find-friendship.dto';
 
 @Injectable()
 export class FriendshipService {
@@ -266,7 +266,7 @@ export class FriendshipService {
     );
   }
 
-  async getFriends(user_id: string, paginationQuery: PaginationQueryDto) {
+  async getFriends(user_id: string, paginationQuery: FindFriendshipDto) {
     const { page, limit } = paginationQuery;
     const skip = (page - 1) * limit;
 
@@ -296,17 +296,6 @@ export class FriendshipService {
         },
       },
     });
-
-    // // Создаем массив друзей, включая отправителей и получателей
-    // const friends = friendships.flatMap((friendship) => [
-    //   friendship.sender,
-    //   friendship.recipient,
-    // ]);
-
-    // // Фильтруем текущего пользователя и удаляем дубликаты
-    // const uniqueFriends = Array.from(
-    //   new Set(friends.filter((friend) => friend.user_id !== user_id))
-    // );
 
     return [friendships, total];
   }

@@ -6,22 +6,23 @@ import {
   Delete,
   Param,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { FriendshipService } from './friendship.service';
 import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/entities/user.entity';
 import { Friendship } from 'src/entities/friend.entity';
-import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
-import { Paginate, PaginationParams } from 'src/decorators/paginate.decorator';
+import { Paginate } from 'src/decorators/paginate.decorator';
 import { PaginatedResponseDto } from 'src/common/pagination/paginated-response.dto';
+import { ApiPagination } from 'src/decorators/api-pagination.decorator';
+import { FindFriendshipDto } from './dto/find-friendship.dto';
 
 @Controller('friendship')
 export class FriendshipController {
@@ -45,20 +46,13 @@ export class FriendshipController {
     summary: 'Get my friends',
     description: 'Get user friends',
   })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number',
-  })
+  @ApiResponse({ status: 200, type: Friendship, isArray: true })
   @UseGuards(JwtAuthGuard)
   @Get('/friends')
+  @ApiPagination()
   @Paginate()
-  async getFriends(
-    @GetUser() user: User,
-    @PaginationParams() paginationQuery: PaginationQueryDto
-  ) {
-    return this.friendshipService.getFriends(user.user_id, paginationQuery);
+  async getFriends(@GetUser() user: User, @Query() dto: FindFriendshipDto) {
+    return this.friendshipService.getFriends(user.user_id, dto);
   }
 
   @ApiBearerAuth()
