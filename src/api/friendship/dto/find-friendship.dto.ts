@@ -1,10 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsOptional } from 'class-validator';
 import { FriendshipStatus } from 'src/common/enums/friendship-status.enum';
 import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
 
 export class FindFriendshipDto extends PaginationQueryDto  {
-  @ApiProperty({ enum: FriendshipStatus })
+  @ApiPropertyOptional({ enum: FriendshipStatus })
   @IsEnum(FriendshipStatus)
-  status: FriendshipStatus;
+  @IsOptional()
+  status?: FriendshipStatus;
 }

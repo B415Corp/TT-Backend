@@ -23,6 +23,8 @@ import { Paginate } from 'src/decorators/paginate.decorator';
 import { PaginatedResponseDto } from 'src/common/pagination/paginated-response.dto';
 import { ApiPagination } from 'src/decorators/api-pagination.decorator';
 import { FindFriendshipDto } from './dto/find-friendship.dto';
+import { ApiQuery } from '@nestjs/swagger';
+import { FriendshipStatus } from 'src/common/enums/friendship-status.enum';
 
 @Controller('friendship')
 export class FriendshipController {
@@ -50,6 +52,7 @@ export class FriendshipController {
   @UseGuards(JwtAuthGuard)
   @Get('/friends')
   @ApiPagination()
+  @ApiQuery({ name: 'status', enum: FriendshipStatus, required: false })
   @Paginate()
   async getFriends(@GetUser() user: User, @Query() dto: FindFriendshipDto) {
     return this.friendshipService.getFriends(user.user_id, dto);

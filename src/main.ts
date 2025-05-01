@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new (await import('@nestjs/common')).ValidationPipe({ transform: true }));
   const logger = new Logger('Bootstrap');
   logger.log('Application is starting...');
 
