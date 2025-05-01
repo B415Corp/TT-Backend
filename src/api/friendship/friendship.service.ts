@@ -8,10 +8,11 @@ import { FriendshipStatus } from 'src/common/enums/friendship-status.enum';
 import { ErrorMessages } from 'src/common/error-messages';
 import { Friendship } from 'src/entities/friend.entity';
 import { Repository } from 'typeorm';
-import { User } from 'src/entities/user.entity';
+// import { User } from 'src/entities/user.entity';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from 'src/common/enums/notification-type.enum';
+import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
 
 @Injectable()
 export class FriendshipService {
@@ -62,6 +63,37 @@ export class FriendshipService {
     return data;
   }
 
+  async findByUserId(user_id: string): Promise<Friendship> {
+    const data = await this.friendshipRepository.findOne({
+      where: [
+        {
+          sender: { user_id },
+          recipient: { user_id },
+        },
+        {
+          sender: { user_id },
+          recipient: { user_id },
+        },
+      ],
+      relations: ['recipient'],
+      select: {
+        friendship_id: true,
+        status: true,
+        created_at: true,
+        updated_at: true,
+        sender: {
+          user_id: true,
+          name: true,
+          email: true,
+        },
+      },
+    });
+    if (!data) {
+      return null;
+    }
+    return data;
+  }
+
   async create(
     sender_id: string,
     recipient_id: string,
@@ -103,17 +135,16 @@ export class FriendshipService {
       status: FriendshipStatus.PENDING,
     });
 
-    // Запланировать удаление запроса на дружбу через 1 день, если он не будет принят
-    this.schedulerRegistry.addTimeout(
-      `delete-friendship-${newFriendship.friendship_id}`,
-      setTimeout(() => {
-        this.friendshipRepository.delete(newFriendship.friendship_id);
-      }, 86400000) // 1 день в миллисекундах
-    );
-
-
     // Сохраняем новый запрос на дружбу в базе данных
     const savedFriendship = await this.friendshipRepository.save(newFriendship);
+
+    // Запланировать удаление запроса на дружбу через 1 день, если он не будет принят
+    this.schedulerRegistry.addTimeout(
+      `delete-friendship-${savedFriendship.friendship_id}`,
+      setTimeout(() => {
+        this.friendshipRepository.delete(savedFriendship.friendship_id);
+      }, 86400000) // 1 день в миллисекундах
+    );
 
     // Создаем уведомление для получателя запроса на дружбу
     await this.notificationService.createNotification(
@@ -123,7 +154,7 @@ export class FriendshipService {
       JSON.stringify(savedFriendship)
     );
 
-    return savedFriendship
+    return savedFriendship;
   }
 
   async accept(friendship_id: string, user_id: string): Promise<Friendship> {
@@ -200,13 +231,31 @@ export class FriendshipService {
 
   async cancel(id: string, user_id: string): Promise<void> {
     const data = await this.friendshipRepository.findOne({
-      where: { friendship_id: id, sender: { user_id } },
+      where: [
+        { friendship_id: id, sender: { user_id } },
+        { friendship_id: id, recipient: { user_id } },
+      ],
     });
     if (!data) {
       throw new NotFoundException(ErrorMessages.FRIENDSHIP_NOT_FOUND);
     }
     data.deleted_at = new Date();
     await this.friendshipRepository.save(data);
+
+    // Получаем запрос на дружбу по идентификатору
+    const friendship = await this.friendshipRepository.findOne({
+      where: { friendship_id: id },
+      relations: ['sender', 'recipient'],
+    });
+
+    // Создаем уведомление для отправителя о том, что пользователь отказался в дружбе
+    await this.notificationService.createNotification(
+      user_id === friendship.sender.user_id
+        ? friendship.recipient.user_id
+        : friendship.sender.user_id,
+      `Пользователь {${friendship.recipient.name}:${friendship.recipient.user_id}} отклонил вашу заявку в друзья`,
+      NotificationType.FRIENDSHIP_INVITATION_DECLINED
+    );
 
     // Schedule the deletion of the friendship after 1 day
     this.schedulerRegistry.addTimeout(
@@ -217,12 +266,22 @@ export class FriendshipService {
     );
   }
 
-  async getFriends(user_id: string): Promise<User[]> {
-    const friendships = await this.friendshipRepository.find({
+  async getFriends(user_id: string, paginationQuery: PaginationQueryDto) {
+    const { page, limit } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [friendships, total] = await this.friendshipRepository.findAndCount({
       where: [
-        { sender: { user_id }, status: FriendshipStatus.ACCEPTED },
-        { recipient: { user_id }, status: FriendshipStatus.ACCEPTED },
+        {
+          sender: { user_id },
+        },
+        {
+          recipient: { user_id },
+        },
       ],
+      skip,
+      take: limit,
+      order: { created_at: 'ASC' },
       relations: ['sender', 'recipient'],
       select: {
         sender: {
@@ -238,18 +297,18 @@ export class FriendshipService {
       },
     });
 
-    // Создаем массив друзей, включая отправителей и получателей
-    const friends = friendships.flatMap((friendship) => [
-      friendship.sender,
-      friendship.recipient,
-    ]);
+    // // Создаем массив друзей, включая отправителей и получателей
+    // const friends = friendships.flatMap((friendship) => [
+    //   friendship.sender,
+    //   friendship.recipient,
+    // ]);
 
-    // Фильтруем текущего пользователя и удаляем дубликаты
-    const uniqueFriends = Array.from(
-      new Set(friends.filter((friend) => friend.user_id !== user_id))
-    );
+    // // Фильтруем текущего пользователя и удаляем дубликаты
+    // const uniqueFriends = Array.from(
+    //   new Set(friends.filter((friend) => friend.user_id !== user_id))
+    // );
 
-    return uniqueFriends;
+    return [friendships, total];
   }
 
   async getPendingFriendshipRequests(user_id: string): Promise<Friendship[]> {

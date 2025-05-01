@@ -8,11 +8,20 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { FriendshipService } from './friendship.service';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/entities/user.entity';
 import { Friendship } from 'src/entities/friend.entity';
+import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
+import { Paginate, PaginationParams } from 'src/decorators/paginate.decorator';
+import { PaginatedResponseDto } from 'src/common/pagination/paginated-response.dto';
 
 @Controller('friendship')
 export class FriendshipController {
@@ -28,6 +37,40 @@ export class FriendshipController {
   @Get('/me')
   async search(@GetUser() user: User): Promise<Friendship[]> {
     return this.friendshipService.findAll(user.user_id);
+  }
+
+  @ApiOkResponse({ type: PaginatedResponseDto<Friendship> })
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get my friends',
+    description: 'Get user friends',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number',
+  })
+  @UseGuards(JwtAuthGuard)
+  @Get('/friends')
+  @Paginate()
+  async getFriends(
+    @GetUser() user: User,
+    @PaginationParams() paginationQuery: PaginationQueryDto
+  ) {
+    return this.friendshipService.getFriends(user.user_id, paginationQuery);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get my friendships',
+    description: 'Get user friendships',
+  })
+  @ApiResponse({ status: 200, type: Friendship, isArray: true })
+  @UseGuards(JwtAuthGuard)
+  @Get('/:user_id')
+  async getByUserId(@Param('friendId') friendId: string): Promise<Friendship> {
+    return this.friendshipService.findByUserId(friendId);
   }
 
   @ApiBearerAuth()
@@ -65,14 +108,14 @@ export class FriendshipController {
     summary: 'Decline a friendship request',
     description: 'Decline a friendship request',
   })
-  @ApiResponse({ status: 200, type: Friendship })
+  @ApiResponse({ status: 204 })
   @UseGuards(JwtAuthGuard)
   @Put('/decline/:id')
   async declineRequest(
     @GetUser() user: User,
     @Param('id') id: string
-  ): Promise<Friendship> {
-    return this.friendshipService.decline(id, user.user_id);
+  ): Promise<void> {
+    await this.friendshipService.decline(id, user.user_id);
   }
 
   @ApiBearerAuth()
@@ -88,18 +131,6 @@ export class FriendshipController {
     @Param('id') id: string
   ): Promise<void> {
     return this.friendshipService.cancel(id, user.user_id);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Get my friends',
-    description: 'Get user friends',
-  })
-  @ApiResponse({ status: 200, type: User, isArray: true })
-  @UseGuards(JwtAuthGuard)
-  @Get('/friends')
-  async getFriends(@GetUser() user: User): Promise<User[]> {
-    return this.friendshipService.getFriends(user.user_id);
   }
 
   @ApiBearerAuth()
