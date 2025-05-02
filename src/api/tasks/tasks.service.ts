@@ -108,7 +108,13 @@ export class TasksService {
   async findById(id: string): Promise<Task> {
     const task = await this.taskRepository.findOne({
       where: { task_id: id },
-      relations: ['currency', 'taskStatus', 'taskStatus.taskStatusColumn'],
+      relations: [
+        'currency',
+        'taskStatus',
+        'taskMembers',
+        'taskMembers.user',
+        'taskStatus.taskStatusColumn',
+      ],
       select: {
         task_id: true,
         name: true,
@@ -148,39 +154,32 @@ export class TasksService {
     const { page, limit } = paginationQuery;
     const skip = (page - 1) * limit;
 
-    const [data, total] = await this.taskRepository.findAndCount({
-      where: { project_id: project_id, user_id: userId },
-      skip,
-      take: limit,
-      order: { created_at: 'DESC' },
-      relations: ['currency', 'taskStatus', 'taskStatus.taskStatusColumn'],
-      select: {
-        task_id: true,
-        name: true,
-        description: true,
-        is_paid: true,
-        payment_type: true,
-        order: true,
-        rate: true,
-        created_at: true,
-        currency: {
-          symbol: true,
-          currency_id: true,
-          code: true,
-          name: true,
-        },
-        taskStatus: {
-          id: true,
-          taskStatusColumn: {
-            name: true,
-            id: true,
-            color: true,
-          },
-        },
-      },
-    });
-    console.log('findByProjectId', data);
-    return [data, total];
+    const qb = this.taskRepository
+      .createQueryBuilder('task')
+      .leftJoinAndSelect('task.currency', 'currency')
+      .leftJoinAndSelect('task.taskStatus', 'taskStatus')
+      .leftJoinAndSelect('taskStatus.taskStatusColumn', 'taskStatusColumn')
+      .leftJoinAndSelect('task.taskMembers', 'taskMembers')
+      .leftJoinAndSelect('taskMembers.user', 'taskMemberUser')
+      .where('task.project_id = :project_id', { project_id })
+      // .andWhere('task.user_id = :userId', { userId })
+      // Фильтрация по участнику (можно сделать через подзапрос или через JOIN)
+      .andWhere((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('tm.task_id')
+          .from('task_members', 'tm') // укажите реальное имя таблицы связей
+          .leftJoin('tm.user', 'tmUser')
+          .where('tmUser.user_id = :userId', { userId })
+          .getQuery();
+        return 'task.task_id IN ' + subQuery;
+      })
+      .orderBy('task.created_at', 'DESC')
+      .skip(skip)
+      .take(limit);
+
+    const [tasks, total] = await qb.getManyAndCount();
+    return [tasks, total];
   }
 
   async update(id: string, dto: UpdateTaskDto): Promise<Task> {
@@ -243,8 +242,6 @@ export class TasksService {
     if (project.user_owner_id !== task.user_id) {
       throw new NotFoundException(ErrorMessages.UNAUTHORIZED);
     }
-
-    console.log('task', task);
 
     return this.taskRepository.save(task);
   }
@@ -323,8 +320,14 @@ export class TasksService {
     }
 
     return this.taskRepository.find({
-      where: { user_id: userId },
-      relations: ['currency', 'taskStatus', 'taskStatus.taskStatusColumn'],
+      where: { user_id: userId, taskMembers: { user: { user_id: userId } } },
+      relations: [
+        'currency',
+        'taskStatus',
+        'taskMembers',
+        'taskMembers.user',
+        'taskStatus.taskStatusColumn',
+      ],
       select: {
         task_id: true,
         name: true,
@@ -345,6 +348,14 @@ export class TasksService {
             id: true,
             name: true,
             color: true,
+          },
+        },
+        taskMembers: {
+          member_id: true,
+          user: {
+            user_id: true,
+            name: true,
+            email: true,
           },
         },
       },

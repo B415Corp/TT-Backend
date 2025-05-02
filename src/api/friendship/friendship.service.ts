@@ -63,25 +63,30 @@ export class FriendshipService {
     return data;
   }
 
-  async findByUserId(user_id: string): Promise<Friendship> {
+  async findByUserId(user_id: string, me_id: string): Promise<Friendship> {
     const data = await this.friendshipRepository.findOne({
       where: [
         {
-          sender: { user_id },
-          recipient: { user_id },
+          sender: { user_id: user_id },
+          recipient: { user_id: me_id },
         },
         {
-          sender: { user_id },
-          recipient: { user_id },
+          sender: { user_id: me_id },
+          recipient: { user_id: user_id },
         },
       ],
-      relations: ['recipient'],
+      relations: ['recipient', 'sender', 'taskMembers'],
       select: {
         friendship_id: true,
         status: true,
         created_at: true,
         updated_at: true,
         sender: {
+          user_id: true,
+          name: true,
+          email: true,
+        },
+        recipient: {
           user_id: true,
           name: true,
           email: true,

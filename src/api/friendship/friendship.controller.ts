@@ -66,8 +66,11 @@ export class FriendshipController {
   @ApiResponse({ status: 200, type: Friendship, isArray: true })
   @UseGuards(JwtAuthGuard)
   @Get('/:user_id')
-  async getByUserId(@Param('friendId') friendId: string): Promise<Friendship> {
-    return this.friendshipService.findByUserId(friendId);
+  async getByUserId(
+    @Param('friendId') friendId: string,
+    @GetUser() user: User
+  ): Promise<Friendship> {
+    return this.friendshipService.findByUserId(friendId, user.user_id);
   }
 
   @ApiBearerAuth()

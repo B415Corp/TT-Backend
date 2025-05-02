@@ -97,6 +97,7 @@ export class ProjectsService {
         },
         members: {
           role: true,
+          approve: true,
           user: {
             user_id: true,
             name: true,
@@ -143,7 +144,6 @@ export class ProjectsService {
       .take(limit);
 
     const [projects, total] = await qb.getManyAndCount();
-
     return [projects, total];
   }
 
