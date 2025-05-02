@@ -126,6 +126,7 @@ export class TasksService {
         'currency',
         'taskStatus',
         'taskMembers',
+        'project',
         'taskMembers.user',
         'taskStatus.taskStatusColumn',
       ],
@@ -138,6 +139,7 @@ export class TasksService {
         order: true,
         rate: true,
         created_at: true,
+        project_id: true,
         currency: {
           currency_id: true,
           code: true,
@@ -152,6 +154,12 @@ export class TasksService {
             color: true,
           },
         },
+        project: {
+          project_id: true,
+          created_at: true,
+          name: true,
+        },
+        
       },
     });
     if (!task) {
@@ -175,6 +183,7 @@ export class TasksService {
       .leftJoinAndSelect('taskStatus.taskStatusColumn', 'taskStatusColumn')
       .leftJoinAndSelect('task.taskMembers', 'taskMembers')
       .leftJoinAndSelect('taskMembers.user', 'taskMemberUser')
+      .leftJoinAndSelect('task.project', 'project')
       .where('task.project_id = :project_id', { project_id })
       // .andWhere('task.user_id = :userId', { userId })
       // Фильтрация по участнику (можно сделать через подзапрос или через JOIN)
@@ -193,8 +202,20 @@ export class TasksService {
       .take(limit);
 
     const [tasks, total] = await qb.getManyAndCount();
-    console.log('tasks', tasks);
-    return [tasks, total];
+
+    // Исключаем владельца проекта из taskMembers
+    const filteredTasks = tasks.map((task: any) => {
+      // project может быть null, но по логике задачи всегда должен быть
+      const ownerId = task.project?.user_owner_id;
+      if (Array.isArray(task.taskMembers) && ownerId) {
+        task.taskMembers = task.taskMembers.filter(
+          (member: any) => member.user?.user_id !== ownerId
+        );
+      }
+      return task;
+    });
+
+    return [filteredTasks, total];
   }
 
   async update(id: string, dto: UpdateTaskDto): Promise<Task> {

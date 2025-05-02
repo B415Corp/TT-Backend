@@ -35,7 +35,7 @@ import { TasksService } from './tasks.service';
 @ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) { }
+  constructor(private readonly tasksService: TasksService) {}
 
   @Version('2')
   @ApiBearerAuth()
@@ -114,8 +114,6 @@ export class TasksController {
   async getTasksByUserId(@GetUser() user: User): Promise<Task[]> {
     return this.tasksService.findTasksByUserId(user.user_id);
   }
-
- 
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a task by ID' })

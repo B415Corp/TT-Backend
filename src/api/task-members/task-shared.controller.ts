@@ -52,7 +52,7 @@ export class TaskSharedController {
   @ApiOperation({ summary: 'Assign a user to a task' })
   @ApiResponse({ status: 201, description: 'User assigned to task.' })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'task')
   @Post(':taskId')
   async assignUserToTask(
     @Param('taskId') taskId: string,

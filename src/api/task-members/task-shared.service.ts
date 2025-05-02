@@ -9,7 +9,6 @@ import { TaskMember } from '../../entities/task-shared.entity';
 import { User } from '../../entities/user.entity';
 import { Task } from '../../entities/task.entity';
 import { ErrorMessages } from '../../common/error-messages';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
 import { ProjectSharedService } from '../project-shared/project-shared.service';
 import { ProjectMember } from 'src/entities/project-shared.entity';
 
