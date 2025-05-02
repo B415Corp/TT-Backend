@@ -39,11 +39,13 @@ export class TasksService {
     user_id: string,
     project_id: string
   ): Promise<Task> {
+    // Проверка проекта
     const project = await this.projectRepository.findOneBy({ project_id });
     if (!project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(project_id));
     }
 
+    // Проверка валюты
     const currencyExist = await this.currencyRepository.findOneBy({
       code: dto.currency_id,
     });
@@ -73,6 +75,7 @@ export class TasksService {
       }
     }
 
+    // Создаем задачу
     const task = this.taskRepository.create({
       ...dto,
       project_id,
@@ -80,12 +83,24 @@ export class TasksService {
       currency_id: currencyExist.currency_id,
     });
 
+    // Сохраняем задачу
     const savedTask = await this.taskRepository.save(task);
 
+    // Создаем связь между задачей и пользователем
     const taskMember = this.taskMemberRepository.create({
       task_id: savedTask.task_id,
       user_id: user_id,
     });
+    await this.taskMemberRepository.save(taskMember);
+
+    // Сохраняем связь между задачей и пользователем, если у проекта есть владелец
+    if (project.user_owner_id !== user_id) {
+      const taskMemberOwner = this.taskMemberRepository.create({
+        task_id: savedTask.task_id,
+        user_id: project.user_owner_id,
+      });
+      await this.taskMemberRepository.save(taskMemberOwner);
+    }
 
     // Получаем первую колонку статуса
     const taskStatusColumtItem =
@@ -100,8 +115,7 @@ export class TasksService {
       savedTask.taskStatus = taskStatus;
     }
 
-    await this.taskMemberRepository.save(taskMember);
-
+    // Возвращаем задачу
     return savedTask;
   }
 
@@ -179,6 +193,7 @@ export class TasksService {
       .take(limit);
 
     const [tasks, total] = await qb.getManyAndCount();
+    console.log('tasks', tasks);
     return [tasks, total];
   }
 

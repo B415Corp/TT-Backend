@@ -123,6 +123,14 @@ export class ProjectSharedService {
   ): Promise<ProjectMember[]> {
     return this.projectMemberRepository.find({
       where: { project_id: projectId },
+      relations: ['user'],
+      select: {
+        user: {
+          user_id: true,
+          email: true,
+          name: true,
+        },
+      },
     });
   }
 
