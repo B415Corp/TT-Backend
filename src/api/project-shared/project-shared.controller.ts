@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -108,5 +109,19 @@ export class ProjectMembersController {
       assignRoleDto.role,
       assignRoleDto.user_id
     );
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a user from a project' })
+  @ApiResponse({ status: 200, type: ProjectMember })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Delete(':project_id/:user_id')
+  async removeMember(
+    @Param('project_id') project_id: string,
+    @Param('user_id') user_id: string
+    // @GetUser() user: User
+  ) {
+    return this.projectMembersService.removeMember(project_id, user_id);
   }
 }

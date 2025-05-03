@@ -90,9 +90,9 @@ export class ProjectSharedService {
     return this.projectMemberRepository.save(projectMember);
   }
 
-  async removeMember(projectId: string, userId: string): Promise<void> {
+  async removeMember(project_id: string, user_id: string): Promise<void> {
     const projectMember = await this.projectMemberRepository.findOne({
-      where: { project_id: projectId, user_id: userId },
+      where: { project_id: project_id, user_id: user_id },
     });
 
     if (!projectMember) {
