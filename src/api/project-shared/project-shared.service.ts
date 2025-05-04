@@ -6,14 +6,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectRole } from 'src/common/enums/project-role.enum';
 import { Project } from 'src/entities/project.entity';
-import { In, Not, Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-shared.entity';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { ProjectWithMembersDto } from '../projects/dto/project-with-members.dto';
-import { FriendshipStatus } from 'src/common/enums/friendship-status.enum';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from 'src/common/enums/notification-type.enum';
+import { FriendshipService } from '../friendship/friendship.service';
 
 @Injectable()
 export class ProjectSharedService {
@@ -22,7 +22,8 @@ export class ProjectSharedService {
     private projectMemberRepository: Repository<ProjectMember>,
     @InjectRepository(Project)
     private projectRepository: Repository<Project>,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private friendshipService: FriendshipService
   ) {}
 
   async findProjectsWithMembers(
@@ -223,46 +224,7 @@ export class ProjectSharedService {
   }
 
   async getFriendsOnProject(user_id: string, project_id: string) {
-    const ownerFriends = await this.projectMemberRepository.find({
-      where: {
-        project_id: project_id,
-        role: In([ProjectRole.OWNER]),
-        user: {
-          user_id: user_id,
-          friendships: { status: FriendshipStatus.ACCEPTED },
-        },
-      },
-      relations: [
-        'user',
-        'user.friendships',
-        'user.friendships.sender',
-        'user.friendships.recipient',
-        'user.friendships.sender',
-        'user.friendships.recipient',
-      ],
-      select: {
-        role: true,
-        project_id: true,
-        user: {
-          user_id: true,
-          email: true,
-          name: true,
-          friendships: {
-            friendship_id: true,
-            sender: {
-              user_id: true,
-              name: true,
-              email: true,
-            },
-            recipient: {
-              user_id: true,
-              name: true,
-              email: true,
-            },
-          },
-        },
-      },
-    });
+    const usersFriends = await this.friendshipService.findAll(user_id);
 
     const projectMembers = await this.projectMemberRepository.find({
       where: {
@@ -271,35 +233,16 @@ export class ProjectSharedService {
       },
     });
 
-    const results = ownerFriends.map((item) => {
+    const _res = usersFriends.map((el) => {
       return {
-        project_id: item.project_id,
-        friends: item.user.friendships.map((_el) => {
-          if (_el.sender.user_id === item.user.user_id) {
-            const member = projectMembers.find(
-              (el) => el.user_id === _el.recipient.user_id
-            );
-            return {
-              ..._el.recipient,
-              in_project: member
-                ? { role: member.role, approve: member.approve }
-                : null,
-            };
-          } else {
-            const member = projectMembers.find(
-              (el) => el.user_id === _el.sender.user_id
-            );
-            return {
-              ..._el.sender,
-              in_project: member
-                ? { role: member.role, approve: member.approve }
-                : null,
-            };
-          }
-        }),
+        name: el.name,
+        user_id: el.user_id,
+        email: el.email,
+        in_project:
+          projectMembers.find((_el) => _el.user_id === el.user_id) || null,
       };
     });
 
-    return results[0];
+    return _res;
   }
 }

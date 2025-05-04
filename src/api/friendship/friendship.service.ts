@@ -23,10 +23,10 @@ export class FriendshipService {
     private notificationService: NotificationService
   ) {}
 
-  async findAll(user_id: string): Promise<Friendship[]> {
-    return this.friendshipRepository.find({
+  async findAll(user_id: string) {
+    const data = await this.friendshipRepository.find({
       where: [{ sender: { user_id } }, { recipient: { user_id } }],
-      relations: ['recipient', 'sender', 'sender.projects'],
+      relations: ['recipient', 'sender'],
       select: {
         friendship_id: true,
         status: true,
@@ -37,8 +37,21 @@ export class FriendshipService {
           name: true,
           email: true,
         },
+        sender: {
+          user_id: true,
+          name: true,
+          email: true,
+        },
       },
     });
+
+    const results = data.map((friendship) => {
+      return friendship.sender.user_id === user_id
+        ? friendship.recipient
+        : friendship.sender;
+    });
+
+    return results;
   }
 
   async findOne(id: string, user_id: string): Promise<Friendship> {
