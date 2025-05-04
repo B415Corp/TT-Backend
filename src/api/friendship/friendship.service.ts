@@ -25,8 +25,8 @@ export class FriendshipService {
 
   async findAll(user_id: string): Promise<Friendship[]> {
     return this.friendshipRepository.find({
-      where: { sender: { user_id } },
-      relations: ['recipient'],
+      where: [{ sender: { user_id } }, { recipient: { user_id } }],
+      relations: ['recipient', 'sender', 'sender.projects'],
       select: {
         friendship_id: true,
         status: true,

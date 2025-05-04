@@ -43,6 +43,17 @@ export class ProjectMembersController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get projects with members' })
+  @ApiResponse({ status: 200, type: [ProjectMember] })
+  @UseGuards(JwtAuthGuard)
+  @Get('invitations')
+  async getInvitations(
+    @GetUser() user: User
+  ): Promise<ProjectMember[]> {
+    return this.projectMembersService.getInvitations(user.user_id);
+  }
+
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get project members by approval status' })
   @ApiResponse({ status: 200, type: [ProjectMember] })
   @UseGuards(JwtAuthGuard)
@@ -51,6 +62,21 @@ export class ProjectMembersController {
     @Param('project_id') projectId: string
   ): Promise<ProjectMember[]> {
     return this.projectMembersService.getMembersByApprovalStatus(projectId);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get project members by approval status' })
+  @ApiResponse({ status: 200, type: [ProjectMember] })
+  @UseGuards(JwtAuthGuard)
+  @Get('/friends-on-project/:project_id')
+  async getFriendsOnProject(
+    @GetUser() user: User,
+    @Param('project_id') projectId: string
+  ) {
+    return this.projectMembersService.getFriendsOnProject(
+      user.user_id,
+      projectId
+    );
   }
 
   // @ApiBearerAuth()
@@ -119,9 +145,9 @@ export class ProjectMembersController {
   @Delete(':project_id/:user_id')
   async removeMember(
     @Param('project_id') project_id: string,
-    @Param('user_id') user_id: string
-    // @GetUser() user: User
+    @Param('user_id') user_id: string,
+    @GetUser() user: User
   ) {
-    return this.projectMembersService.removeMember(project_id, user_id);
+    return this.projectMembersService.removeMember(project_id, user_id, user.user_id);
   }
 }

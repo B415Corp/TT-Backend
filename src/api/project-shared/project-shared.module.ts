@@ -5,9 +5,15 @@ import { ProjectSharedService } from './project-shared.service';
 import { ProjectMembersController } from './project-shared.controller';
 import { Project } from 'src/entities/project.entity';
 import { Task } from 'src/entities/task.entity';
+import { FriendshipModule } from '../friendship/friendship.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProjectMember, Project, Task])],
+  imports: [
+    TypeOrmModule.forFeature([ProjectMember, Project, Task]),
+    FriendshipModule,
+    NotificationModule,
+  ],
   providers: [ProjectSharedService],
   controllers: [ProjectMembersController],
   exports: [ProjectSharedService, TypeOrmModule.forFeature([ProjectMember])],

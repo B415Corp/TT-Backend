@@ -6,11 +6,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectRole } from 'src/common/enums/project-role.enum';
 import { Project } from 'src/entities/project.entity';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-shared.entity';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { ProjectWithMembersDto } from '../projects/dto/project-with-members.dto';
+import { FriendshipStatus } from 'src/common/enums/friendship-status.enum';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType } from 'src/common/enums/notification-type.enum';
 
 @Injectable()
 export class ProjectSharedService {
@@ -18,7 +21,8 @@ export class ProjectSharedService {
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>,
     @InjectRepository(Project)
-    private projectRepository: Repository<Project>
+    private projectRepository: Repository<Project>,
+    private notificationService: NotificationService
   ) {}
 
   async findProjectsWithMembers(
@@ -37,6 +41,15 @@ export class ProjectSharedService {
     }));
   }
 
+  async getInvitations(userId: string): Promise<ProjectMember[]> {
+    return this.projectMemberRepository.find({
+      where: {
+        user_id: userId,
+        approve: false,
+      },
+    });
+  }
+
   // Метод assignRole назначает роль участнику проекта.
   async assignRole(
     projectId: string,
@@ -49,6 +62,7 @@ export class ProjectSharedService {
         project_id: projectId,
         user_owner_id: ownerId,
       },
+      relations: ['user'],
     });
 
     // Если проект не найден, выбрасываем исключение.
@@ -75,6 +89,13 @@ export class ProjectSharedService {
       where: { project_id: projectId, user_id: assignRoleDto.user_id },
     });
 
+    await this.notificationService.createNotification(
+      assignRoleDto.user_id,
+      `Пользователь {${project.user.name}:${project.user.user_id}} пригласил вас в проект ${project.name}`,
+      NotificationType.PROJECT_INVITATION,
+      ''
+    );
+
     // Если участник не найден, создаем нового участника.
     if (!projectMember) {
       const newProjectMember = this.projectMemberRepository.create({
@@ -90,14 +111,31 @@ export class ProjectSharedService {
     return this.projectMemberRepository.save(projectMember);
   }
 
-  async removeMember(project_id: string, user_id: string): Promise<void> {
+  async removeMember(
+    project_id: string,
+    user_id: string,
+    user_me_id: string
+  ): Promise<void> {
     const projectMember = await this.projectMemberRepository.findOne({
       where: { project_id: project_id, user_id: user_id },
+      relations: ['project', 'user'],
+    });
+
+    const executerOnProject = await this.projectMemberRepository.findOne({
+      where: { project_id: project_id, user_id: user_me_id },
+      relations: ['project', 'user'],
     });
 
     if (!projectMember) {
       throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
     }
+
+    await this.notificationService.createNotification(
+      user_id,
+      `Пользователь {${executerOnProject.user.name}:${executerOnProject.user.user_id}} удалил вас из проекта ${projectMember.project.name}`,
+      NotificationType.PROJECT_INVITATION_ACCEPTED,
+      JSON.stringify(projectMember.project)
+    );
 
     await this.projectMemberRepository.delete(projectMember.member_id);
   }
@@ -109,10 +147,20 @@ export class ProjectSharedService {
     const projectMember = await this.projectMemberRepository.findOne({
       where: { project_id: projectId, user_id: userId },
     });
+    const projectOwner = await this.projectMemberRepository.findOne({
+      where: { project_id: projectId, role: ProjectRole.OWNER },
+    });
 
     if (!projectMember) {
       throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
     }
+
+    await this.notificationService.createNotification(
+      projectOwner.user.user_id,
+      `Пользователь {${projectMember.user.name}:${projectMember.user.user_id}} принял вашу приглашение в проект ${projectMember.project.name}`,
+      NotificationType.PROJECT_INVITATION_ACCEPTED,
+      ''
+    );
 
     projectMember.approve = true;
     return this.projectMemberRepository.save(projectMember);
@@ -172,5 +220,86 @@ export class ProjectSharedService {
     }
 
     return projectMember;
+  }
+
+  async getFriendsOnProject(user_id: string, project_id: string) {
+    const ownerFriends = await this.projectMemberRepository.find({
+      where: {
+        project_id: project_id,
+        role: In([ProjectRole.OWNER]),
+        user: {
+          user_id: user_id,
+          friendships: { status: FriendshipStatus.ACCEPTED },
+        },
+      },
+      relations: [
+        'user',
+        'user.friendships',
+        'user.friendships.sender',
+        'user.friendships.recipient',
+        'user.friendships.sender',
+        'user.friendships.recipient',
+      ],
+      select: {
+        role: true,
+        project_id: true,
+        user: {
+          user_id: true,
+          email: true,
+          name: true,
+          friendships: {
+            friendship_id: true,
+            sender: {
+              user_id: true,
+              name: true,
+              email: true,
+            },
+            recipient: {
+              user_id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+    });
+
+    const projectMembers = await this.projectMemberRepository.find({
+      where: {
+        project_id: project_id,
+        role: Not(ProjectRole.OWNER),
+      },
+    });
+
+    const results = ownerFriends.map((item) => {
+      return {
+        project_id: item.project_id,
+        friends: item.user.friendships.map((_el) => {
+          if (_el.sender.user_id === item.user.user_id) {
+            const member = projectMembers.find(
+              (el) => el.user_id === _el.recipient.user_id
+            );
+            return {
+              ..._el.recipient,
+              in_project: member
+                ? { role: member.role, approve: member.approve }
+                : null,
+            };
+          } else {
+            const member = projectMembers.find(
+              (el) => el.user_id === _el.sender.user_id
+            );
+            return {
+              ..._el.sender,
+              in_project: member
+                ? { role: member.role, approve: member.approve }
+                : null,
+            };
+          }
+        }),
+      };
+    });
+
+    return results[0];
   }
 }

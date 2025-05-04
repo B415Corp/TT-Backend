@@ -15,5 +15,6 @@ import { NotificationModule } from '../notification/notification.module';
   ],
   providers: [FriendshipService],
   controllers: [FriendshipController],
+  exports: [FriendshipService],
 })
 export class FriendshipModule {}

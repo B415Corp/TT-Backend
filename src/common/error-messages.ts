@@ -13,15 +13,14 @@ export const ErrorMessages = {
   PROJECT_NOT_FOUND: (id: string) => `Проект ${id} не найден`,
   PROJECT_NAME_EXISTS: 'Проект с таким названием уже существует',
   PROJECT_NO_ACCESS: 'Проект не найден либо вы не являетесь его владельцем',
-  PROJECT_MEMBER_NOT_FOUND:
-    'У вас нет прав на изменение или удаление этого проекта',
+  PROJECT_MEMBER_NOT_FOUND: 'Не найден участник проекта с указанным user_id',
   // Дружба
   FRIENDSHIP_NOT_FOUND: 'Такой связи с пользователем не найдено',
   FRIENDSHIP_INVITE_EXIST: 'Запрос дружбы уже отправлен',
   FRIENDSHIP_EXIST: `Этот пользователь уже добавлен в друзья`,
   FRIENDSHIP_SELF: `Вы не можете отправить запрос дружбы самому себе`,
-  FRIENDSHIP_NOT_RECEIVER:'Пользователь не является получателем запроса',
-  FRIENDSHIP_ALREADY_HANDLED:'Запроса на дружбу уже "в ожидании"',
+  FRIENDSHIP_NOT_RECEIVER: 'Пользователь не является получателем запроса',
+  FRIENDSHIP_ALREADY_HANDLED: 'Запроса на дружбу уже "в ожидании"',
   // Задачи
   TASK_NOT_FOUND: (id: string) => `Задача ${id} не найдена`,
   NO_TASKS_FOUND: 'Задачи не найдены',
