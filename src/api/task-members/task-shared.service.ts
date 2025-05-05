@@ -48,7 +48,13 @@ export class TaskSharedService {
       user_id: userId,
     });
 
-    return this.taskMemberRepository.save(taskMember);
+    // Получаем роль пользователя в проекте
+    const projectMember = await this.projectMembersService.getUserRoleInProject(
+      task.project_id,
+      userId
+    );
+
+    return this.taskMemberRepository.save({ ...taskMember, projectMember });
   }
 
   async removeUserFromTask(taskId: string, userId: string): Promise<void> {

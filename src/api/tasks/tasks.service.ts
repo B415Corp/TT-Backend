@@ -14,6 +14,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskStatus } from '../../entities/task-status.entity';
 import { TaskStatusService } from '../task-status/task-status.service';
 import { TaskStatusColumnService } from '../task-status-column/task-status-column.service';
+import { ProjectRole } from 'src/common/enums/project-role.enum';
 
 @Injectable()
 export class TasksService {
@@ -40,8 +41,11 @@ export class TasksService {
     project_id: string
   ): Promise<Task> {
     // Проверка проекта
-    const project = await this.projectRepository.findOneBy({ project_id });
-    if (!project) {
+    const project = await this.projectRepository.find({
+      where: { project_id: project_id },
+      relations: ['members'],
+    });
+    if (!project[0]) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(project_id));
     }
 
@@ -91,15 +95,23 @@ export class TasksService {
       task_id: savedTask.task_id,
       user_id: user_id,
     });
-    await this.taskMemberRepository.save(taskMember);
+    await this.taskMemberRepository.save({
+      ...taskMember,
+      projectMember: project[0].members.find(
+        (el) => el.role === ProjectRole.OWNER
+      ),
+    });
 
     // Сохраняем связь между задачей и пользователем, если у проекта есть владелец
-    if (project.user_owner_id !== user_id) {
+    if (project[0].user_owner_id !== user_id) {
       const taskMemberOwner = this.taskMemberRepository.create({
         task_id: savedTask.task_id,
-        user_id: project.user_owner_id,
+        user_id: project[0].user_owner_id,
       });
-      await this.taskMemberRepository.save(taskMemberOwner);
+      await this.taskMemberRepository.save({
+        ...taskMemberOwner,
+        projectMember: project[0].members.find((el) => el.user_id === user_id),
+      });
     }
 
     // Получаем первую колонку статуса
@@ -159,7 +171,6 @@ export class TasksService {
           created_at: true,
           name: true,
         },
-        
       },
     });
     if (!task) {

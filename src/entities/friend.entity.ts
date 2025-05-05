@@ -47,7 +47,7 @@ export class Friendship {
   @DeleteDateColumn()
   deleted_at: Date;
 
-  @ManyToOne(() => User, (user) => user.subscriptions)
+  @ManyToOne(() => User, (user) => user.subscriptions, { onDelete: 'CASCADE' })
   sender: User;
 
   @ManyToOne(() => User, (user) => user.friends, { onDelete: 'CASCADE' })

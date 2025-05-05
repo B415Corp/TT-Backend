@@ -62,6 +62,8 @@ export class ProjectsService {
       project_id: savedProject.project_id,
       user_id: user_owner_id,
       role: ProjectRole.OWNER,
+      rate: dto.rate,
+      currency: currencyExist,
       approve: true, // Assuming the owner is automatically approved
     });
 
@@ -74,9 +76,9 @@ export class ProjectsService {
     const project = await this.projectRepository.find({
       where: { project_id: id },
       relations: [
-        'currency',
         'client',
         'members',
+        'members.currency',
         'members.user',
         'members.user.subscriptions',
       ],
@@ -85,11 +87,6 @@ export class ProjectsService {
         project_id: true,
         name: true,
         created_at: true,
-        currency: {
-          name: true,
-          code: true,
-          symbol: true,
-        },
         client: {
           client_id: true,
           name: true,
@@ -98,6 +95,12 @@ export class ProjectsService {
         members: {
           role: true,
           approve: true,
+          rate: true,
+          currency: {
+            name: true,
+            code: true,
+            symbol: true,
+          },
           user: {
             user_id: true,
             name: true,
