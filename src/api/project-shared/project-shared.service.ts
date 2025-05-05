@@ -48,6 +48,19 @@ export class ProjectSharedService {
         user_id: userId,
         approve: false,
       },
+      relations: ['project', 'project.user'],
+      select: {
+        member_id: true,
+        project_id: true,
+        role: true,
+        project: {
+          name: true,
+          user: {
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
   }
 
@@ -147,9 +160,11 @@ export class ProjectSharedService {
   ): Promise<ProjectMember> {
     const projectMember = await this.projectMemberRepository.findOne({
       where: { project_id: projectId, user_id: userId },
+      relations: ['user', 'project'],
     });
     const projectOwner = await this.projectMemberRepository.findOne({
       where: { project_id: projectId, role: ProjectRole.OWNER },
+      relations: ['user', 'project'],
     });
 
     if (!projectMember) {
