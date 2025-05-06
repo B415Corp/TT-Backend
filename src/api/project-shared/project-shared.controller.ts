@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -25,6 +26,7 @@ import { AssignRoleDto } from './dto/assign-role.dto';
 import { PatchRoleDto } from './dto/patch-role.dto.js';
 import { ProjectSharedService } from './project-shared.service';
 import { ProjectWithMembersDto } from '../projects/dto/project-with-members.dto';
+import { GetMembersByFilterEnumDTO } from './dto/get-members-by-filter-enum.dto';
 
 @ApiTags('project-shared')
 @Controller('projects/shared')
@@ -47,9 +49,7 @@ export class ProjectMembersController {
   @ApiResponse({ status: 200, type: [ProjectMember] })
   @UseGuards(JwtAuthGuard)
   @Get('invitations')
-  async getInvitations(
-    @GetUser() user: User
-  ): Promise<ProjectMember[]> {
+  async getInvitations(@GetUser() user: User): Promise<ProjectMember[]> {
     return this.projectMembersService.getInvitations(user.user_id);
   }
 
@@ -77,6 +77,21 @@ export class ProjectMembersController {
       user.user_id,
       projectId
     );
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get project members by approval status' })
+  @ApiResponse({ status: 200, type: [ProjectMember] })
+  @UseGuards(JwtAuthGuard)
+  @Get('project-members/:project_id')
+  async getMembersByFilter(
+    @Param('project_id') project_id: string,
+    @Query() role: GetMembersByFilterEnumDTO
+  ) {
+    return this.projectMembersService.getMembersByFilter({
+      role: role.role,
+      project_id: project_id,
+    });
   }
 
   // @ApiBearerAuth()
@@ -148,6 +163,10 @@ export class ProjectMembersController {
     @Param('user_id') user_id: string,
     @GetUser() user: User
   ) {
-    return this.projectMembersService.removeMember(project_id, user_id, user.user_id);
+    return this.projectMembersService.removeMember(
+      project_id,
+      user_id,
+      user.user_id
+    );
   }
 }

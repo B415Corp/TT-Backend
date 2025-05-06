@@ -45,17 +45,6 @@ export class Project {
   @Column({ default: '11111111-1111-1111-1111-111111111111' })
   user_owner_id: string;
 
-  @ApiProperty({
-    type: Number,
-    description: 'Currency ID associated with the project',
-  })
-  @Column({ default: 1 })
-  currency_id: number;
-
-  @ApiProperty({ type: Number, description: 'Rate for the project' })
-  @Column({ default: 0 })
-  rate: number;
-
   @ApiProperty({ type: Date, description: 'Creation date of the project' })
   @CreateDateColumn()
   created_at: Date;

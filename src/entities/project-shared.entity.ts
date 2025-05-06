@@ -44,6 +44,13 @@ export class ProjectMember {
   @Column({ default: false })
   approve: boolean;
 
+  @ApiProperty({
+    enum: ['fixed', 'hourly'],
+    description: 'Payment type for the task',
+  })
+  @Column({ default: 'hourly' })
+  payment_type: 'fixed' | 'hourly';
+
   @ApiProperty({ type: Date })
   @CreateDateColumn()
   created_at: Date;

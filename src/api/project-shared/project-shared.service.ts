@@ -6,7 +6,15 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectRole } from 'src/common/enums/project-role.enum';
 import { Project } from 'src/entities/project.entity';
-import { Not, Repository } from 'typeorm';
+import {
+  FindManyOptions,
+  FindOptionsRelationByString,
+  FindOptionsRelations,
+  FindOptionsSelect,
+  FindOptionsSelectByString,
+  Not,
+  Repository,
+} from 'typeorm';
 import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-shared.entity';
 import { AssignRoleDto } from './dto/assign-role.dto';
@@ -14,10 +22,15 @@ import { ProjectWithMembersDto } from '../projects/dto/project-with-members.dto'
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from 'src/common/enums/notification-type.enum';
 import { FriendshipService } from '../friendship/friendship.service';
+import { Currency } from 'src/entities/currency.entity';
+import { GetMembersByFilterDTO } from './dto/get-members-by-filter.dto';
+import { PROJECT_MEMBER_FILTERLTER } from 'src/common/enums/project-member-filter.enum';
 
 @Injectable()
 export class ProjectSharedService {
   constructor(
+    @InjectRepository(Currency)
+    private currencyRepository: Repository<Currency>,
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>,
     @InjectRepository(Project)
@@ -48,11 +61,17 @@ export class ProjectSharedService {
         user_id: userId,
         approve: false,
       },
-      relations: ['project', 'project.user'],
+      relations: ['project', 'project.user', 'currency'],
       select: {
         member_id: true,
         project_id: true,
         role: true,
+        rate: true,
+        currency: {
+          name: true,
+          code: true,
+          symbol: true,
+        },
         project: {
           name: true,
           user: {
@@ -82,6 +101,14 @@ export class ProjectSharedService {
     // Если проект не найден, выбрасываем исключение.
     if (!project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND);
+    }
+
+    // Проверка валюты
+    const currencyExist = await this.currencyRepository.findOneBy({
+      code: assignRoleDto.currency_id,
+    });
+    if (!currencyExist) {
+      throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
     }
 
     // Ищем существующих участников с заданной ролью.
@@ -115,6 +142,7 @@ export class ProjectSharedService {
       const newProjectMember = this.projectMemberRepository.create({
         ...assignRoleDto,
         project_id: projectId,
+        currency: currencyExist,
         approve: false,
       });
       return this.projectMemberRepository.save(newProjectMember);
@@ -246,6 +274,7 @@ export class ProjectSharedService {
         project_id: project_id,
         role: Not(ProjectRole.OWNER),
       },
+      relations: ['currency'],
     });
 
     const _res = usersFriends.map((el) => {
@@ -259,5 +288,66 @@ export class ProjectSharedService {
     });
 
     return _res;
+  }
+
+  async getMembersByFilter(dto: GetMembersByFilterDTO) {
+    const relationsList:
+      | FindOptionsRelationByString
+      | FindOptionsRelations<ProjectMember> = ['user', 'currency'];
+
+    const selectList:
+      | FindOptionsSelect<ProjectMember>
+      | FindOptionsSelectByString<ProjectMember> = {
+      member_id: true,
+      project_id: true,
+      role: true,
+      approve: true,
+      payment_type: true,
+      rate: true,
+      user: {
+        user_id: true,
+        name: true,
+        email: true,
+      },
+      currency: {
+        name: true,
+        code: true,
+        symbol: true,
+      },
+    };
+
+    function getFilter(): FindManyOptions<ProjectMember> {
+      switch (dto.role) {
+        case PROJECT_MEMBER_FILTERLTER.ALL:
+          return {
+            where: { project_id: dto.project_id },
+            relations: relationsList,
+            select: selectList,
+          };
+        case PROJECT_MEMBER_FILTERLTER.OWNER:
+          return {
+            where: { project_id: dto.project_id, role: ProjectRole.OWNER },
+            relations: relationsList,
+            select: selectList,
+          };
+        case PROJECT_MEMBER_FILTERLTER.SHARED:
+          return {
+            where: { project_id: dto.project_id, role: Not(ProjectRole.OWNER) },
+            relations: relationsList,
+            select: selectList,
+          };
+
+        default:
+          return {
+            where: { project_id: dto.project_id },
+            relations: relationsList,
+            select: selectList,
+          };
+      }
+    }
+    const members = await this.projectMemberRepository.find({
+      ...getFilter(),
+    });
+    return members;
   }
 }

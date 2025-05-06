@@ -45,8 +45,8 @@ export class ProjectsService {
       throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
     }
     const project = this.projectRepository.create({
-      ...dto,
-      currency_id: currencyExist.currency_id,
+      name: dto.name,
+      client_id: dto.client_id,
       user_owner_id,
     });
 
@@ -83,7 +83,6 @@ export class ProjectsService {
         'members.user.subscriptions',
       ],
       select: {
-        rate: true,
         project_id: true,
         name: true,
         created_at: true,
@@ -96,6 +95,7 @@ export class ProjectsService {
           role: true,
           approve: true,
           rate: true,
+          payment_type: true,
           currency: {
             name: true,
             code: true,
@@ -202,7 +202,6 @@ export class ProjectsService {
     const project = await this.projectRepository.preload({
       project_id,
       ...dto,
-      currency_id: currencyExist.currency_id,
     });
     if (!project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(project_id));
@@ -233,7 +232,6 @@ export class ProjectsService {
       order: { created_at: 'DESC' },
       select: {
         project_id: true,
-        rate: true,
         name: true,
         created_at: true,
         updated_at: true,

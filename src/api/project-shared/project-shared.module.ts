@@ -7,10 +7,11 @@ import { Project } from 'src/entities/project.entity';
 import { Task } from 'src/entities/task.entity';
 import { FriendshipModule } from '../friendship/friendship.module';
 import { NotificationModule } from '../notification/notification.module';
+import { Currency } from 'src/entities/currency.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ProjectMember, Project, Task]),
+    TypeOrmModule.forFeature([ProjectMember, Project, Task, Currency]),
     FriendshipModule,
     NotificationModule,
   ],

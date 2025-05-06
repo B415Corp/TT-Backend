@@ -16,7 +16,6 @@ import { SearchDtoV2 } from './dto/search.dtoV2';
 
 @ApiTags('search')
 @Controller('search')
-
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
@@ -46,8 +45,8 @@ export class SearchController {
   })
   @ApiResponse({ status: 200, type: SearchResponse })
   @UseGuards(JwtAuthGuard)
-  @Get()
   @ApiResponse({ status: 200, description: 'Search results' })
+  @Get()
   async searchV2(
     @GetUser() user: User,
     @Query() searchDto: SearchDtoV2
