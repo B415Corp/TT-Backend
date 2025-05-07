@@ -18,7 +18,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
 import { Paginate, PaginationParams } from 'src/decorators/paginate.decorator';
 import { RoleGuard } from 'src/guards/role.guard';
@@ -46,7 +46,7 @@ export class TasksController {
     type: Task,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'project')
   @Post()
   async createTaskV2(
     @Body() createTaskDto: CreateTaskDto,
@@ -68,7 +68,7 @@ export class TasksController {
     type: Task,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'project')
   @Post('create')
   async createTask(
     @Body() createTaskDto: CreateTaskDto,
@@ -136,7 +136,7 @@ export class TasksController {
     type: Task,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER, ProjectRole.EXECUTOR], 'task')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER, PROJECT_ROLE.EXECUTOR], 'task')
   @Patch(':task_id')
   async update(
     @Param('task_id') id: string,
@@ -152,7 +152,7 @@ export class TasksController {
     description: 'Successfully deleted the task.',
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'task')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'task')
   @Delete(':task_id')
   async remove(@Param('task_id') id: string) {
     return this.tasksService.remove(id);

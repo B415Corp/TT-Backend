@@ -14,7 +14,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskStatus } from '../../entities/task-status.entity';
 import { TaskStatusService } from '../task-status/task-status.service';
 import { TaskStatusColumnService } from '../task-status-column/task-status-column.service';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 
 @Injectable()
 export class TasksService {
@@ -98,7 +98,7 @@ export class TasksService {
     await this.taskMemberRepository.save({
       ...taskMember,
       projectMember: project[0].members.find(
-        (el) => el.role === ProjectRole.OWNER
+        (el) => el.role === PROJECT_ROLE.OWNER
       ),
     });
 

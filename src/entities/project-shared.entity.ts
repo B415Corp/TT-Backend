@@ -11,7 +11,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from './user.entity';
 import { Project } from './project.entity';
-import { ProjectRole } from '../common/enums/project-role.enum';
+import { PROJECT_ROLE } from '../common/enums/project-role.enum';
 import { Currency } from './currency.entity';
 import { TaskMember } from './task-shared.entity';
 
@@ -30,15 +30,15 @@ export class ProjectMember {
   user_id: string;
 
   @ApiProperty({
-    enum: ProjectRole,
+    enum: PROJECT_ROLE,
     description: 'Role of the user in the project',
   })
   @Column({
     type: 'enum',
-    enum: ProjectRole,
-    default: ProjectRole.GUEST,
+    enum: PROJECT_ROLE,
+    default: PROJECT_ROLE.GUEST,
   })
-  role: ProjectRole;
+  role: PROJECT_ROLE;
 
   @ApiProperty({ type: Boolean })
   @Column({ default: false })

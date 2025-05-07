@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { Project } from 'src/entities/project.entity';
 import {
   FindManyOptions,
@@ -49,7 +49,7 @@ export class ProjectSharedService {
       .createQueryBuilder('project_member')
       .leftJoinAndSelect('project_member.project', 'project')
       .where('project_member.user_id = :userId', { userId })
-      .andWhere('project_member.role != :role', { role: ProjectRole.OWNER }) // Exclude role "owner"
+      .andWhere('project_member.role != :role', { role: PROJECT_ROLE.OWNER }) // Exclude role "owner"
       .getMany();
 
     return projectsWithMembers.map((pm) => ({
@@ -194,7 +194,7 @@ export class ProjectSharedService {
       relations: ['user', 'project'],
     });
     const projectOwner = await this.projectMemberRepository.findOne({
-      where: { project_id: projectId, role: ProjectRole.OWNER },
+      where: { project_id: projectId, role: PROJECT_ROLE.OWNER },
       relations: ['user', 'project'],
     });
 
@@ -231,12 +231,12 @@ export class ProjectSharedService {
 
   async patchSharedRole(
     project_id: string,
-    role: ProjectRole,
+    role: PROJECT_ROLE,
     user_id: string
   ): Promise<ProjectMember> {
-    if (role === ProjectRole.OWNER) {
+    if (role === PROJECT_ROLE.OWNER) {
       throw new ForbiddenException(
-        'Запрещено менять роль на ' + ProjectRole.OWNER
+        'Запрещено менять роль на ' + PROJECT_ROLE.OWNER
       );
     }
     const sharedItem = await this.projectMemberRepository.findOne({
@@ -256,9 +256,9 @@ export class ProjectSharedService {
     dto: PatchMembersDto,
     userMe: User
   ): Promise<ProjectMember> {
-    if (dto.role === ProjectRole.OWNER) {
+    if (dto.role === PROJECT_ROLE.OWNER) {
       throw new ForbiddenException(
-        'Запрещено менять роль на ' + ProjectRole.OWNER
+        'Запрещено менять роль на ' + PROJECT_ROLE.OWNER
       );
     }
 
@@ -325,7 +325,7 @@ export class ProjectSharedService {
       throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
     }
 
-    if (!Object.values(ProjectRole).includes(projectMember.role)) {
+    if (!Object.values(PROJECT_ROLE).includes(projectMember.role)) {
       throw new Error('Invalid role found in project member');
     }
 
@@ -338,7 +338,7 @@ export class ProjectSharedService {
     const projectMembers = await this.projectMemberRepository.find({
       where: {
         project_id: project_id,
-        role: Not(ProjectRole.OWNER),
+        role: Not(PROJECT_ROLE.OWNER),
       },
       relations: ['currency'],
     });
@@ -392,13 +392,13 @@ export class ProjectSharedService {
           };
         case PROJECT_MEMBER_FILTERLTER.OWNER:
           return {
-            where: { project_id: dto.project_id, role: ProjectRole.OWNER },
+            where: { project_id: dto.project_id, role: PROJECT_ROLE.OWNER },
             relations: relationsList,
             select: selectList,
           };
         case PROJECT_MEMBER_FILTERLTER.SHARED:
           return {
-            where: { project_id: dto.project_id, role: Not(ProjectRole.OWNER) },
+            where: { project_id: dto.project_id, role: Not(PROJECT_ROLE.OWNER) },
             relations: relationsList,
             select: selectList,
           };
@@ -419,14 +419,14 @@ export class ProjectSharedService {
 
   async leaveProject(project_id: string, member_id: string) {
     const projectOwner = await this.projectMemberRepository.findOne({
-      where: { project_id: project_id, role: ProjectRole.OWNER },
+      where: { project_id: project_id, role: PROJECT_ROLE.OWNER },
       relations: ['user', 'project'],
     });
     const projectMember = await this.projectMemberRepository.findOne({
       where: { project_id: project_id, member_id: member_id },
       relations: ['user', 'project'],
     });
-    if (projectMember.role === ProjectRole.OWNER) {
+    if (projectMember.role === PROJECT_ROLE.OWNER) {
       throw new ConflictException('Владелец проекта не может покинуть проект');
     }
 

@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { TimeLog } from '../../entities/time-logs.entity';
 import { ErrorMessages } from '../../common/error-messages';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 
 @Injectable()
 export class TimeLogsService {
@@ -221,7 +221,7 @@ export class TimeLogsService {
       ])
       .where('project_members.user_id = :userId', { userId })
       .andWhere('project_members.role IN (:...roles)', {
-        roles: [ProjectRole.OWNER, ProjectRole.MANAGER, ProjectRole.EXECUTOR],
+        roles: [PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER, PROJECT_ROLE.EXECUTOR],
       })
       .orderBy('time_log.created_at', 'DESC')
       .getOne();

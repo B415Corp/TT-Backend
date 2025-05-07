@@ -30,7 +30,7 @@ import {
 } from '../../decorators/paginate.decorator';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { Roles } from 'src/guards/roles.decorator';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { RoleGuard } from 'src/guards/role.guard';
 
 @ApiTags('projects')
@@ -94,7 +94,7 @@ export class ProjectsController {
     type: Project,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER], 'project')
+  @Roles([PROJECT_ROLE.OWNER], 'project')
   @Patch(':id')
   async updateProject(
     @Param('id') id: string,
@@ -110,7 +110,7 @@ export class ProjectsController {
     description: 'Successfully deleted the project.',
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER], 'project')
+  @Roles([PROJECT_ROLE.OWNER], 'project')
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.projectsService.remove(id);

@@ -15,7 +15,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { GetUser } from 'src/decorators/get-user.decorator';
 import { User } from 'src/entities/user.entity';
 import { Roles } from 'src/guards/roles.decorator';
@@ -120,7 +120,7 @@ export class ProjectMembersController {
   @ApiOperation({ summary: 'Assign role to a user in a project' })
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'project')
   @Post(':project_id')
   async assignRole(
     @Param('project_id') projectId: string,
@@ -150,7 +150,7 @@ export class ProjectMembersController {
   @ApiOperation({ summary: 'Change role on project' })
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'project')
   @Patch(':project_id')
   async patchRole(
     @Param('project_id') projectId: string,
@@ -168,7 +168,7 @@ export class ProjectMembersController {
   @ApiOperation({ summary: '' })
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'project')
   @Patch(':project_id/:member_id')
   async patchSharedMember(
     @Param('project_id') project_id: string,
@@ -188,7 +188,7 @@ export class ProjectMembersController {
   @ApiOperation({ summary: 'Delete a user from a project' })
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'project')
   @Delete(':project_id/:user_id')
   async removeMember(
     @Param('project_id') project_id: string,
@@ -206,7 +206,7 @@ export class ProjectMembersController {
   @ApiOperation({ summary: 'User leave project with notifications' })
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER, PROJECT_ROLE.EXECUTOR], 'project')
   @Post('/leave/:project_id/:member_id')
   async leaveProject(
     @Param('project_id') project_id: string,

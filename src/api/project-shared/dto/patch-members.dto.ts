@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty } from 'class-validator';
 import { popularCurrencies } from 'src/common/constants';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 
 export class PatchMembersDto {
-  @ApiProperty({ enum: ProjectRole, default: ProjectRole.EXECUTOR })
-  @IsEnum(ProjectRole)
+  @ApiProperty({ enum: PROJECT_ROLE, default: PROJECT_ROLE.EXECUTOR })
+  @IsEnum(PROJECT_ROLE)
   @IsNotEmpty()
-  role?: ProjectRole;
+  role?: PROJECT_ROLE;
 
   @ApiProperty({ example: 10 })
   rate?: number;

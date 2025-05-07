@@ -19,7 +19,7 @@ import {
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { TimeLog } from '../../entities/time-logs.entity';
 import { TimeLogsPaginatedResponse } from './dto/time-logs-paginated-response.dto';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/guards/roles.decorator';
 import { SubscriptionGuard } from 'src/guards/subscription.guard';
@@ -57,7 +57,7 @@ export class TimeLogsController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.EXECUTOR], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.EXECUTOR], 'project')
   @Post(':task_id/start')
   async start(@Param('task_id') id: string, @GetUser() user: User) {
     return this.timeLogsService.start(id, user.user_id);
@@ -71,7 +71,7 @@ export class TimeLogsController {
     description: 'The time-log has been successfully stopped.',
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.EXECUTOR], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.EXECUTOR], 'project')
   @Patch(':task_id/stop')
   async stop(@Param('task_id') id: string) {
     return this.timeLogsService.stop(id);

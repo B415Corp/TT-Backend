@@ -13,7 +13,7 @@ import { Currency } from 'src/entities/currency.entity';
 import { User } from 'src/entities/user.entity';
 import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-shared.entity';
-import { ProjectRole } from '../../common/enums/project-role.enum';
+import { PROJECT_ROLE } from '../../common/enums/project-role.enum';
 import { TaskStatusColumnService } from '../task-status-column/task-status-column.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from 'src/common/enums/notification-type.enum';
@@ -64,7 +64,7 @@ export class ProjectsService {
     const projectMember = this.projectMemberRepository.create({
       project_id: savedProject.project_id,
       user_id: user_owner_id,
-      role: ProjectRole.OWNER,
+      role: PROJECT_ROLE.OWNER,
       rate: dto.rate,
       currency: currencyExist,
       approve: true, // Assuming the owner is automatically approved
@@ -187,7 +187,7 @@ export class ProjectsService {
 
     if (project[0].members.length > 0) {
       project[0].members.map((member) => {
-        if (member.approve && member.role !== ProjectRole.OWNER) {
+        if (member.approve && member.role !== PROJECT_ROLE.OWNER) {
           const memberRole = member.role;
           this.notificationService.createNotification(
             member.user.user_id,
@@ -277,7 +277,7 @@ export class ProjectsService {
       const projectMember = this.projectMemberRepository.create({
         project_id: project.project_id,
         user_id: project.user_owner_id, // Assuming the owner is the user who created the project
-        role: ProjectRole.OWNER, // Set the role as OWNER
+        role: PROJECT_ROLE.OWNER, // Set the role as OWNER
         approve: true, // Assuming the owner is automatically approved
       });
 

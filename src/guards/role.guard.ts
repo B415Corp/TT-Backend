@@ -11,7 +11,7 @@ import { ProjectSharedService } from 'src/api/project-shared/project-shared.serv
 import { ProjectMember } from 'src/entities/project-shared.entity';
 import { Task } from 'src/entities/task.entity';
 import { Repository } from 'typeorm';
-import { ProjectRole } from '../common/enums/project-role.enum';
+import { PROJECT_ROLE } from '../common/enums/project-role.enum';
 import { ErrorMessages } from '../common/error-messages';
 
 @Injectable()
@@ -27,7 +27,7 @@ export class RoleGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Получаем требуемые роли
-    const requiredRoles = this.reflector.get<ProjectRole[]>(
+    const requiredRoles = this.reflector.get<PROJECT_ROLE[]>(
       'roles',
       context.getHandler()
     );
