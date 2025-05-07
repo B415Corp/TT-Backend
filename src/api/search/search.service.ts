@@ -5,6 +5,7 @@ import { ClientsService } from '../clients/clients.service';
 import { UsersService } from '../users/users.service'; // Импортируем UsersService
 import { User } from '../../entities/user.entity';
 import { ErrorMessages } from '../../common/error-messages';
+import { SEARCH_LOCATION } from 'src/common/enums/search-location.enum';
 
 @Injectable()
 export class SearchService {
@@ -12,7 +13,7 @@ export class SearchService {
     private readonly projectsService: ProjectsService,
     private readonly tasksService: TasksService,
     private readonly clientsService: ClientsService,
-    private readonly usersService: UsersService ,
+    private readonly usersService: UsersService
   ) {}
 
   async search(
@@ -62,7 +63,7 @@ export class SearchService {
   async searchV2(
     user: User,
     searchTerm: string,
-    searchLocation: 'all' | 'projects' | 'tasks' | 'clients' | 'users' = 'all',
+    searchLocation: SEARCH_LOCATION = SEARCH_LOCATION.ALL,
     maxResults: number = 5,
     offset: number = 0
   ) {
@@ -73,7 +74,10 @@ export class SearchService {
       users: [],
     };
 
-    if (searchLocation === 'all' || searchLocation === 'projects') {
+    if (
+      searchLocation === SEARCH_LOCATION.ALL ||
+      searchLocation === SEARCH_LOCATION.PROJECTS
+    ) {
       results.projects = await this.projectsService.findByUserIdAndSearchTerm(
         user.user_id,
         searchTerm,
@@ -81,7 +85,10 @@ export class SearchService {
         offset
       );
     }
-    if (searchLocation === 'all' || searchLocation === 'tasks') {
+    if (
+      searchLocation === SEARCH_LOCATION.ALL ||
+      searchLocation === SEARCH_LOCATION.TASKS
+    ) {
       results.tasks = await this.tasksService.findByUserIdAndSearchTerm(
         user.user_id,
         searchTerm,
@@ -89,7 +96,10 @@ export class SearchService {
         offset
       );
     }
-    if (searchLocation === 'all' || searchLocation === 'clients') {
+    if (
+      searchLocation === SEARCH_LOCATION.ALL ||
+      searchLocation === SEARCH_LOCATION.CLIENTS
+    ) {
       results.clients = await this.clientsService.findByUserIdAndSearchTerm(
         user.user_id,
         searchTerm,
@@ -97,7 +107,10 @@ export class SearchService {
         offset
       );
     }
-    if (searchLocation === 'all' || searchLocation === 'users') {
+    if (
+      searchLocation === SEARCH_LOCATION.ALL ||
+      searchLocation === SEARCH_LOCATION.USERS
+    ) {
       results.users = await this.usersService.searchUsers(
         { searchTerm },
         maxResults,

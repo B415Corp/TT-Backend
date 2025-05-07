@@ -19,28 +19,31 @@ export class UsersSeeder {
   ) {}
 
   async seed() {
-    // Создание пользователя с подпиской FREE через UsersService
-    await this.usersService.create({
-      name: 'Free User',
-      email: 'free@example.com',
-      password: 'password123',
-      subscriptionType: SubscriptionType.FREE,
-    });
+    const users = [
+      {
+        name: 'Free User',
+        email: 'free@example.com',
+        password: 'password123',
+        subscriptionType: SubscriptionType.FREE,
+      },
+      {
+        name: 'Basic User',
+        email: 'basic@example.com',
+        password: 'password123',
+        subscriptionType: SubscriptionType.BASIC,
+      },
+      {
+        name: 'Premium User',
+        email: 'premium@example.com',
+        password: 'password123',
+        subscriptionType: SubscriptionType.PREMIUM,
+      },
+    ];
 
-    // Создание пользователя с подпиской BASIC через UsersService
-    await this.usersService.create({
-      name: 'Basic User',
-      email: 'basic@example.com',
-      password: 'password123',
-      subscriptionType: SubscriptionType.BASIC,
-    });
-
-    // Создание пользователя с подпиской PREMIUM через UsersService
-    await this.usersService.create({
-      name: 'Premium User',
-      email: 'premium@example.com',
-      password: 'password123',
-      subscriptionType: SubscriptionType.PREMIUM,
-    });
+    for (const user of users) {
+      const existing = await this.usersService.findByEmail(user.email);
+      if (existing) continue;
+      await this.usersService.create(user);
+    }
   }
 }

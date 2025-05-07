@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsEnum } from 'class-validator';
+import { SEARCH_LOCATION } from 'src/common/enums/search-location.enum';
 
 export class SearchDtoV2 {
   @ApiPropertyOptional({ type: String })
@@ -7,7 +8,7 @@ export class SearchDtoV2 {
   @IsString()
   searchTerm?: string;
 
-  @ApiProperty({ enum: ['all', 'projects', 'tasks', 'clients'] })
-  @IsEnum(['all', 'projects', 'tasks', 'clients'])
-  searchLocation: 'all' | 'projects' | 'tasks' | 'clients';
+  @ApiProperty({ enum: SEARCH_LOCATION })
+  @IsEnum(SEARCH_LOCATION)
+  searchLocation: SEARCH_LOCATION;
 }

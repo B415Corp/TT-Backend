@@ -88,7 +88,7 @@ export class FriendshipService {
           recipient: { user_id: user_id },
         },
       ],
-      relations: ['recipient', 'sender', 'taskMembers'],
+      relations: ['recipient', 'sender'],
       select: {
         friendship_id: true,
         status: true,
@@ -211,7 +211,7 @@ export class FriendshipService {
     return this.friendshipRepository.save(friendship);
   }
 
-  async decline(id: string, user_id: string): Promise<Friendship> {
+  async decline(id: string): Promise<Friendship> {
     // Получаем запрос на дружбу по идентификатору
     const friendship = await this.friendshipRepository.findOne({
       where: { friendship_id: id },
@@ -221,11 +221,6 @@ export class FriendshipService {
     // Проверяем, существует ли запрос на дружбу
     if (!friendship) {
       throw new NotFoundException(ErrorMessages.FRIENDSHIP_NOT_FOUND);
-    }
-
-    // Проверяем, что текущий пользователь является получателем запроса на дружбу
-    if (friendship.recipient.user_id !== user_id) {
-      throw new ConflictException(ErrorMessages.FRIENDSHIP_NOT_RECEIVER);
     }
 
     // Проверяем, что статус запроса на дружбу является "в ожидании"

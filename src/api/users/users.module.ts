@@ -9,7 +9,11 @@ import { PlansModule } from '../plans/plans.module';
 import { UsersSeeder } from './users.seeder';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Subscription]), SubscriptionsModule, PlansModule],
+  imports: [
+    TypeOrmModule.forFeature([User, Subscription]),
+    SubscriptionsModule,
+    PlansModule,
+  ],
   controllers: [UsersController],
   providers: [UsersService, UsersSeeder],
   exports: [UsersService, UsersSeeder],

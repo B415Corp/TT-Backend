@@ -111,11 +111,8 @@ export class FriendshipController {
   @ApiResponse({ status: 204 })
   @UseGuards(JwtAuthGuard)
   @Put('/decline/:id')
-  async declineRequest(
-    @GetUser() user: User,
-    @Param('id') id: string
-  ): Promise<void> {
-    await this.friendshipService.decline(id, user.user_id);
+  async declineRequest(@Param('id') id: string): Promise<void> {
+    await this.friendshipService.decline(id);
   }
 
   @ApiBearerAuth()
