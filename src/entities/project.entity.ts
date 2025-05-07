@@ -30,7 +30,7 @@ export class Project {
   project_id: string;
 
   @ApiProperty({ type: String, description: 'Name of the project' })
-  @Column()
+  @Column({ length: 120 })
   name: string;
 
   @ApiProperty({
@@ -40,6 +40,7 @@ export class Project {
   })
   @Column({ nullable: true })
   client_id: string | null;
+
 
   @ApiProperty({ type: String, description: 'User ID of the project owner' })
   @Column({ default: '11111111-1111-1111-1111-111111111111' })

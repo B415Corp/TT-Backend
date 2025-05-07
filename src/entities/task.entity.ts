@@ -27,7 +27,7 @@ export class Task {
   task_id: string;
 
   @ApiProperty({ type: String, description: 'Name of the task' })
-  @Column()
+  @Column({ length: 120 })
   name: string;
 
   @ApiProperty({
