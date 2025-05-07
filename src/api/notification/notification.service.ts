@@ -34,13 +34,19 @@ export class NotificationService {
   }
 
   async readAllNotifications(userId: string): Promise<Notification[]> {
+    // 1. Получаем все непрочитанные уведомления пользователя
     const notifications = await this.notificationRepository.find({
       where: { user: { user_id: userId }, isRead: false },
     });
-    notifications.forEach((notification) => {
+
+    // 2. Помечаем каждое как прочитанное
+    for (const notification of notifications) {
       notification.isRead = true;
-    });
-    return;
+      await this.notificationRepository.save(notification);
+    }
+
+    // 3. Возвращаем обновлённые уведомления
+    return notifications;
   }
 
   async markNotificationAsRead(notificationId: string): Promise<Notification> {

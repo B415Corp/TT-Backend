@@ -27,6 +27,7 @@ import { PatchRoleDto } from './dto/patch-role.dto.js';
 import { ProjectSharedService } from './project-shared.service';
 import { ProjectWithMembersDto } from '../projects/dto/project-with-members.dto';
 import { GetMembersByFilterEnumDTO } from './dto/get-members-by-filter-enum.dto';
+import { PatchMembersDto } from './dto/patch-members.dto';
 
 @ApiTags('project-shared')
 @Controller('projects/shared')
@@ -149,6 +150,26 @@ export class ProjectMembersController {
       projectId,
       assignRoleDto.role,
       assignRoleDto.user_id
+    );
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change member on project' })
+  @ApiResponse({ status: 200, type: ProjectMember })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Patch(':project_id/:member_id')
+  async patchSharedMember(
+    @Param('project_id') project_id: string,
+    @Param('member_id') member_id: string,
+    @Body() dto: PatchMembersDto,
+    @GetUser() user: User
+  ) {
+    return this.projectMembersService.patchSharedMember(
+      project_id,
+      member_id,
+      dto,
+      user
     );
   }
 

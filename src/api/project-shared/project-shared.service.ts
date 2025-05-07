@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -25,6 +26,8 @@ import { FriendshipService } from '../friendship/friendship.service';
 import { Currency } from 'src/entities/currency.entity';
 import { GetMembersByFilterDTO } from './dto/get-members-by-filter.dto';
 import { PROJECT_MEMBER_FILTERLTER } from 'src/common/enums/project-member-filter.enum';
+import { PatchMembersDto } from './dto/patch-members.dto';
+import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class ProjectSharedService {
@@ -247,6 +250,69 @@ export class ProjectSharedService {
     return this.projectMemberRepository.save(sharedItem);
   }
 
+  async patchSharedMember(
+    project_id: string,
+    member_id: string,
+    dto: PatchMembersDto,
+    userMe: User
+  ): Promise<ProjectMember> {
+    if (dto.role === ProjectRole.OWNER) {
+      throw new ForbiddenException(
+        'Запрещено менять роль на ' + ProjectRole.OWNER
+      );
+    }
+
+    const sharedItem = await this.projectMemberRepository.findOne({
+      where: { project_id, member_id },
+      relations: ['user', 'project', 'currency'],
+    });
+
+    if (!sharedItem) {
+      throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
+    }
+
+    const preload = await this.projectMemberRepository.preload({
+      project_id,
+      member_id,
+      ...dto,
+    });
+    if (!preload) {
+      throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
+    }
+    const recipient = sharedItem?.user;
+
+    if (sharedItem.user.user_id !== userMe.user_id) {
+      if (sharedItem.rate !== preload.rate) {
+        await this.notificationService.createNotification(
+          recipient?.user_id,
+          `Пользователь {${userMe.name}:${userMe.user_id}} изменил вашу ставку в проекте ${sharedItem?.project?.name} с ${sharedItem?.currency?.symbol}${sharedItem?.rate} на ${sharedItem?.currency?.symbol}${preload?.rate}`,
+          NotificationType.PROJECT_INVITATION_ACCEPTED,
+          ''
+        );
+      }
+
+      if (sharedItem.payment_type !== preload.payment_type) {
+        await this.notificationService.createNotification(
+          recipient?.user_id,
+          `Пользователь {${userMe.name}:${userMe.user_id}} изменил ваш способ оплаты в проекте ${sharedItem?.project?.name} с ${sharedItem?.payment_type} на ${preload?.payment_type}`,
+          NotificationType.PROJECT_INVITATION_ACCEPTED,
+          ''
+        );
+      }
+
+      if (sharedItem.role !== preload.role) {
+        await this.notificationService.createNotification(
+          recipient?.user_id,
+          `Пользователь {${userMe.name}:${userMe.user_id}} изменил вашу роль в проекте ${sharedItem?.project?.name} с ${sharedItem?.role} на ${preload?.role}`,
+          NotificationType.PROJECT_INVITATION_ACCEPTED,
+          ''
+        );
+      }
+    }
+
+    return this.projectMemberRepository.save(preload);
+  }
+
   async getUserRoleInProject(
     projectId: string,
     userId: string
@@ -349,5 +415,40 @@ export class ProjectSharedService {
       ...getFilter(),
     });
     return members;
+  }
+
+  async leaveProject(project_id: string, member_id: string) {
+    const projectOwner = await this.projectMemberRepository.findOne({
+      where: { project_id: project_id, role: ProjectRole.OWNER },
+      relations: ['user', 'project'],
+    });
+    const projectMember = await this.projectMemberRepository.findOne({
+      where: { project_id: project_id, member_id: member_id },
+      relations: ['user', 'project'],
+    });
+    if (projectMember.role === ProjectRole.OWNER) {
+      throw new ConflictException('Владелец проекта не может покинуть проект');
+    }
+
+    if (!projectMember) {
+      throw new NotFoundException(ErrorMessages.PROJECT_MEMBER_NOT_FOUND);
+    }
+
+    await this.notificationService.createNotification(
+      projectOwner.user.user_id,
+      `Пользователь {${projectMember.user.name}:${projectMember.user.user_id}} покинул проект ${projectMember.project.name} по своей инициативе. Все его данные остаются без изменений пока вы его не удалите с проекта`,
+      NotificationType.PROJECT_LEAVE_FOR_OWNER,
+      ''
+    );
+
+    await this.notificationService.createNotification(
+      projectMember.user.user_id,
+      `Вы {${projectMember.user.name}:${projectMember.user.user_id}} покинули проект ${projectMember.project.name} по своей инициативе. Все ваши данные в проекте остаются без изменений пока вы его не откажетесь от приглашения в проект`,
+      NotificationType.PROJECT_LEAVE_FOR_USER,
+      ''
+    );
+
+    projectMember.approve = false;
+    return this.projectMemberRepository.save(projectMember);
   }
 }
