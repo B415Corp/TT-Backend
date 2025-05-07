@@ -36,8 +36,9 @@ export class UsersService {
     }
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const { subscriptionType, ...rest } = createUserDto;
     const user = this.usersRepository.create({
-      ...createUserDto,
+      ...rest,
       password: hashedPassword,
       avatar: '',
     });
@@ -45,7 +46,7 @@ export class UsersService {
     const newUser = await this.usersRepository.save(user);
     await this.subscriptionsService.subscribe(
       newUser.user_id,
-      SubscriptionType.FREE
+      subscriptionType ?? SubscriptionType.FREE
     );
 
     return {
@@ -55,7 +56,10 @@ export class UsersService {
     };
   }
 
-  async update(user_id: string, updateUserDto: UpdateUserDto): Promise<UserTypeDto> {
+  async update(
+    user_id: string,
+    updateUserDto: UpdateUserDto
+  ): Promise<UserTypeDto> {
     const user = await this.usersRepository.findOneBy({ user_id });
 
     if (!user) {
