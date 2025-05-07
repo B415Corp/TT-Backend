@@ -15,6 +15,8 @@ import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-shared.entity';
 import { ProjectRole } from '../../common/enums/project-role.enum';
 import { TaskStatusColumnService } from '../task-status-column/task-status-column.service';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType } from 'src/common/enums/notification-type.enum';
 
 @Injectable()
 export class ProjectsService {
@@ -27,7 +29,8 @@ export class ProjectsService {
     private userRepository: Repository<User>,
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>,
-    private taskStatusColumnService: TaskStatusColumnService
+    private taskStatusColumnService: TaskStatusColumnService,
+    private notificationService: NotificationService
   ) {}
 
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
@@ -92,6 +95,7 @@ export class ProjectsService {
           contact_info: true,
         },
         members: {
+          member_id: true,
           role: true,
           approve: true,
           rate: true,
@@ -172,20 +176,30 @@ export class ProjectsService {
     return [projects, total];
   }
 
-  async remove(id: string): Promise<void> {
-    const project = await this.projectRepository.findOneBy({ project_id: id });
-    if (!project) {
+  async remove(project_id: string): Promise<void> {
+    const project = await this.projectRepository.find({
+      where: { project_id: project_id },
+      relations: ['user', 'members', 'members.user'],
+    });
+    if (!project[0] || !project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND);
     }
 
-    // Сначала удаляем связанные записи в project_members
-    await this.projectMemberRepository.delete({ project_id: id });
-
-    // Теперь удаляем сам проект
-    const deleteResult = await this.projectRepository.delete(id);
-    if (!deleteResult.affected) {
-      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND);
+    if (project[0].members.length > 0) {
+      project[0].members.map((member) => {
+        if (member.approve && member.role !== ProjectRole.OWNER) {
+          const memberRole = member.role;
+          this.notificationService.createNotification(
+            member.user.user_id,
+            `Пользователь {${project[0].user.name}:${project[0].user.user_id}} удалил проект ${project[0].name}, в который вы были приглашены ранее как ${memberRole}`,
+            NotificationType.PROJECT_DELETE,
+            JSON.stringify(project[0])
+          );
+        }
+      });
     }
+
+    await this.projectRepository.delete(project_id);
   }
 
   async update(
@@ -235,10 +249,6 @@ export class ProjectsService {
         name: true,
         created_at: true,
         updated_at: true,
-        // user: {
-        //   name: true,
-        //   email: true,
-        // },
         client: {
           client_id: true,
           name: true,

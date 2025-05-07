@@ -451,4 +451,11 @@ export class ProjectSharedService {
     projectMember.approve = false;
     return this.projectMemberRepository.save(projectMember);
   }
+
+  async findMemberByMembereId(member_id: string) {
+    return await this.projectMemberRepository.findOne({
+      where: { member_id: member_id },
+      relations: ['user', 'project', 'currency'],
+    });
+  }
 }

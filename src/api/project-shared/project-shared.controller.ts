@@ -46,6 +46,17 @@ export class ProjectMembersController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get project member by member id' })
+  @ApiResponse({ status: 200, type: ProjectMember })
+  @UseGuards(JwtAuthGuard)
+  @Get('member/:member_id')
+  async findMemberByMembereId(
+    @Param('member_id') member_id: string
+  ): Promise<ProjectMember> {
+    return this.projectMembersService.findMemberByMembereId(member_id);
+  }
+
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get projects with members' })
   @ApiResponse({ status: 200, type: [ProjectMember] })
   @UseGuards(JwtAuthGuard)
@@ -154,7 +165,7 @@ export class ProjectMembersController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Change member on project' })
+  @ApiOperation({ summary: '' })
   @ApiResponse({ status: 200, type: ProjectMember })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
@@ -189,5 +200,18 @@ export class ProjectMembersController {
       user_id,
       user.user_id
     );
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'User leave project with notifications' })
+  @ApiResponse({ status: 200, type: ProjectMember })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Post('/leave/:project_id/:member_id')
+  async leaveProject(
+    @Param('project_id') project_id: string,
+    @Param('member_id') member_id: string
+  ) {
+    return this.projectMembersService.leaveProject(project_id, member_id);
   }
 }

@@ -7,6 +7,7 @@ export enum NotificationType {
   PROJECT_INVITATION_ACCEPTED = 'project_invitation_accepted',
   PROJECT_INVITATION_DECLINED = 'project_invitation_declined',
   PROJECT_INVITATION = 'project_invitation',
+  PROJECT_DELETE = 'project_delete',
   PROJECT_COMMENT = 'project_comment',
   TASK_INVITATION_ACCEPTED = 'task_invitation_accepted',
   TASK_INVITATION_DECLINED = 'task_invitation_declined',
