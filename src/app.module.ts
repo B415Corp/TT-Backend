@@ -59,13 +59,6 @@ import { TaskStatusColumnModule } from './api/task-status-column/task-status-col
           synchronize: true,
           logging: environment !== 'production' ? ['error'] : false, // Disable logging in production
         };
-        console.log('dbConfig', dbConfig);
-        
-
-        // console.log('Database connection config:', {
-        //   ...dbConfig,
-        //   host_port: configService.get<number>('PORT'),
-        // });
 
         return dbConfig;
       },
