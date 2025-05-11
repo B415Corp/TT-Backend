@@ -54,7 +54,10 @@ export class SearchController {
     return this.searchService.searchV2(
       user,
       searchDto.searchTerm,
-      searchDto.searchLocation
+      searchDto.searchLocation,
+      undefined, // maxResults (по умолчанию)
+      undefined, // offset (по умолчанию)
+      searchDto.sort
     );
   }
 }

@@ -65,14 +65,50 @@ export class SearchService {
     searchTerm: string,
     searchLocation: SEARCH_LOCATION = SEARCH_LOCATION.ALL,
     maxResults: number = 5,
-    offset: number = 0
+    offset: number = 0,
+    sort?: { by: 'name' | 'date'; order: 'asc' | 'desc' }[]
   ) {
+    // Приведение sort к массиву (устраняет ошибку sort.map is not a function)
+    if (!Array.isArray(sort)) {
+      sort = sort ? [sort] : [];
+    }
+
     const results = {
       projects: [],
       tasks: [],
       clients: [],
       users: [],
     };
+
+    // Вспомогательная функция мультисортировки
+    function multiSort(arr: any[], sortArr: { by: string; order: 'asc' | 'desc' }[]) {
+      if (!arr || !arr.length || !sortArr || !sortArr.length) return arr;
+      // Оставляем только валидные критерии сортировки
+      const validSortArr = sortArr.filter(s => s.by === 'name' || s.by === 'date');
+      if (!validSortArr.length) return arr;
+      return arr.sort((a, b) => {
+        for (const sortItem of validSortArr) {
+          let aValue, bValue;
+          if (sortItem.by === 'name') {
+            aValue = a.title !== undefined ? a.title : a.name;
+            bValue = b.title !== undefined ? b.title : b.name;
+          } else if (sortItem.by === 'date') {
+            aValue = a.createdAt;
+            bValue = b.createdAt;
+          } else {
+            continue;
+          }
+          if (aValue === undefined || bValue === undefined) continue;
+          if (typeof aValue === 'string' && typeof bValue === 'string') {
+            aValue = aValue.toLowerCase();
+            bValue = bValue.toLowerCase();
+          }
+          if (aValue < bValue) return sortItem.order === 'asc' ? -1 : 1;
+          if (aValue > bValue) return sortItem.order === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
 
     if (
       searchLocation === SEARCH_LOCATION.ALL ||
@@ -84,6 +120,16 @@ export class SearchService {
         maxResults,
         offset
       );
+      if (sort && sort.length) {
+        // Для проектов: name → name, date → createdAt
+        results.projects = multiSort(
+          results.projects,
+          sort.map(s => ({
+            by: s.by === 'name' ? 'name' : 'createdAt',
+            order: s.order,
+          }))
+        );
+      }
     }
     if (
       searchLocation === SEARCH_LOCATION.ALL ||
@@ -95,6 +141,16 @@ export class SearchService {
         maxResults,
         offset
       );
+      if (sort && sort.length) {
+        // Для задач: name → title, date → createdAt
+        results.tasks = multiSort(
+          results.tasks,
+          sort.map(s => ({
+            by: s.by === 'name' ? 'title' : 'createdAt',
+            order: s.order,
+          }))
+        );
+      }
     }
     if (
       searchLocation === SEARCH_LOCATION.ALL ||
@@ -106,6 +162,16 @@ export class SearchService {
         maxResults,
         offset
       );
+      if (sort && sort.length) {
+        // Для клиентов: name → name, date → createdAt
+        results.clients = multiSort(
+          results.clients,
+          sort.map(s => ({
+            by: s.by === 'name' ? 'name' : 'createdAt',
+            order: s.order,
+          }))
+        );
+      }
     }
     if (
       searchLocation === SEARCH_LOCATION.ALL ||
@@ -116,6 +182,16 @@ export class SearchService {
         maxResults,
         offset
       );
+      if (sort && sort.length) {
+        // Для пользователей: name → name, date → createdAt
+        results.users = multiSort(
+          results.users,
+          sort.map(s => ({
+            by: s.by === 'name' ? 'name' : 'createdAt',
+            order: s.order,
+          }))
+        );
+      }
     }
 
     return results;
