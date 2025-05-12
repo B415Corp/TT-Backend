@@ -184,6 +184,7 @@ export class ProjectMembersController {
     );
   }
 
+
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a user from a project' })
   @ApiResponse({ status: 200, type: ProjectMember })

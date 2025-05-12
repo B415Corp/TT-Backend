@@ -31,11 +31,29 @@ import { User } from '../../entities/user.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TasksService } from './tasks.service';
+import { UpdateTaskOrderDTO } from './dto/update-task-order.dto';
 
 @ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Массовое обновление порядка задач в колонке' })
+  @ApiResponse({
+    status: 200,
+    description: 'Порядок задач успешно обновлён',
+    type: Boolean,
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(
+    [PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER, PROJECT_ROLE.EXECUTOR],
+    'project'
+  )
+  @Patch('order')
+  async updateTaskOrder(@Body() dto: UpdateTaskOrderDTO) {
+    return this.tasksService.updateTaskOrder(dto);
+  }
 
   @Version('2')
   @ApiBearerAuth()
@@ -136,7 +154,10 @@ export class TasksController {
     type: Task,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER, PROJECT_ROLE.EXECUTOR], 'task')
+  @Roles(
+    [PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER, PROJECT_ROLE.EXECUTOR],
+    'task'
+  )
   @Patch(':task_id')
   async update(
     @Param('task_id') id: string,

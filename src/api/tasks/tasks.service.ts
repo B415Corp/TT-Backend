@@ -15,6 +15,7 @@ import { TaskStatus } from '../../entities/task-status.entity';
 import { TaskStatusService } from '../task-status/task-status.service';
 import { TaskStatusColumnService } from '../task-status-column/task-status-column.service';
 import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
+import { UpdateTaskOrderDTO } from './dto/update-task-order.dto';
 
 @Injectable()
 export class TasksService {
@@ -407,5 +408,34 @@ export class TasksService {
         },
       },
     });
+  }
+
+  async updateTaskOrder(dto: UpdateTaskOrderDTO) {
+    // Получаем все задачи в проекте и колонке
+    const tasks = await this.taskRepository.find({
+      where: {
+        project_id: dto.project_id,
+        taskStatus: {
+          taskStatusColumn: {
+            id: dto.column_id,
+          },
+        },
+      },
+      relations: ['taskStatus', 'taskStatus.taskStatusColumn'],
+    });
+
+    // Обновляем order для каждой задачи из массива task_orders
+    const updates = dto.task_orders.map(({ task_id, order }) => {
+      const task = tasks.find((t) => t.task_id === task_id);
+      if (task) {
+        task.order = order;
+        return this.taskRepository.save(task);
+      }
+      return null;
+    });
+
+    await Promise.all(updates);
+
+    return { success: true };
   }
 }
