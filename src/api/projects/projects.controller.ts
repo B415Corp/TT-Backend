@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
@@ -32,6 +33,7 @@ import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto
 import { Roles } from 'src/guards/roles.decorator';
 import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { RoleGuard } from 'src/guards/role.guard';
+import { ProjectFilterDto } from './dto/project-filter.dto';
 
 @ApiTags('projects')
 @Controller('projects')
@@ -63,14 +65,49 @@ export class ProjectsController {
     type: Number,
     description: 'Page number',
   })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Items per page',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['name', 'created_at'],
+    description: 'Sort by field',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['ASC', 'DESC'],
+    description: 'Sort order',
+  })
+  @ApiQuery({
+    name: 'role',
+    required: false,
+    enum: PROJECT_ROLE,
+    description: 'Filter by project role',
+  })
+  @ApiQuery({
+    name: 'client_id',
+    required: false,
+    type: String,
+    description: 'Filter by client ID',
+  })
   @UseGuards(JwtAuthGuard)
   @Get('me')
   @Paginate()
   async getMe(
     @GetUser() user: User,
-    @PaginationParams() paginationQuery: PaginationQueryDto
+    @PaginationParams() paginationQuery: PaginationQueryDto,
+    @Query() filterQuery: ProjectFilterDto
   ) {
-    return this.projectsService.findMyProjects(user.user_id, paginationQuery);
+    return this.projectsService.findMyProjects(
+      user.user_id,
+      paginationQuery,
+      filterQuery
+    );
   }
 
   @ApiBearerAuth()

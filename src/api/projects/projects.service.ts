@@ -17,6 +17,7 @@ import { PROJECT_ROLE } from '../../common/enums/project-role.enum';
 import { TaskStatusColumnService } from '../task-status-column/task-status-column.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from 'src/common/enums/notification-type.enum';
+import { ProjectFilterDto } from './dto/project-filter.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -124,31 +125,52 @@ export class ProjectsService {
     return project[0];
   }
 
-  async findMyProjects(user_id: string, paginationQuery: PaginationQueryDto) {
+  async findMyProjects(
+    user_id: string,
+    paginationQuery: PaginationQueryDto,
+    filterQuery: ProjectFilterDto
+  ) {
     const { page, limit } = paginationQuery;
+    const {
+      sortBy = 'project_id',
+      sortOrder = 'ASC',
+      role,
+      client_id,
+    } = filterQuery;
     const skip = (page - 1) * limit;
 
     const qb = this.projectRepository
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.currency', 'currency')
       .leftJoinAndSelect('project.client', 'client')
-      .leftJoinAndSelect('project.members', 'members')
+      .leftJoinAndSelect(
+        'project.members',
+        'members',
+        'members.user_id = :user_id AND members.approve = true',
+        { user_id }
+      )
       .leftJoinAndSelect('members.user', 'user')
       .leftJoinAndSelect('user.subscriptions', 'subscriptions')
-      .where((qb) => {
-        const subQuery = qb
-          .subQuery()
-          .select('member.project_id')
-          .from('project_members', 'member') // укажите реальное имя таблицы связей members, если отличается
-          .leftJoin('member.user', 'memberUser')
-          .where('memberUser.user_id = :user_id', { user_id })
-          .andWhere('member.approve = true')
-          .getQuery();
-        return 'project.project_id IN ' + subQuery;
-      })
-      .orderBy('project.project_id', 'ASC')
-      .skip(skip)
-      .take(limit);
+      .where('members.user_id IS NOT NULL'); // Убедимся, что связь members существует
+
+    if (role) {
+      qb.andWhere('members.role = :role', { role });
+    }
+
+    if (client_id) {
+      qb.andWhere('project.client_id = :client_id', { client_id });
+    }
+
+    if (sortBy === 'name' || sortBy === 'created_at') {
+      qb.orderBy(
+        `project.${sortBy}`,
+        sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+      );
+    } else {
+      qb.orderBy('project.project_id', 'ASC');
+    }
+
+    qb.skip(skip).take(limit);
 
     const [projects, total] = await qb.getManyAndCount();
     return [projects, total];
