@@ -149,6 +149,7 @@ export class ProjectsService {
         'members.user_id = :user_id AND members.approve = true',
         { user_id }
       )
+      .leftJoinAndSelect('members.currency', 'memberCurrency')
       .leftJoinAndSelect('members.user', 'user')
       .leftJoinAndSelect('user.subscriptions', 'subscriptions')
       .where('members.user_id IS NOT NULL'); // Убедимся, что связь members существует

@@ -218,11 +218,16 @@ export class ProjectSharedService {
   ): Promise<ProjectMember[]> {
     return this.projectMemberRepository.find({
       where: { project_id: projectId },
-      relations: ['user'],
+      relations: ['user', 'currency'],
       select: {
         user: {
           user_id: true,
           email: true,
+          name: true,
+        },
+        currency: {
+          code: true,
+          symbol: true,
           name: true,
         },
       },
@@ -398,7 +403,10 @@ export class ProjectSharedService {
           };
         case PROJECT_MEMBER_FILTERLTER.SHARED:
           return {
-            where: { project_id: dto.project_id, role: Not(PROJECT_ROLE.OWNER) },
+            where: {
+              project_id: dto.project_id,
+              role: Not(PROJECT_ROLE.OWNER),
+            },
             relations: relationsList,
             select: selectList,
           };

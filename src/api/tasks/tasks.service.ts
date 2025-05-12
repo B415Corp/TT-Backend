@@ -165,6 +165,7 @@ export class TasksService {
             id: true,
             name: true,
             color: true,
+            order: true,
           },
         },
         project: {
