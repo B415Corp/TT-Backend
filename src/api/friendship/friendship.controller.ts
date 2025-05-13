@@ -67,10 +67,10 @@ export class FriendshipController {
   @UseGuards(JwtAuthGuard)
   @Get('/:user_id')
   async getByUserId(
-    @Param('friendId') friendId: string,
+    @Param('user_id') user_id: string,
     @GetUser() user: User
   ): Promise<Friendship> {
-    return this.friendshipService.findByUserId(friendId, user.user_id);
+    return this.friendshipService.findByUserId(user_id, user.user_id);
   }
 
   @ApiBearerAuth()

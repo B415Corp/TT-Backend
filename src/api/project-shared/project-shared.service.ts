@@ -70,6 +70,7 @@ export class ProjectSharedService {
         project_id: true,
         role: true,
         rate: true,
+        payment_type: true,
         currency: {
           name: true,
           code: true,
