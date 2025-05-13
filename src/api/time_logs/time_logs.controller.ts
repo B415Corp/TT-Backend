@@ -31,8 +31,8 @@ import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/guards/roles.decorator';
 import { SubscriptionGuard } from 'src/guards/subscription.guard';
-import { Subscription } from 'src/decorators/subscription.decorator';
-import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
+// import { Subscription } from 'src/decorators/subscription.decorator';
+// import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 
 @ApiTags('time-logs')
 @Controller('time-logs')
@@ -46,6 +46,15 @@ export class TimeLogsController {
   @Get('/latest')
   async getLatestTimeLog(@GetUser() user: User) {
     return this.timeLogsService.findLatestLogByUserId(user.user_id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get the latest time log for the user' })
+  @ApiResponse({ status: 200, type: TimeLog })
+  @Get('/stats/task/:task_id')
+  async timeLogsStatsByTask(@Param('task_id') task_id: string) {
+    return this.timeLogsService.timeLogsStatsByTask(task_id);
   }
 
   @ApiBearerAuth()
@@ -113,7 +122,7 @@ export class TimeLogsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, SubscriptionGuard)
   @Get(':task_id/logs')
-  @Subscription(SubscriptionType.BASIC, SubscriptionType.PREMIUM)
+  // @Subscription(SubscriptionType.BASIC, SubscriptionType.PREMIUM)
   @Paginate()
   async getMe(
     @Param('task_id') id: string,

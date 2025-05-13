@@ -10,12 +10,15 @@ import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto
 import { TimeLog } from '../../entities/time-logs.entity';
 import { ErrorMessages } from '../../common/error-messages';
 import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
+import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class TimeLogsService {
   constructor(
     @InjectRepository(TimeLog)
-    private timeLogRepository: Repository<TimeLog>
+    private timeLogRepository: Repository<TimeLog>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>
   ) {}
 
   async start(task_id: string, user_id: string): Promise<TimeLog> {
@@ -252,5 +255,87 @@ export class TimeLogsService {
     }
 
     return latestLog;
+  }
+
+  async timeLogsStatsByTask(task_id: string): Promise<{
+    total_logs: number;
+    total_duration: number;
+    max_duration: number;
+    min_duration: number;
+    average_duration: number;
+    users: Array<{ user: Omit<User, 'password' | 'created_at' | 'updated_at'> | null; role: string }>;
+    first_log: Date | null;
+    last_log: Date | null;
+  }> {
+    if (!task_id) {
+      throw new BadRequestException(ErrorMessages.TASK_NOT_FOUND);
+    }
+
+    const result = await this.timeLogRepository
+      .createQueryBuilder('time_log')
+      .select('COUNT(*)', 'total_logs')
+      .addSelect('SUM(time_log.duration)', 'total_duration')
+      .addSelect('MAX(time_log.duration)', 'max_duration')
+      .addSelect('MIN(time_log.duration)', 'min_duration')
+      .addSelect('user.user_id', 'user_id')
+      .addSelect('project_member.role', 'role')
+      .addSelect('MAX(time_log.created_at)', 'last_log')
+      .addSelect('MIN(time_log.created_at)', 'first_log')
+      .leftJoin('time_log.task', 'task')
+      .leftJoin('task.taskMembers', 'task_member')
+      .leftJoin('task_member.user', 'user')
+      .leftJoin('task_member.projectMember', 'project_member')
+      .where('time_log.task_id = :task_id', { task_id })
+      .groupBy('user.user_id')
+      .addGroupBy('project_member.role')
+      .getRawMany();
+
+    const total_logs = Number(result[0]?.total_logs || 0);
+    const total_duration = Number(result[0]?.total_duration || 0);
+    const max_duration = Number(result[0]?.max_duration || 0);
+    const min_duration = Number(result[0]?.min_duration || 0);
+    const average_duration = total_logs > 0 ? total_duration / total_logs : 0;
+
+    // Собираем user_id из результата
+    const userIds = result.map((row) => row.user_id).filter(Boolean);
+
+    // Получаем пользователей по user_id
+    const usersMap: Record<string, Omit<User, 'password' | 'created_at' | 'updated_at'>> = {};
+    if (userIds.length > 0) {
+      const users = await this.userRepository.findByIds(userIds);
+      users.forEach((user) => {
+        const safeUser = { ...user };
+        delete safeUser.password;
+        delete safeUser.created_at;
+        delete safeUser.updated_at;
+        usersMap[user.user_id] = safeUser;
+      });
+    }
+
+    // Собираем массив пользователей с ролями
+    const usersWithRoles = result.map((row) => {
+      const user = usersMap[row.user_id] || null;
+      if (user) {
+        return {
+          user,
+          role: row.role,
+        };
+      }
+      return {
+        user: null,
+        role: row.role,
+      };
+    });
+
+    return {
+      total_logs,
+      total_duration,
+      max_duration,
+      min_duration,
+      average_duration,
+      users: usersWithRoles,
+      first_log: result[0]?.first_log ? new Date(result[0]?.first_log) : null,
+      last_log: result[0]?.last_log ? new Date(result[0]?.last_log) : null,
+    };
   }
 }
