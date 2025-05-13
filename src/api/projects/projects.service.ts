@@ -143,20 +143,20 @@ export class ProjectsService {
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.currency', 'currency')
       .leftJoinAndSelect('project.client', 'client')
-      .leftJoinAndSelect(
-        'project.members',
-        'members',
-        'members.user_id = :user_id AND members.approve = true',
-        { user_id }
-      )
+      .leftJoinAndSelect('project.members', 'members')
       .leftJoinAndSelect('members.currency', 'memberCurrency')
       .leftJoinAndSelect('members.user', 'user')
       .leftJoinAndSelect('user.subscriptions', 'subscriptions')
-      .where('members.user_id IS NOT NULL'); // Убедимся, что связь members существует
-
-    if (role) {
-      qb.andWhere('members.role = :role', { role });
-    }
+      .where((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('member.project_id')
+          .from('project_members', 'member') // замените на вашу таблицу
+          .where('member.user_id = :user_id', { user_id })
+          .andWhere(role ? 'member.role = :role' : '1=1', { role })
+          .getQuery();
+        return 'project.project_id IN ' + subQuery;
+      });
 
     if (client_id) {
       qb.andWhere('project.client_id = :client_id', { client_id });
@@ -173,7 +173,22 @@ export class ProjectsService {
 
     qb.skip(skip).take(limit);
 
+    // Получаем проекты
     const [projects, total] = await qb.getManyAndCount();
+
+    // Сортируем участников каждого проекта в нужном порядке
+    projects.forEach((project) => {
+      project.members.sort((a, b) => {
+        // Функция для приоритета роли
+        function rolePriority(member) {
+          if (member.role === 'owner') return 0;
+          if (member.user.user_id === user_id) return 1;
+          return 2;
+        }
+        return rolePriority(a) - rolePriority(b);
+      });
+    });
+
     return [projects, total];
   }
 
