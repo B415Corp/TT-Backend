@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { TimeLogsService } from './time_logs.service';
 import {
   ApiBearerAuth,
@@ -73,8 +81,11 @@ export class TimeLogsController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.EXECUTOR], 'project')
   @Patch(':task_id/stop')
-  async stop(@Param('task_id') id: string) {
-    return this.timeLogsService.stop(id);
+  async stop(
+    @Param('task_id') id: string,
+    @Query('client_time') client_time: string
+  ) {
+    return this.timeLogsService.stop(id, client_time);
   }
 
   @ApiBearerAuth()

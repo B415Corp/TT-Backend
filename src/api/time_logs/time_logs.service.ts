@@ -52,7 +52,8 @@ export class TimeLogsService {
     return this.timeLogRepository.save(time_log);
   }
 
-  async stop(task_id: string): Promise<TimeLog> {
+  async stop(task_id: string, client_time: string): Promise<TimeLog> {
+    // Если task_id не указан
     if (!task_id) {
       throw new BadRequestException('Необходимо указать task_id.');
     }
@@ -61,23 +62,36 @@ export class TimeLogsService {
       where: { task_id, status: 'in-progress' },
     });
 
+    // Если лог не найден
     if (!time_log) {
       throw new NotFoundException(ErrorMessages.TIME_LOG_NOT_STARTED);
     }
 
+    // Если лог уже завершен
     if (time_log.status === 'completed') {
       throw new ConflictException(ErrorMessages.TIME_LOG_ALREADY_STOPPED);
     }
 
     const start_time = new Date(time_log.start_time).getTime();
-    const end_time = new Date().getTime();
+    const server_end_time = Date.now();
+
+    // Парсим client_time
+    const client_end_time = new Date(client_time).getTime();
+
+    // Проверяем валидность client_time
+    const isClientTimeValid =
+      !isNaN(client_end_time) &&
+      Math.abs(server_end_time - client_end_time) <= 5000; // 5 секунд
+
+    const end_time = isClientTimeValid ? client_end_time : server_end_time;
+
     const duration = end_time - start_time;
 
     return this.timeLogRepository.save({
       ...time_log,
       status: 'completed',
       duration,
-      end_time: new Date(),
+      end_time: new Date(end_time),
     });
   }
 
@@ -221,7 +235,11 @@ export class TimeLogsService {
       ])
       .where('project_members.user_id = :userId', { userId })
       .andWhere('project_members.role IN (:...roles)', {
-        roles: [PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER, PROJECT_ROLE.EXECUTOR],
+        roles: [
+          PROJECT_ROLE.OWNER,
+          PROJECT_ROLE.MANAGER,
+          PROJECT_ROLE.EXECUTOR,
+        ],
       })
       .orderBy('time_log.created_at', 'DESC')
       .getOne();
