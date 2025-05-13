@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
+import { Repository, Brackets } from 'typeorm';
 import { Task } from '../../entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { Project } from '../../entities/project.entity';
@@ -312,54 +312,42 @@ export class TasksService {
     maxResults: number,
     offset: number
   ) {
-    const whereCondition: any = {
-      user_id: userId,
-    };
+    const query = this.taskRepository
+      .createQueryBuilder('task')
+      .leftJoinAndSelect('task.currency', 'currency')
+      .leftJoinAndSelect('task.project', 'project')
+      .leftJoinAndSelect('task.taskStatus', 'taskStatus')
+      .leftJoinAndSelect('task.taskMembers', 'taskMembers')
+      .leftJoinAndSelect('taskMembers.user', 'taskMemberUser')
+      .leftJoinAndSelect('taskStatus.taskStatusColumn', 'taskStatusColumn')
+      .where('task.user_id = :userId', { userId })
+      .orderBy('task.created_at', 'DESC')
+      .take(maxResults)
+      .skip(offset);
 
     if (searchTerm) {
-      whereCondition.name = ILike(`%${searchTerm}%`);
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('task.name ILIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          })
+            .orWhere('task.description ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            })
+            .orWhere('project.name ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            })
+            .orWhere('taskMemberUser.name ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            })
+            .orWhere('taskMemberUser.email ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            });
+        })
+      );
     }
 
-    return this.taskRepository.find({
-      where: whereCondition,
-      relations: [
-        'currency',
-        'user',
-        'project',
-        'taskStatus',
-        'taskStatus.taskStatusColumn',
-      ],
-      take: maxResults,
-      skip: offset,
-      order: { created_at: 'DESC' },
-      select: {
-        task_id: true,
-        name: true,
-        description: true,
-        is_paid: true,
-        payment_type: true,
-        rate: true,
-        order: true,
-        created_at: true,
-        updated_at: true,
-        user: {
-          name: true,
-          email: true,
-        },
-        project: {
-          project_id: true,
-          name: true,
-        },
-        taskStatus: {
-          id: true,
-          taskStatusColumn: {
-            id: true,
-            name: true,
-            color: true,
-          },
-        },
-      },
-    });
+    return query.getMany();
   }
 
   async findTasksByUserId(userId: string): Promise<Task[]> {

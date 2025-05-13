@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
+import { Repository, Brackets } from 'typeorm';
 import { Project } from '../../entities/project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -253,32 +253,36 @@ export class ProjectsService {
     maxResults: number,
     offset: number
   ) {
-    const whereCondition: any = {
-      user_owner_id: userId,
-    };
+    const query = this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.client', 'client')
+      .leftJoinAndSelect('project.members', 'member')
+      .leftJoinAndSelect('member.currency', 'currency')
+      .leftJoinAndSelect('member.user', 'user')
+      .leftJoinAndSelect('user.subscriptions', 'subscriptions')
+      .where('project.user_owner_id = :userId', { userId })
+      .orderBy('project.created_at', 'DESC')
+      .take(maxResults)
+      .skip(offset);
 
     if (searchTerm) {
-      whereCondition.name = ILike(`%${searchTerm}%`);
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('project.name ILIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          })
+            .orWhere('client.name ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            })
+            .orWhere('user.email ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            });
+          // Добавьте другие поля для поиска здесь, если нужно
+        })
+      );
     }
 
-    return this.projectRepository.find({
-      where: whereCondition,
-      relations: ['user', 'client', 'currency'],
-      take: maxResults,
-      skip: offset,
-      order: { created_at: 'DESC' },
-      select: {
-        project_id: true,
-        name: true,
-        created_at: true,
-        updated_at: true,
-        client: {
-          client_id: true,
-          name: true,
-          contact_info: true,
-        },
-      },
-    });
+    return query.getMany();
   }
 
   async createProjectMembersForExistingProjects(): Promise<void> {
