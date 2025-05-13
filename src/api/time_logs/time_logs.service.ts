@@ -156,7 +156,7 @@ export class TimeLogsService {
     }
 
     const latestLog = await this.timeLogRepository.findOne({
-      where: { task_id, user_id },
+      where: { task_id },
       order: { created_at: 'DESC' },
     });
 
