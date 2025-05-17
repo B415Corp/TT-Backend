@@ -1,10 +1,25 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { PaginationQueryDto } from '../common/pagination/pagination-query.dto';
 import { createPaginatedResponse } from '../common/pagination/create-paginated-response.util';
+import { ApiQuery } from '@nestjs/swagger';
 
 export function Paginate(defaultLimit: number = 10) {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value;
+
+    ApiQuery({
+      name: 'page',
+      required: false,
+      type: Number,
+      description: 'Номер страницы',
+    })(target, propertyKey, descriptor);
+    ApiQuery({
+      name: 'limit',
+      required: false,
+      type: Number,
+      description: 'Количество элементов на странице',
+      example: defaultLimit,
+    })(target, propertyKey, descriptor);
 
     descriptor.value = async function (...args: any[]) {
       let paginationQuery: PaginationQueryDto;

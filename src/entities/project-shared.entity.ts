@@ -6,11 +6,14 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from './user.entity';
 import { Project } from './project.entity';
-import { ProjectRole } from '../common/enums/project-role.enum';
+import { PROJECT_ROLE } from '../common/enums/project-role.enum';
+import { Currency } from './currency.entity';
+import { TaskMember } from './task-shared.entity';
 
 @Entity('project_members')
 export class ProjectMember {
@@ -27,19 +30,26 @@ export class ProjectMember {
   user_id: string;
 
   @ApiProperty({
-    enum: ProjectRole,
+    enum: PROJECT_ROLE,
     description: 'Role of the user in the project',
   })
   @Column({
     type: 'enum',
-    enum: ProjectRole,
-    default: ProjectRole.GUEST,
+    enum: PROJECT_ROLE,
+    default: PROJECT_ROLE.GUEST,
   })
-  role: ProjectRole;
+  role: PROJECT_ROLE;
 
   @ApiProperty({ type: Boolean })
   @Column({ default: false })
   approve: boolean;
+
+  @ApiProperty({
+    enum: ['fixed', 'hourly'],
+    description: 'Payment type for the task',
+  })
+  @Column({ default: 'hourly' })
+  payment_type: 'fixed' | 'hourly';
 
   @ApiProperty({ type: Date })
   @CreateDateColumn()
@@ -48,6 +58,10 @@ export class ProjectMember {
   @ApiProperty({ type: Date })
   @UpdateDateColumn()
   updated_at: Date;
+
+  @ApiProperty({ type: Number, description: 'Rate for the task' })
+  @Column('decimal', { default: 0 })
+  rate: number;
 
   @ManyToOne(() => Project, (project) => project.members, {
     onDelete: 'CASCADE',
@@ -60,4 +74,20 @@ export class ProjectMember {
   })
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @ApiProperty({
+    type: () => Currency,
+    description: 'Currency associated with the task',
+  })
+  @ManyToOne(() => Currency, (currency) => currency.tasks, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'currency_id' })
+  currency: Currency;
+
+  @OneToMany(() => TaskMember, (member) => member.member_id, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'taskMember' })
+  projectMember: TaskMember;
 }

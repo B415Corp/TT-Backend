@@ -1,23 +1,30 @@
-FROM node:18-alpine  AS builder
+FROM node:20-alpine AS builder
+
+# Установка зависимостей для сборки
+RUN apk add --no-cache make gcc g++ python3
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-
-RUN npm install
+RUN npm install -g @nestjs/cli && \
+    npm ci --omit=dev --build-from-source
 
 COPY . .
-
 RUN npm run build
 
-FROM node:18-alpine
+# Копируем ВСЕ необходимые файлы для production
+FROM node:20-alpine
+
+RUN apk add --no-cache libc6-compat
 
 WORKDIR /usr/src/app
 
-COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/node_modules ./node_modules
+# Копируем package.json и lock-файлы
 COPY --from=builder /usr/src/app/package*.json ./
 
-EXPOSE 3000
+# Копируем собранные файлы и зависимости
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/node_modules ./node_modules
 
-CMD ["npm", "run", "start:prod"]
+EXPOSE 3000
+CMD ["node", "dist/src/main"]

@@ -1,4 +1,3 @@
-import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 import {
   Column,
   CreateDateColumn,
@@ -14,6 +13,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ProjectMember } from './project-shared.entity';
 import { TaskMember } from './task-shared.entity';
 import { TimeLog } from './time-logs.entity';
+import { Subscription } from './subscription.entity';
+import { Friendship } from './friend.entity';
+import { Notification } from './notification.entity';
 
 @Entity({ name: 'users' }) // Указываем имя таблицы, если нужно использовать отличное от имени класса
 export class User {
@@ -33,11 +35,20 @@ export class User {
   @Column()
   password: string;
 
-  @ApiProperty({ enum: SubscriptionType, enumName: 'SubscriptionType' })
-  @Column({ enum: SubscriptionType, default: SubscriptionType.FREE })
-  subscriptionType: SubscriptionType;
+  // @ApiProperty({ enum: SubscriptionType, enumName: 'SubscriptionType' })
+  // @Column({ enum: SubscriptionType, default: SubscriptionType.FREE })
+  // subscriptionType: SubscriptionType;
 
-  @ApiProperty({ type: Date })
+  @Column({
+    type: String,
+    default:
+      'https://api.dicebear.com/9.x/thumbs/svg?backgroundColor=000000&mouth=variant2',
+  })
+  avatar: string;
+
+  @OneToMany(() => Subscription, (subscription) => subscription.user)
+  subscriptions: Subscription[];
+
   @CreateDateColumn({ type: 'timestamp with time zone' })
   created_at: Date;
 
@@ -80,4 +91,21 @@ export class User {
     onDelete: 'CASCADE',
   })
   timeLogs: TimeLog[];
+
+  @OneToMany(() => Friendship, (friendship) => friendship.sender, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  friendships: Friendship[];
+
+  @OneToMany(() => Friendship, (friendship) => friendship.recipient, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  friends: Friendship[];
+
+  @OneToMany(() => Notification, (notification) => notification.user, {
+    onDelete: 'CASCADE',
+  })
+  notifications: Notification[];
 }

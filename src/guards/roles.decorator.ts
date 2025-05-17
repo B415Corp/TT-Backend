@@ -4,10 +4,10 @@ import {
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
 } from '@nestjs/swagger';
-import { ProjectRole } from '../common/enums/project-role.enum';
+import { PROJECT_ROLE } from '../common/enums/project-role.enum';
 import { GetUser } from '../decorators/get-user.decorator'; // Импортируем декоратор для получения пользователя
 
-export const Roles = (roles: ProjectRole[], source: 'project' | 'task') => {
+export const Roles = (roles: PROJECT_ROLE[], source: 'project' | 'task') => {
   return applyDecorators(
     SetMetadata('roles', roles),
     SetMetadata('source', source),

@@ -60,7 +60,7 @@ export class Client {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToMany(() => Tag)
+  @ManyToMany(() => Tag, { onDelete: 'CASCADE' })
   @JoinTable({
     name: 'client_tags',
     joinColumn: { name: 'client_id', referencedColumnName: 'client_id' },

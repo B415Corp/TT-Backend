@@ -1,6 +1,8 @@
 export const JWT_CONSTANTS = {
   SECRET: 'your-secret-key',
-  EXPIRES_IN: '2d', // 2 days
+  EXPIRES_IN: '2d', // 2 days,
+  REFRESH_SECRET: 'your-refresh-secret-key',
+  REFRESH_EXPIRES_IN: '7d', // 7 days
 };
 
 export const popularCurrencies: Array<{ code: string; name: string; symbol: string }> = [

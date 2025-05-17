@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  Version,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -17,7 +18,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { PaginationQueryDto } from 'src/common/pagination/pagination-query.dto';
 import { Paginate, PaginationParams } from 'src/decorators/paginate.decorator';
 import { RoleGuard } from 'src/guards/role.guard';
@@ -30,11 +31,73 @@ import { User } from '../../entities/user.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TasksService } from './tasks.service';
+import { UpdateTaskOrderDTO } from './dto/update-task-order.dto';
 
 @ApiTags('tasks')
 @Controller('tasks')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) { }
+  constructor(private readonly tasksService: TasksService) {}
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Массовое обновление порядка задач в колонке' })
+  @ApiResponse({
+    status: 200,
+    description: 'Порядок задач успешно обновлён',
+    type: Boolean,
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(
+    [PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER, PROJECT_ROLE.EXECUTOR],
+    'project'
+  )
+  @Patch('order')
+  async updateTaskOrder(@Body() dto: UpdateTaskOrderDTO) {
+    return this.tasksService.updateTaskOrder(dto);
+  }
+
+  @Version('2')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new task' })
+  @ApiResponse({
+    status: 201,
+    description: 'The task has been successfully created.',
+    type: Task,
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'project')
+  @Post()
+  async createTaskV2(
+    @Body() createTaskDto: CreateTaskDto,
+    @GetUser() user: User
+  ) {
+    return this.tasksService.create(
+      createTaskDto,
+      user.user_id,
+      createTaskDto.project_id
+    );
+  }
+
+  @Version('1')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new task' })
+  @ApiResponse({
+    status: 201,
+    description: 'The task has been successfully created.',
+    type: Task,
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'project')
+  @Post('create')
+  async createTask(
+    @Body() createTaskDto: CreateTaskDto,
+    @GetUser() user: User
+  ) {
+    return this.tasksService.create(
+      createTaskDto,
+      user.user_id,
+      createTaskDto.project_id
+    );
+  }
 
   @ApiBearerAuth()
   @ApiOkResponse({ type: PaginatedResponseDto<Task> })
@@ -71,27 +134,6 @@ export class TasksController {
   }
 
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a new task' })
-  @ApiResponse({
-    status: 201,
-    description: 'The task has been successfully created.',
-    type: Task,
-  })
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
-  @Post('create')
-  async createTask(
-    @Body() createTaskDto: CreateTaskDto,
-    @GetUser() user: User
-  ) {
-    return this.tasksService.create(
-      createTaskDto,
-      user.user_id,
-      createTaskDto.project_id
-    );
-  }
-
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a task by ID' })
   @ApiResponse({
     status: 200,
@@ -112,7 +154,10 @@ export class TasksController {
     type: Task,
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER, ProjectRole.EXECUTOR], 'task')
+  @Roles(
+    [PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER, PROJECT_ROLE.EXECUTOR],
+    'task'
+  )
   @Patch(':task_id')
   async update(
     @Param('task_id') id: string,
@@ -128,7 +173,7 @@ export class TasksController {
     description: 'Successfully deleted the task.',
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'task')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'task')
   @Delete(':task_id')
   async remove(@Param('task_id') id: string) {
     return this.tasksService.remove(id);

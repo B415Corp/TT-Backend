@@ -8,7 +8,6 @@ export class CreateNotesDto {
   name: string;
 
   @ApiProperty({ description: 'Text-content of note' })
-  @IsNotEmpty()
   @IsString()
   text_content: string;
 }

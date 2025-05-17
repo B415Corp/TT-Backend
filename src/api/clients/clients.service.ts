@@ -72,13 +72,33 @@ export class ClientsService {
     }
   }
 
-  async findByUserIdAndSearchTerm(userId: string, searchTerm: string) {
+  async findByUserIdAndSearchTerm(
+    userId: string,
+    searchTerm: string,
+    maxResults: number,
+    offset: number
+  ) {
+    const whereCondition: any = {
+      user_id: userId,
+    };
+
+    if (searchTerm) {
+      whereCondition.name = ILike(`%${searchTerm}%`);
+    }
+
     return this.clientRepository.find({
-      where: {
-        user_id: userId,
-        name: ILike(`%${searchTerm}%`),
+      where: whereCondition,
+      // relations: ['user'],
+      take: maxResults,
+      skip: offset,
+      order: { created_at: 'DESC' },
+      select: {
+        client_id: true,
+        name: true,
+        contact_info: true,
+        created_at: true,
+        updated_at: true,
       },
-      relations: ['user'],
     });
   }
 }

@@ -9,6 +9,7 @@ import {
   ManyToMany,
   JoinTable,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Project } from './project.entity';
@@ -17,6 +18,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TimeLog } from './time-logs.entity';
 import { Currency } from './currency.entity';
 import { TaskMember } from './task-shared.entity';
+import { TaskStatus } from './task-status.entity';
 
 @Entity()
 export class Task {
@@ -25,7 +27,7 @@ export class Task {
   task_id: string;
 
   @ApiProperty({ type: String, description: 'Name of the task' })
-  @Column()
+  @Column({ length: 120 })
   name: string;
 
   @ApiProperty({
@@ -45,6 +47,10 @@ export class Task {
   @ApiProperty({ type: String, description: 'Description of the task' })
   @Column('text', { default: '' })
   description: string;
+
+  @ApiProperty({ type: Number, description: 'Task order' })
+  @Column({ nullable: true })
+  order: number;
 
   @ApiProperty({ type: Boolean, description: 'Indicates if the task is paid' })
   @Column({ default: false })
@@ -113,4 +119,10 @@ export class Task {
     onDelete: 'CASCADE',
   })
   taskMembers: TaskMember[];
+
+  @OneToOne(() => TaskStatus, (taskStatus) => taskStatus.task, {
+    nullable: true,
+  })
+  @JoinColumn({ name: 'task_status_id' })
+  taskStatus: TaskStatus;
 }

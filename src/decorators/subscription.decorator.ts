@@ -1,8 +1,6 @@
-// subscription.decorator.ts
-import { SetMetadata } from '@nestjs/common';
-import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
+import { SetMetadata } from "@nestjs/common";
 
-export const SUBSCRIPTION_KEY = 'subscription';
-export const Subscription = (...subscriptions: SubscriptionType[]) => {
-  return SetMetadata(SUBSCRIPTION_KEY, subscriptions);
-};
+// subscription.decorator.ts
+export const SUBSCRIPTION_KEY = 'subscriptionPlans';
+export const Subscription = (...plans: string[]) => 
+  SetMetadata(SUBSCRIPTION_KEY, plans);
