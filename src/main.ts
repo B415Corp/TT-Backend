@@ -7,7 +7,7 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { Logger, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-// hello ci-cd
+// hello ci-cd v2
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
