@@ -1,23 +1,29 @@
-FROM node:18-alpine  AS builder
+# backend/Dockerfile.prod
+FROM node:20-alpine AS builder
 
 WORKDIR /usr/src/app
 
+# Устанавливаем Nest CLI и зависимости
 COPY package*.json ./
-
-RUN npm install
+RUN npm install -g @nestjs/cli && \
+    npm ci --omit=dev
 
 COPY . .
-
 RUN npm run build
 
-FROM node:18-alpine
+# Проверка сборки
+RUN ls -la dist/
+
+FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
+# Копируем только нужные файлы
 COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/package*.json ./
 
-EXPOSE 3000
+# Устанавливаем ТОЛЬКО production-зависимости
+RUN npm ci --omit=dev --ignore-scripts
 
-CMD ["npm", "run", "start:prod"]
+EXPOSE 3000
+CMD ["node", "dist/src/main"]
