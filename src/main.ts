@@ -7,6 +7,8 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { Logger, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+// hello ci-cd
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new (await import('@nestjs/common')).ValidationPipe({ transform: true }));
