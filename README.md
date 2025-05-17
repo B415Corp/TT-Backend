@@ -7,3 +7,6 @@ docker-compose up app-dev db-dev adminer
 или
 
 docker-compose up app-prod db-prod adminer
+
+
+test 222
