@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new (await import('@nestjs/common')).ValidationPipe({ transform: true }));
   const logger = new Logger('Bootstrap');
   logger.log('Application is starting...');
 
@@ -37,13 +38,6 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
   });
-
-  // const environmentInfo = {
-  //   environment: environment.toUpperCase(),
-  //   databaseHost: configService.get('DB_HOST'),
-  //   nodeEnv: process.env.NODE_ENV,
-  //   configNodeEnv: configService.get('NODE_ENV'),
-  // };
 
   logger.log(`Environment Info: ${process.env.NODE_ENV}`);
 

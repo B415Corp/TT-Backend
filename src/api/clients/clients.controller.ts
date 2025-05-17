@@ -35,6 +35,23 @@ import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new client' })
+  @ApiResponse({
+    status: 201,
+    description: 'The client has been successfully created.',
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 200, type: CreateClientDto })
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  async createClient(
+    @Body() createClientDto: CreateClientDto,
+    @GetUser() user: User
+  ) {
+    return this.clientsService.create(createClientDto, user.user_id);
+  }
+
   @ApiResponse({ status: 200, type: PaginatedResponseDto<Client> })
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all my clients' })
@@ -69,22 +86,7 @@ export class ClientsController {
     return this.clientsService.findById(id);
   }
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a new client' })
-  @ApiResponse({
-    status: 201,
-    description: 'The client has been successfully created.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  @ApiResponse({ status: 200, type: CreateClientDto })
-  @UseGuards(JwtAuthGuard)
-  @Post('create')
-  async createClient(
-    @Body() createClientDto: CreateClientDto,
-    @GetUser() user: User
-  ) {
-    return this.clientsService.create(createClientDto, user.user_id);
-  }
+
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a client' })

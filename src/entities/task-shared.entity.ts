@@ -10,7 +10,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from './user.entity';
 import { Task } from './task.entity';
-import { ProjectRole } from '../common/enums/project-role.enum';
+import { ProjectMember } from './project-shared.entity';
 
 @Entity('task_members')
 export class TaskMember {
@@ -37,6 +37,12 @@ export class TaskMember {
   })
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @ManyToOne(() => ProjectMember, (member) => member.member_id, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'projectMember' })
+  projectMember: ProjectMember;
 
   @ApiProperty({ type: Date })
   @CreateDateColumn({ type: 'timestamp with time zone' })

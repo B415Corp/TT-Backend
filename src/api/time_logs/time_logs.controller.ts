@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { TimeLogsService } from './time_logs.service';
 import {
   ApiBearerAuth,
@@ -19,9 +27,12 @@ import {
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { TimeLog } from '../../entities/time-logs.entity';
 import { TimeLogsPaginatedResponse } from './dto/time-logs-paginated-response.dto';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/guards/roles.decorator';
+import { SubscriptionGuard } from 'src/guards/subscription.guard';
+// import { Subscription } from 'src/decorators/subscription.decorator';
+// import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 
 @ApiTags('time-logs')
 @Controller('time-logs')
@@ -35,6 +46,15 @@ export class TimeLogsController {
   @Get('/latest')
   async getLatestTimeLog(@GetUser() user: User) {
     return this.timeLogsService.findLatestLogByUserId(user.user_id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get the latest time log for the user' })
+  @ApiResponse({ status: 200, type: TimeLog })
+  @Get('/stats/task/:task_id')
+  async timeLogsStatsByTask(@Param('task_id') task_id: string) {
+    return this.timeLogsService.timeLogsStatsByTask(task_id);
   }
 
   @ApiBearerAuth()
@@ -54,7 +74,7 @@ export class TimeLogsController {
   })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.EXECUTOR], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.EXECUTOR], 'project')
   @Post(':task_id/start')
   async start(@Param('task_id') id: string, @GetUser() user: User) {
     return this.timeLogsService.start(id, user.user_id);
@@ -68,10 +88,13 @@ export class TimeLogsController {
     description: 'The time-log has been successfully stopped.',
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.EXECUTOR], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.EXECUTOR], 'project')
   @Patch(':task_id/stop')
-  async stop(@Param('task_id') id: string) {
-    return this.timeLogsService.stop(id);
+  async stop(
+    @Param('task_id') id: string,
+    @Query('client_time') client_time: string
+  ) {
+    return this.timeLogsService.stop(id, client_time);
   }
 
   @ApiBearerAuth()
@@ -97,8 +120,9 @@ export class TimeLogsController {
     description: 'Page number',
   })
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, SubscriptionGuard)
   @Get(':task_id/logs')
+  // @Subscription(SubscriptionType.BASIC, SubscriptionType.PREMIUM)
   @Paginate()
   async getMe(
     @Param('task_id') id: string,

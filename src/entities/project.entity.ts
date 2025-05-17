@@ -9,6 +9,7 @@ import {
   ManyToMany,
   JoinTable,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Task } from './task.entity';
@@ -17,6 +18,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ProjectMember } from './project-shared.entity';
 import { Client } from './client.entity';
 import { Currency } from './currency.entity';
+import { TaskStatusColumn } from './task-status-colunt.entity';
 
 @Entity()
 export class Project {
@@ -28,7 +30,7 @@ export class Project {
   project_id: string;
 
   @ApiProperty({ type: String, description: 'Name of the project' })
-  @Column()
+  @Column({ length: 120 })
   name: string;
 
   @ApiProperty({
@@ -39,20 +41,10 @@ export class Project {
   @Column({ nullable: true })
   client_id: string | null;
 
+
   @ApiProperty({ type: String, description: 'User ID of the project owner' })
   @Column({ default: '11111111-1111-1111-1111-111111111111' })
   user_owner_id: string;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Currency ID associated with the project',
-  })
-  @Column({ default: 1 })
-  currency_id: number;
-
-  @ApiProperty({ type: Number, description: 'Rate for the project' })
-  @Column({ default: 0 })
-  rate: number;
 
   @ApiProperty({ type: Date, description: 'Creation date of the project' })
   @CreateDateColumn()
@@ -102,4 +94,7 @@ export class Project {
   @ManyToOne(() => Currency, (currency) => currency.projects)
   @JoinColumn({ name: 'currency_id' })
   currency: Currency;
+
+  @OneToOne(() => TaskStatusColumn, (taskStatus) => taskStatus.project)
+  taskStatus: TaskStatusColumn;
 }

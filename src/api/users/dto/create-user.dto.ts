@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
+import { IsEmail, IsString, Matches, MinLength, IsOptional, IsEnum } from 'class-validator';
+import { SubscriptionType } from 'src/common/enums/subscription-type.enum';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John Doe', description: 'The name of the user' })
@@ -30,4 +31,14 @@ export class CreateUserDto {
     message: 'Пароль должен содержать хотя бы один специальный символ',
   })
   readonly password: string;
+
+  @ApiProperty({
+    example: SubscriptionType.FREE,
+    description: 'Тип подписки пользователя',
+    enum: SubscriptionType,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(SubscriptionType)
+  readonly subscriptionType?: SubscriptionType;
 }

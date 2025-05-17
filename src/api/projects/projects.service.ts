@@ -4,17 +4,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, ILike } from 'typeorm';
+import { Repository, Brackets } from 'typeorm';
 import { Project } from '../../entities/project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { PaginationQueryDto } from '../../common/pagination/pagination-query.dto';
 import { Currency } from 'src/entities/currency.entity';
 import { User } from 'src/entities/user.entity';
-import { Tag } from '../../entities/tag.entity';
 import { ErrorMessages } from '../../common/error-messages';
 import { ProjectMember } from '../../entities/project-shared.entity';
-import { ProjectRole } from '../../common/enums/project-role.enum';
+import { PROJECT_ROLE } from '../../common/enums/project-role.enum';
+import { TaskStatusColumnService } from '../task-status-column/task-status-column.service';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType } from 'src/common/enums/notification-type.enum';
+import { ProjectFilterDto } from './dto/project-filter.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -25,10 +28,10 @@ export class ProjectsService {
     private currencyRepository: Repository<Currency>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Tag)
-    private tagRepository: Repository<Tag>,
     @InjectRepository(ProjectMember)
-    private projectMemberRepository: Repository<ProjectMember>
+    private projectMemberRepository: Repository<ProjectMember>,
+    private taskStatusColumnService: TaskStatusColumnService,
+    private notificationService: NotificationService
   ) {}
 
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
@@ -46,18 +49,25 @@ export class ProjectsService {
       throw new NotFoundException(ErrorMessages.CURRENCY_NOT_FOUND);
     }
     const project = this.projectRepository.create({
-      ...dto,
-      currency_id: currencyExist.currency_id,
+      name: dto.name,
+      client_id: dto.client_id,
       user_owner_id,
     });
 
     const savedProject = await this.projectRepository.save(project);
 
+    // Create default task status columns
+    await this.taskStatusColumnService.createManyDefault(
+      savedProject.project_id
+    );
+
     // Create a ProjectMember entry for the owner
     const projectMember = this.projectMemberRepository.create({
       project_id: savedProject.project_id,
       user_id: user_owner_id,
-      role: ProjectRole.OWNER,
+      role: PROJECT_ROLE.OWNER,
+      rate: dto.rate,
+      currency: currencyExist,
       approve: true, // Assuming the owner is automatically approved
     });
 
@@ -67,66 +77,116 @@ export class ProjectsService {
   }
 
   async findById(id: string): Promise<Project> {
-const project = await this.projectRepository.findOne({
-  where: { project_id: id },
-  relations: ['currency', 'client'],
-  select: {
-    rate: true,
-    project_id: true,
-    name: true,
-    created_at: true,
-    currency: {
-      name: true,
-      code: true,
-      symbol: true,
-    },
-    client: {
-      client_id: true,
-      name: true,
-      contact_info: true,
-    },
-  },
-});
-    if (!project) {
-      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(id));
-    }
-    return project;
-  }
-
-  async findMyProjects(
-    key: keyof Project,
-    value: string,
-    paginationQuery: PaginationQueryDto
-  ) {
-    if (!value || !key) {
-      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(''));
-    }
-
-    const { page, limit } = paginationQuery;
-    const skip = (page - 1) * limit;
-
-    const [projects, total] = await this.projectRepository.findAndCount({
-      where: { [key]: value },
-      skip,
-      take: limit,
-      order: { project_id: 'ASC' },
-      relations: ['currency', 'client'], // Добавляем связь с валютой и клиентом
+    const project = await this.projectRepository.find({
+      where: { project_id: id },
+      relations: [
+        'client',
+        'members',
+        'members.currency',
+        'members.user',
+        'members.user.subscriptions',
+      ],
       select: {
-        rate: true,
         project_id: true,
         name: true,
         created_at: true,
-        currency: {
-          name: true,
-          code: true,
-          symbol: true,
-        },
         client: {
           client_id: true,
           name: true,
           contact_info: true,
         },
+        members: {
+          member_id: true,
+          role: true,
+          approve: true,
+          rate: true,
+          payment_type: true,
+          currency: {
+            name: true,
+            code: true,
+            symbol: true,
+          },
+          user: {
+            user_id: true,
+            name: true,
+            email: true,
+            subscriptions: {
+              planId: true,
+              status: true,
+            },
+          },
+        },
       },
+    });
+    if (!project) {
+      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(id));
+    }
+
+    return project[0];
+  }
+
+  async findMyProjects(
+    user_id: string,
+    paginationQuery: PaginationQueryDto,
+    filterQuery: ProjectFilterDto
+  ) {
+    const { page, limit } = paginationQuery;
+    const {
+      sortBy = 'project_id',
+      sortOrder = 'ASC',
+      role,
+      client_id,
+    } = filterQuery;
+    const skip = (page - 1) * limit;
+
+    const qb = this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.currency', 'currency')
+      .leftJoinAndSelect('project.client', 'client')
+      .leftJoinAndSelect('project.members', 'members')
+      .leftJoinAndSelect('members.currency', 'memberCurrency')
+      .leftJoinAndSelect('members.user', 'user')
+      .leftJoinAndSelect('user.subscriptions', 'subscriptions')
+      .where((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select('member.project_id')
+          .from('project_members', 'member') // замените на вашу таблицу
+          .where('member.user_id = :user_id', { user_id })
+          .andWhere(role ? 'member.role = :role' : '1=1', { role })
+          .getQuery();
+        return 'project.project_id IN ' + subQuery;
+      });
+
+    if (client_id) {
+      qb.andWhere('project.client_id = :client_id', { client_id });
+    }
+
+    if (sortBy === 'name' || sortBy === 'created_at') {
+      qb.orderBy(
+        `project.${sortBy}`,
+        sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+      );
+    } else {
+      qb.orderBy('project.project_id', 'ASC');
+    }
+
+    qb.skip(skip).take(limit);
+
+    // Получаем проекты
+    const [projects, total] = await qb.getManyAndCount();
+
+    // Сортируем участников каждого проекта в нужном порядке
+    projects.forEach((project) => {
+      project.members.sort((a, b) => {
+        // Функция для приоритета роли
+        function rolePriority(member) {
+          if (member.role === 'owner') return 0;
+          if (member.user.user_id === user_id) return 1;
+          return 2;
+        }
+        return rolePriority(a) - rolePriority(b);
+      });
     });
 
     return [projects, total];
@@ -154,20 +214,30 @@ const project = await this.projectRepository.findOne({
     return [projects, total];
   }
 
-  async remove(id: string): Promise<void> {
-    const project = await this.projectRepository.findOneBy({ project_id: id });
-    if (!project) {
+  async remove(project_id: string): Promise<void> {
+    const project = await this.projectRepository.find({
+      where: { project_id: project_id },
+      relations: ['user', 'members', 'members.user'],
+    });
+    if (!project[0] || !project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND);
     }
 
-    // Сначала удаляем связанные записи в project_members
-    await this.projectMemberRepository.delete({ project_id: id });
-
-    // Теперь удаляем сам проект
-    const deleteResult = await this.projectRepository.delete(id);
-    if (!deleteResult.affected) {
-      throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND);
+    if (project[0].members.length > 0) {
+      project[0].members.map((member) => {
+        if (member.approve && member.role !== PROJECT_ROLE.OWNER) {
+          const memberRole = member.role;
+          this.notificationService.createNotification(
+            member.user.user_id,
+            `Пользователь {${project[0].user.name}:${project[0].user.user_id}} удалил проект ${project[0].name}, в который вы были приглашены ранее как ${memberRole}`,
+            NotificationType.PROJECT_DELETE,
+            JSON.stringify(project[0])
+          );
+        }
+      });
     }
+
+    await this.projectRepository.delete(project_id);
   }
 
   async update(
@@ -184,7 +254,6 @@ const project = await this.projectRepository.findOne({
     const project = await this.projectRepository.preload({
       project_id,
       ...dto,
-      currency_id: currencyExist.currency_id,
     });
     if (!project) {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(project_id));
@@ -193,14 +262,42 @@ const project = await this.projectRepository.findOne({
     return this.projectRepository.save(project);
   }
 
-  async findByUserIdAndSearchTerm(userId: string, searchTerm: string) {
-    return this.projectRepository.find({
-      where: {
-        user_owner_id: userId,
-        name: ILike(`%${searchTerm}%`),
-      },
-      relations: ['user'],
-    });
+  async findByUserIdAndSearchTerm(
+    userId: string,
+    searchTerm: string,
+    maxResults: number,
+    offset: number
+  ) {
+    const query = this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.client', 'client')
+      .leftJoinAndSelect('project.members', 'member')
+      .leftJoinAndSelect('member.currency', 'currency')
+      .leftJoinAndSelect('member.user', 'user')
+      .leftJoinAndSelect('user.subscriptions', 'subscriptions')
+      .where('project.user_owner_id = :userId', { userId })
+      .orderBy('project.created_at', 'DESC')
+      .take(maxResults)
+      .skip(offset);
+
+    if (searchTerm) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('project.name ILIKE :searchTerm', {
+            searchTerm: `%${searchTerm}%`,
+          })
+            .orWhere('client.name ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            })
+            .orWhere('user.email ILIKE :searchTerm', {
+              searchTerm: `%${searchTerm}%`,
+            });
+          // Добавьте другие поля для поиска здесь, если нужно
+        })
+      );
+    }
+
+    return query.getMany();
   }
 
   async createProjectMembersForExistingProjects(): Promise<void> {
@@ -222,7 +319,7 @@ const project = await this.projectRepository.findOne({
       const projectMember = this.projectMemberRepository.create({
         project_id: project.project_id,
         user_id: project.user_owner_id, // Assuming the owner is the user who created the project
-        role: ProjectRole.OWNER, // Set the role as OWNER
+        role: PROJECT_ROLE.OWNER, // Set the role as OWNER
         approve: true, // Assuming the owner is automatically approved
       });
 

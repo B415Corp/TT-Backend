@@ -21,10 +21,9 @@ import { User } from '../../entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { ChangeSubscriptionDto } from './dto/change-subscription.dto';
 import { ApiErrorResponses } from '../../common/decorators/api-error-responses.decorator';
 import { SearchUsersDto } from './dto/search-users.dto';
-import { SubscriptionGuard } from 'src/auth/guards/subscription.guard';
+import { SubscriptionGuard } from 'src/guards/subscription.guard';
 import { UserTypeDto } from './dto/user-type.dto';
 import { UserTypeV2Dto } from './dto/user-type-v2.dto';
 
@@ -32,6 +31,13 @@ import { UserTypeV2Dto } from './dto/user-type-v2.dto';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @ApiOperation({ summary: 'Show avatars' })
+  @ApiResponse({ status: 200 })
+  @Get('/avatar')
+  async showAvatar() {
+    return this.usersService.showAvatar();
+  }
 
   @Version('1')
   @ApiBearerAuth()
@@ -43,12 +49,16 @@ export class UsersController {
   async searchUsers(
     @Query() searchUsersDto: SearchUsersDto
   ): Promise<Array<UserTypeDto>> {
-    return this.usersService.searchUsers(searchUsersDto);
+    const { maxResults = 5, page = 1 } = searchUsersDto;
+    const offset = (page - 1) * maxResults;
+    return this.usersService.searchUsers(searchUsersDto, maxResults, offset);
   }
 
   @Version('2')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Enhanced search for users with additional data (v2)' })
+  @ApiOperation({
+    summary: 'Enhanced search for users with additional data (v2)',
+  })
   @ApiResponse({ status: 200, type: [UserTypeV2Dto] })
   @UseGuards(JwtAuthGuard, SubscriptionGuard)
   @Get('search')
@@ -82,51 +92,43 @@ export class UsersController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user details' })
-  @ApiResponse({ status: 200, type: User })
+  @ApiResponse({ status: 200, type: UserTypeDto })
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async me(@GetUser() user: User) {
-    return this.usersService.findById(user.user_id);
+  async me(@GetUser() user: User): Promise<UserTypeDto> {
+    return this.usersService.findById(user.user_id) as Promise<UserTypeDto>;
   }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a user by ID' })
-  @ApiResponse({ status: 200, type: User })
+  @ApiResponse({ status: 200, type: UserTypeDto })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiErrorResponses()
-  async findOne(@Param('id') id: string) {
-    return this.usersService.findById(id);
+  async findOne(@Param('id') id: string): Promise<UserTypeDto> {
+    return this.usersService.findById(id) as Promise<UserTypeDto>;
+  }
+
+  @ApiOperation({ summary: 'Find a user by ID' })
+  @ApiResponse({ status: 200, type: UserTypeDto })
+  @Get('find/:id')
+  async findUser(@GetUser() user: User, @Param('id') id: string): Promise<UserTypeDto | undefined> {
+    return this.usersService.findUser(id);
   }
 
   @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, type: User })
+  @ApiResponse({ status: 201, type: UserTypeDto })
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async register(@Body() createUserDto: CreateUserDto): Promise<UserTypeDto> {
+    return this.usersService.create(createUserDto) as Promise<UserTypeDto>;
   }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user details' })
-  @ApiResponse({ status: 200, type: User })
+  @ApiResponse({ status: 200, type: UserTypeDto })
   @UseGuards(JwtAuthGuard)
   @Patch('me')
-  async update(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto) {
+  async update(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto): Promise<UserTypeDto> {
     return this.usersService.update(user.user_id, updateUserDto);
-  }
-
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Change user subscription' })
-  @ApiResponse({ status: 200, type: User })
-  @UseGuards(JwtAuthGuard)
-  @Patch('me/subscription')
-  async changeSubscription(
-    @GetUser() user: User,
-    @Body() changeSubscriptionDto: ChangeSubscriptionDto
-  ) {
-    return this.usersService.changeSubscription(
-      user.user_id,
-      changeSubscriptionDto
-    );
   }
 }

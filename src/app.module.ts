@@ -18,6 +18,13 @@ import { ProjectSharedModule } from './api/project-shared/project-shared.module'
 import { GuardsModule } from './guards/guards.module';
 import { NotesModule } from './api/notes/notes.module';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import { PlansModule } from './api/plans/plans.module';
+import { SubscriptionsModule } from './api/subscriptions/subscriptions.module';
+import { SeederModule } from './seeder.module';
+import { FriendshipModule } from './api/friendship/friendship.module';
+import { NotificationModule } from './api/notification/notification.module';
+import { TaskStatusModule } from './api/task-status/task-status.module';
+import { TaskStatusColumnModule } from './api/task-status-column/task-status-column.module';
 
 @Module({
   imports: [
@@ -40,6 +47,7 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
       imports: [ConfigModule],
       useFactory: (configService: ConfigService): PostgresConnectionOptions => {
         const environment = configService.get('NODE_ENV');
+
         const dbConfig: PostgresConnectionOptions = {
           type: 'postgres',
           host: configService.get<string>('DB_HOST'),
@@ -49,13 +57,8 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
           database: configService.get<string>('DB_NAME'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
           synchronize: true,
-          logging: environment !== 'production' ? ["error"] : false, // Disable logging in production
+          logging: environment !== 'production' ? ['error'] : false, // Disable logging in production
         };
-
-        // console.log('Database connection config:', {
-        //   ...dbConfig,
-        //   host_port: configService.get<number>('PORT'),
-        // });
 
         return dbConfig;
       },
@@ -75,6 +78,13 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
     SearchModule,
     ProjectSharedModule,
     NotesModule,
+    PlansModule,
+    SeederModule,
+    SubscriptionsModule,
+    FriendshipModule,
+    NotificationModule,
+    TaskStatusModule,
+    TaskStatusColumnModule,
   ],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],

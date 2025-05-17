@@ -16,4 +16,6 @@ export class PaginationQueryDto {
   @IsInt()
   @Min(1)
   limit: number = 10;
+
+  
 }

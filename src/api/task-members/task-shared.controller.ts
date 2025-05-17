@@ -16,7 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AssignUserDto } from './dto/assign-user.dto';
-import { ProjectRole } from 'src/common/enums/project-role.enum';
+import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/guards/roles.decorator';
 import { GetUser } from 'src/decorators/get-user.decorator';
@@ -52,7 +52,7 @@ export class TaskSharedController {
   @ApiOperation({ summary: 'Assign a user to a task' })
   @ApiResponse({ status: 201, description: 'User assigned to task.' })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'task')
   @Post(':taskId')
   async assignUserToTask(
     @Param('taskId') taskId: string,
@@ -68,7 +68,7 @@ export class TaskSharedController {
   @ApiOperation({ summary: 'Remove a user from a task' })
   @ApiResponse({ status: 204, description: 'User removed from task.' })
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles([ProjectRole.OWNER, ProjectRole.MANAGER], 'project')
+  @Roles([PROJECT_ROLE.OWNER, PROJECT_ROLE.MANAGER], 'project')
   @Delete(':taskId/:userId')
   async removeUserFromTask(
     @Param('taskId') taskId: string,

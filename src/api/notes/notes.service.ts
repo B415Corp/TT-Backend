@@ -38,7 +38,17 @@ export class NotesService {
   }
 
   async findOne(notes_id: string, user_id: string): Promise<Notes> {
-    return this.notesRepository.findOneBy({ notes_id, user_id });
+    return this.notesRepository.findOne({
+      where: { notes_id, user_id },
+      order: { created_at: 'DESC' },
+      select: {
+        notes_id: true,
+        name: true,
+        text_content: true,
+        created_at: true,
+        updated_at: true,
+      },
+    });
   }
 
   async update(notes_id: string, updateData: UpdateNotesDto): Promise<Notes> {

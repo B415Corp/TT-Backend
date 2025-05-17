@@ -11,7 +11,7 @@ import { ProjectSharedService } from 'src/api/project-shared/project-shared.serv
 import { ProjectMember } from 'src/entities/project-shared.entity';
 import { Task } from 'src/entities/task.entity';
 import { Repository } from 'typeorm';
-import { ProjectRole } from '../common/enums/project-role.enum';
+import { PROJECT_ROLE } from '../common/enums/project-role.enum';
 import { ErrorMessages } from '../common/error-messages';
 
 @Injectable()
@@ -23,26 +23,32 @@ export class RoleGuard implements CanActivate {
     private projectMemberRepository: Repository<ProjectMember>,
     @InjectRepository(Task)
     private taskRepository: Repository<Task>
-  ) { }
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredRoles = this.reflector.get<ProjectRole[]>(
+    // Получаем требуемые роли
+    const requiredRoles = this.reflector.get<PROJECT_ROLE[]>(
       'roles',
       context.getHandler()
     );
     const source = this.reflector.get<string>('source', context.getHandler());
 
+    // Если роли не указаны
     if (!requiredRoles) {
       return true; // Если роли не указаны, доступ разрешен
     }
 
+    // Получаем ID пользователя, ID проекта и ID задачи
     const request = context.switchToHttp().getRequest();
     const userId: string = request.user.user_id; // ID пользователя
-    const projectId: string = request.params.id || request.body.project_id; // ID проекта
-    const taskId: string = request.params.task_id || request.body.task_id; // ID задачи
+    const projectId: string =
+      request.params.id || request.params.project_id || request.body.project_id; // ID проекта
+    const taskId: string =
+      request.params.task_id || request.params.taskId || request.body.task_id; // ID задачи
 
     let member: ProjectMember;
 
+    // Проверка роли в проекте
     if (source === 'project') {
       member = await this.getRoleInProjectShared(projectId, userId);
     } else if (source === 'task') {
@@ -51,6 +57,7 @@ export class RoleGuard implements CanActivate {
       throw new ForbiddenException('Неизвестный источник');
     }
 
+    // Если пользователь не найден
     if (!member) {
       throw new ForbiddenException('Доступ запрещен');
     }
@@ -62,6 +69,7 @@ export class RoleGuard implements CanActivate {
       );
     }
 
+    // Доступ разрешен
     return true;
   }
 
@@ -69,7 +77,6 @@ export class RoleGuard implements CanActivate {
     // Находим задачу
     const task = await this.taskRepository.findOne({
       where: { task_id: taskId },
-
     });
 
     if (!task) {
@@ -94,7 +101,7 @@ export class RoleGuard implements CanActivate {
     userId: string
   ): Promise<ProjectMember> {
     const projectShared = await this.projectMemberRepository.findOne({
-      where: { project_id: projectId, user_id: userId },
+      where: { project_id: projectId, user_id: userId, approve: true },
     });
     return projectShared;
   }

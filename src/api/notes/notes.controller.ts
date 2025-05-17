@@ -76,7 +76,7 @@ export class NotesController {
 
   @ApiBearerAuth()
   @ApiOkResponse({ type: Notes })
-  @ApiOperation({ summary: 'Get note by id' })
+  @ApiOperation({ summary: 'Update note by id' })
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
