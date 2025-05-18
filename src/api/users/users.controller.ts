@@ -39,6 +39,13 @@ export class UsersController {
     return this.usersService.showAvatar();
   }
 
+  @ApiOperation({ summary: 'ci-cd' })
+  @ApiResponse({ status: 200 })
+  @Get('/ci-cd')
+  async testCiCD() {
+    return { message: 'ci-cd' };
+  }
+
   @Version('1')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Search for users by name or email (v1)' })
@@ -112,7 +119,10 @@ export class UsersController {
   @ApiOperation({ summary: 'Find a user by ID' })
   @ApiResponse({ status: 200, type: UserTypeDto })
   @Get('find/:id')
-  async findUser(@GetUser() user: User, @Param('id') id: string): Promise<UserTypeDto | undefined> {
+  async findUser(
+    @GetUser() user: User,
+    @Param('id') id: string
+  ): Promise<UserTypeDto | undefined> {
     return this.usersService.findUser(id);
   }
 
@@ -128,7 +138,10 @@ export class UsersController {
   @ApiResponse({ status: 200, type: UserTypeDto })
   @UseGuards(JwtAuthGuard)
   @Patch('me')
-  async update(@GetUser() user: User, @Body() updateUserDto: UpdateUserDto): Promise<UserTypeDto> {
+  async update(
+    @GetUser() user: User,
+    @Body() updateUserDto: UpdateUserDto
+  ): Promise<UserTypeDto> {
     return this.usersService.update(user.user_id, updateUserDto);
   }
 }
