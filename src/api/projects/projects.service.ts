@@ -18,6 +18,7 @@ import { TaskStatusColumnService } from '../task-status-column/task-status-colum
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from 'src/common/enums/notification-type.enum';
 import { ProjectFilterDto } from './dto/project-filter.dto';
+import { GetProjectByIdDTO } from './dto/get-project-by-id.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -76,7 +77,7 @@ export class ProjectsService {
     return savedProject;
   }
 
-  async findById(id: string): Promise<Project> {
+  async findById(id: string, user_id: string): Promise<GetProjectByIdDTO> {
     const project = await this.projectRepository.find({
       where: { project_id: id },
       relations: [
@@ -122,7 +123,31 @@ export class ProjectsService {
       throw new NotFoundException(ErrorMessages.PROJECT_NOT_FOUND(id));
     }
 
-    return project[0];
+    const owner = project[0].members.find(
+      (member) => member.role === PROJECT_ROLE.OWNER
+    );
+
+    const invitedUsers = project[0].members.filter(
+      (member) => member.role !== PROJECT_ROLE.OWNER
+    );
+
+    const me: ProjectMember = project[0].members.find(
+      (member) => member.user.user_id === user_id
+    );
+
+    return {
+      project: project[0],
+      info: {
+        owner,
+        isUserOwner: owner.user.user_id === user_id,
+        invitedUsers,
+        myRate: owner?.rate,
+        myPaymentType: owner?.payment_type,
+        myRole: me?.role,
+        myCurrency: owner?.currency,
+        client: project[0].client,
+      },
+    };
   }
 
   async findMyProjects(

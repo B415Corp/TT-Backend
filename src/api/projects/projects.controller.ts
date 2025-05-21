@@ -34,6 +34,7 @@ import { Roles } from 'src/guards/roles.decorator';
 import { PROJECT_ROLE } from 'src/common/enums/project-role.enum';
 import { RoleGuard } from 'src/guards/role.guard';
 import { ProjectFilterDto } from './dto/project-filter.dto';
+import { GetProjectByIdDTO } from './dto/get-project-by-id.dto';
 
 @ApiTags('projects')
 @Controller('projects')
@@ -119,8 +120,11 @@ export class ProjectsController {
   })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async getProjectById(@Param('id') id: string) {
-    return this.projectsService.findById(id);
+  async getProjectById(
+    @GetUser() user: User,
+    @Param('id') id: string
+  ): Promise<GetProjectByIdDTO> {
+    return this.projectsService.findById(id,user.user_id);
   }
 
   @ApiBearerAuth()
