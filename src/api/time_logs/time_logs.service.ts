@@ -21,6 +21,7 @@ export class TimeLogsService {
     private userRepository: Repository<User>
   ) {}
 
+  // старт задачи
   async start(task_id: string, user_id: string): Promise<TimeLog> {
     if (!task_id || !user_id) {
       throw new BadRequestException(ErrorMessages.TASK_AND_USER_ID_REQUIRED);
@@ -55,6 +56,23 @@ export class TimeLogsService {
     return this.timeLogRepository.save(time_log);
   }
 
+  // Подсчёт общего времени по всем задачам проекта
+  async getTotalDurationByProject(project_id: string): Promise<number> {
+    if (!project_id) {
+      throw new BadRequestException('Необходимо указать project_id.');
+    }
+
+    const result = await this.timeLogRepository
+      .createQueryBuilder('time_log')
+      .leftJoin('time_log.task', 'task')
+      .select('SUM(time_log.duration)', 'total_duration')
+      .where('task.project_id = :project_id', { project_id })
+      .getRawOne();
+
+    return Number(result?.total_duration ?? 0);
+  }
+
+  // завершение задачи
   async stop(task_id: string, client_time: string): Promise<TimeLog> {
     // Если task_id не указан
     if (!task_id) {
@@ -98,6 +116,7 @@ export class TimeLogsService {
     });
   }
 
+  // получение лога по id
   async findById(id: string): Promise<TimeLog> {
     const timeLog = await this.timeLogRepository.findOneBy({ log_id: id });
     if (!timeLog) {
@@ -106,6 +125,7 @@ export class TimeLogsService {
     return timeLog;
   }
 
+  // получение логов по задаче и пользователю
   async findTimeLogsByTaskId(
     task_id: string,
     user_id: string,
@@ -152,7 +172,7 @@ export class TimeLogsService {
 
     return [projects, total];
   }
-
+  // получение последнего лога в процессе задачи
   async findLatestLogInTask(task_id: string, user_id: string) {
     if (!task_id || !user_id) {
       throw new BadRequestException(ErrorMessages.TASK_AND_USER_ID_REQUIRED);
@@ -193,6 +213,7 @@ export class TimeLogsService {
     return latestLog;
   }
 
+  // удаление лога
   async remove(time_log_id: string): Promise<void> {
     if (!time_log_id) {
       throw new BadRequestException(ErrorMessages.TIME_LOG_ID_REQUIRED(''));
@@ -207,6 +228,7 @@ export class TimeLogsService {
     }
   }
 
+  // получение последнего лога пользователя
   async findLatestLogByUserId(userId: string): Promise<TimeLog> {
     if (!userId) {
       throw new BadRequestException(ErrorMessages.TOKEN_REQUIRED);
@@ -257,13 +279,17 @@ export class TimeLogsService {
     return latestLog;
   }
 
+  // получение статистики по задаче
   async timeLogsStatsByTask(task_id: string): Promise<{
     total_logs: number;
     total_duration: number;
     max_duration: number;
     min_duration: number;
     average_duration: number;
-    users: Array<{ user: Omit<User, 'password' | 'created_at' | 'updated_at'> | null; role: string }>;
+    users: Array<{
+      user: Omit<User, 'password' | 'created_at' | 'updated_at'> | null;
+      role: string;
+    }>;
     first_log: Date | null;
     last_log: Date | null;
   }> {
@@ -300,7 +326,10 @@ export class TimeLogsService {
     const userIds = result.map((row) => row.user_id).filter(Boolean);
 
     // Получаем пользователей по user_id
-    const usersMap: Record<string, Omit<User, 'password' | 'created_at' | 'updated_at'>> = {};
+    const usersMap: Record<
+      string,
+      Omit<User, 'password' | 'created_at' | 'updated_at'>
+    > = {};
     if (userIds.length > 0) {
       const users = await this.userRepository.findByIds(userIds);
       users.forEach((user) => {

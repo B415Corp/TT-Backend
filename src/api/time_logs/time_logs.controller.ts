@@ -41,6 +41,16 @@ export class TimeLogsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Получить общее затраченное время по всем задачам проекта' })
+  @ApiResponse({ status: 200, type: Number, description: 'Общее время (duration) по проекту в миллисекундах' })
+  @Get('/project/:project_id/total-duration')
+  async getTotalDurationByProject(@Param('project_id') project_id: string) {
+    const total = await this.timeLogsService.getTotalDurationByProject(project_id);
+    return { total_duration: total };
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get the latest time log for the user' })
   @ApiResponse({ status: 200, type: TimeLog })
   @Get('/latest')

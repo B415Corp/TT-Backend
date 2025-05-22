@@ -11,6 +11,7 @@ import { ProjectSharedModule } from '../project-shared/project-shared.module';
 import { GuardsModule } from '../../guards/guards.module';
 import { TaskStatusColumnModule } from '../task-status-column/task-status-column.module';
 import { NotificationModule } from '../notification/notification.module';
+import { TimeLogsModule } from '../time_logs/time_logs.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { NotificationModule } from '../notification/notification.module';
     TaskStatusColumnModule,
     NotificationModule,
     GuardsModule,
+    TimeLogsModule,
   ],
   providers: [ProjectsService],
   exports: [ProjectsService],

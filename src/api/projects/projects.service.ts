@@ -19,6 +19,7 @@ import { NotificationService } from '../notification/notification.service';
 import { NotificationType } from 'src/common/enums/notification-type.enum';
 import { ProjectFilterDto } from './dto/project-filter.dto';
 import { GetProjectByIdDTO } from './dto/get-project-by-id.dto';
+import { TimeLogsService } from '../time_logs/time_logs.service';
 
 @Injectable()
 export class ProjectsService {
@@ -32,7 +33,8 @@ export class ProjectsService {
     @InjectRepository(ProjectMember)
     private projectMemberRepository: Repository<ProjectMember>,
     private taskStatusColumnService: TaskStatusColumnService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private timeLogsService: TimeLogsService
   ) {}
 
   async create(dto: CreateProjectDto, user_owner_id: string): Promise<Project> {
@@ -135,6 +137,11 @@ export class ProjectsService {
       (member) => member.user.user_id === user_id
     );
 
+    const projectDuration: number =
+      await this.timeLogsService.getTotalDurationByProject(
+        project[0].project_id
+      );
+
     return {
       project: project[0],
       info: {
@@ -146,6 +153,7 @@ export class ProjectsService {
         myRole: me?.role,
         myCurrency: owner?.currency,
         client: project[0].client,
+        projectDuration: projectDuration,
       },
     };
   }

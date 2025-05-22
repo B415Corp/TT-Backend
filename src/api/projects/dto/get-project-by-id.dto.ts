@@ -30,6 +30,9 @@ export class ProjectInfoDTO {
   @ApiProperty()
   client: Client;
 
+  @ApiProperty({type: Number})
+  projectDuration: number;
+
   @ApiProperty({ enum: PROJECT_ROLE, default: PROJECT_ROLE.EXECUTOR })
   @IsEnum(PROJECT_ROLE)
   @IsNotEmpty()
